@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Eat Out Oz — Sydney dining finder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Work+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#DE3937;
+    --ink-soft:#B32E2C;
+    --paper:#FFFFFF;
+    --paper-dim:#FBEBEA;
+    --brass:#C42B29;
+    --brass-bright:#F0524F;
+    --sage:#4F8A5B;
+    --rust:#8A8078;
+    --line:#F0D9D8;
+    --text:#241412;
+    --text-dim:#7A6E6A;
+    --radius:2px;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--text);
+    font-family:'Work Sans', sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  ::selection{background:var(--brass-bright);color:var(--ink);}
+
+  /* ---------- HEADER ---------- */
+  header{
+    background:var(--ink);
+    color:var(--paper);
+    padding:56px 24px 40px;
+    position:relative;
+    overflow:hidden;
+  }
+  header::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    background-image:
+      repeating-linear-gradient(90deg, rgba(255,255,255,0.06) 0px, rgba(255,255,255,0.06) 1px, transparent 1px, transparent 64px);
+    pointer-events:none;
+  }
+  .header-inner{max-width:1080px;margin:0 auto;position:relative;}
+  .eyebrow{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    letter-spacing:0.18em;
+    text-transform:uppercase;
+    color:var(--brass-bright);
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-bottom:18px;
+  }
+  .eyebrow::before{content:"";width:22px;height:1px;background:var(--brass-bright);display:inline-block;}
+  .logo-row{display:flex;align-items:center;gap:14px;margin-bottom:6px;}
+  .logo-row img{height:44px;width:auto;border-radius:4px;background:var(--paper);padding:4px 6px;}
+  h1{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size:clamp(38px, 6vw, 68px);
+    line-height:1.02;
+    margin:0 0 18px;
+    letter-spacing:-0.01em;
+  }
+  h1 em{font-style:italic;font-weight:400;color:var(--brass-bright);}
+  .sub{
+    max-width:520px;
+    font-size:16px;
+    line-height:1.55;
+    color:#FBDAD9;
+    margin-bottom:34px;
+  }
+
+  /* search + controls */
+  .controls{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    align-items:center;
+  }
+  .search-wrap{
+    flex:1 1 320px;
+    position:relative;
+  }
+  .search-form{
+    display:flex;
+    gap:8px;
+    flex:1 1 320px;
+    position:relative;
+  }
+  .search-wrap input{
+    width:100%;
+    background:var(--paper);
+    border:1px solid transparent;
+    color:var(--ink);
+    padding:16px 16px 16px 42px;
+    font-family:'Work Sans',sans-serif;
+    font-size:16px;
+    border-radius:var(--radius);
+    outline:none;
+  }
+  .search-wrap input:focus{outline:2px solid var(--brass-bright);outline-offset:1px;}
+  .search-wrap svg{position:absolute;left:14px;top:50%;transform:translateY(-50%);opacity:0.55;z-index:2;}
+  .search-btn{
+    font-family:'Work Sans',sans-serif;
+    font-weight:600;
+    font-size:15px;
+    background:var(--brass);
+    color:var(--ink);
+    border:none;
+    padding:0 24px;
+    border-radius:var(--radius);
+    cursor:pointer;
+    transition:background .15s ease;
+  }
+  .search-btn:hover{background:var(--brass-bright);}
+  .suggestions{
+    position:absolute;
+    top:calc(100% + 6px);
+    left:0;
+    right:0;
+    background:#FFFDF8;
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    box-shadow:0 14px 28px -12px rgba(27,36,48,0.35);
+    overflow:hidden;
+    z-index:30;
+    display:none;
+  }
+  .suggestions.show{display:block;}
+  .suggestion-item{
+    padding:11px 16px;
+    font-size:14px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    cursor:pointer;
+    border-bottom:1px solid var(--line);
+    color:var(--text);
+  }
+  .suggestion-item:last-child{border-bottom:none;}
+  .suggestion-item:hover{background:var(--paper-dim);}
+  .suggestion-item .s-meta{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    color:var(--text-dim);
+  }
+
+  select{
+    background:var(--ink-soft);
+    color:var(--paper);
+    border:1px solid #46536422;
+    padding:13px 14px;
+    font-family:'Work Sans',sans-serif;
+    font-size:14px;
+    border-radius:var(--radius);
+    cursor:pointer;
+    border:1px solid rgba(246,241,230,0.18);
+  }
+
+  /* ---------- CATEGORY TABS ---------- */
+  .tabs{
+    max-width:1080px;
+    margin:-24px auto 0;
+    padding:0 24px;
+    position:relative;
+    z-index:2;
+    display:flex;
+    gap:0;
+    flex-wrap:wrap;
+  }
+  .tab{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:13px;
+    letter-spacing:0.04em;
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-bottom:none;
+    padding:14px 22px 12px;
+    cursor:pointer;
+    color:var(--text-dim);
+    display:flex;
+    align-items:center;
+    gap:8px;
+    transition:color .15s ease, background .15s ease;
+  }
+  .tab .count{
+    font-size:11px;
+    background:var(--paper-dim);
+    padding:1px 6px;
+    border-radius:10px;
+    color:var(--text-dim);
+  }
+  .tab.active{
+    background:var(--paper);
+    color:var(--ink);
+    font-weight:600;
+    box-shadow: inset 0 3px 0 var(--brass);
+  }
+  .tab.active .count{background:var(--brass);color:var(--paper);}
+  .tab:hover:not(.active){color:var(--ink);}
+
+  main{
+    max-width:1080px;
+    margin:0 auto;
+    padding:36px 24px 80px;
+    border-top:1px solid var(--line);
+  }
+
+  .meta-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    margin-bottom:22px;
+    flex-wrap:wrap;
+    gap:10px;
+  }
+  .meta-row h2{
+    font-family:'Fraunces', serif;
+    font-size:22px;
+    font-weight:600;
+    margin:0;
+  }
+  .result-note{font-family:'IBM Plex Mono', monospace;font-size:12px;color:var(--text-dim);}
+
+  /* ---------- GRID / CARDS ---------- */
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(310px, 1fr));
+    gap:20px;
+  }
+  .card{
+    background:#FFFDF8;
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:22px 22px 18px;
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+    position:relative;
+    transition:transform .15s ease, box-shadow .15s ease;
+  }
+  .card:hover{
+    transform:translateY(-3px);
+    box-shadow:0 14px 28px -18px rgba(27,36,48,0.35);
+  }
+  .card-top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;}
+  .card-title{
+    font-family:'Fraunces', serif;
+    font-size:19px;
+    font-weight:600;
+    line-height:1.2;
+    margin:0;
+  }
+  .card-sub{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11.5px;
+    color:var(--text-dim);
+    text-transform:uppercase;
+    letter-spacing:0.05em;
+    margin-top:4px;
+  }
+  .badge{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:10.5px;
+    padding:3px 8px;
+    border-radius:20px;
+    white-space:nowrap;
+    letter-spacing:0.03em;
+    height:fit-content;
+  }
+  .badge.open{background:#5F7A5E1a;color:var(--sage);border:1px solid #5F7A5E55;}
+  .badge.closed{background:#9C4A3A1a;color:var(--rust);border:1px solid #9C4A3A55;}
+
+  .rating-row{display:flex;align-items:center;gap:8px;font-size:13.5px;}
+  .stars{color:var(--brass);letter-spacing:1px;font-size:13px;}
+  .rating-count{color:var(--text-dim);font-size:12.5px;}
+
+  .price-ticket{
+    border-top:1px dashed var(--line);
+    border-bottom:1px dashed var(--line);
+    padding:10px 0;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    font-family:'IBM Plex Mono', monospace;
+  }
+  .price-label{font-size:11.5px;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.05em;}
+  .price-value{font-size:16px;font-weight:600;color:var(--ink);}
+
+  .hours-line{font-size:12.5px;color:var(--text-dim);display:flex;gap:6px;align-items:center;}
+
+  .card-actions{
+    display:flex;
+    gap:8px;
+    margin-top:auto;
+    padding-top:6px;
+    flex-wrap:wrap;
+  }
+  .card-actions a{
+    flex:1;
+    text-align:center;
+    font-family:'Work Sans',sans-serif;
+    font-size:12.5px;
+    font-weight:600;
+    text-decoration:none;
+    padding:9px 10px;
+    border-radius:var(--radius);
+    border:1px solid var(--ink);
+    color:var(--ink);
+    transition:background .15s ease, color .15s ease;
+  }
+  .card-actions a.primary{background:var(--ink);color:var(--paper);}
+  .card-actions a.primary:hover{background:var(--brass);border-color:var(--brass);}
+  .card-actions a:not(.primary):hover{background:var(--paper-dim);}
+
+  .empty{
+    text-align:center;
+    padding:70px 20px;
+    color:var(--text-dim);
+    font-family:'IBM Plex Mono', monospace;
+    font-size:14px;
+  }
+
+  .landing{
+    text-align:center;
+    padding:60px 20px 40px;
+  }
+  .landing-title{
+    font-family:'Fraunces', serif;
+    font-size:22px;
+    font-weight:600;
+    margin:0 0 8px;
+    color:var(--text);
+  }
+  .landing-sub{
+    font-family:'Work Sans', sans-serif;
+    font-size:14px;
+    color:var(--text-dim);
+    margin:0 0 26px;
+  }
+  .chip-row{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    justify-content:center;
+    max-width:640px;
+    margin:0 auto;
+  }
+  .chip{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:13px;
+    background:#FFFDF8;
+    border:1px solid var(--line);
+    padding:9px 18px;
+    border-radius:20px;
+    cursor:pointer;
+    color:var(--text);
+    transition:background .15s ease, border-color .15s ease;
+  }
+  .chip:hover{background:var(--paper-dim);border-color:var(--ink);}
+
+  footer{
+    max-width:1080px;
+    margin:0 auto;
+    padding:30px 24px 60px;
+    color:var(--text-dim);
+    font-size:12.5px;
+    font-family:'IBM Plex Mono', monospace;
+    border-top:1px solid var(--line);
+    line-height:1.6;
+  }
+
+  @media (max-width:640px){
+    .tabs{margin-top:-16px;}
+    .tab{padding:12px 14px 10px;font-size:12px;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="logo-row"><img src="data:image/png;base64,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" alt="Logo"></div>
+    <div class="eyebrow">Sydney · live prototype</div>
+    <h1>Where to eat<br><em>tonight</em>, sorted.</h1>
+    <p class="sub">Cafés, restaurants and takeaway in one list — with a real cost-per-head estimate so nobody gets surprised by the bill.</p>
+    <div class="controls">
+      <div class="search-form">
+        <div class="search-wrap">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1B2430" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input id="searchInput" type="text" placeholder="Search a restaurant, cafe, cuisine or suburb…" autocomplete="off">
+          <div class="suggestions" id="suggestions"></div>
+        </div>
+        <button class="search-btn" id="searchBtn" type="button">Search</button>
+      </div>
+      <select id="cuisineFilter">
+        <option value="">Any cuisine</option>
+        <option value="Italian">Italian</option>
+        <option value="Thai">Thai</option>
+        <option value="Chinese">Chinese</option>
+        <option value="Japanese">Japanese</option>
+        <option value="Indian">Indian</option>
+        <option value="Mexican">Mexican</option>
+        <option value="Vietnamese">Vietnamese</option>
+        <option value="Korean">Korean</option>
+        <option value="Lebanese">Lebanese</option>
+        <option value="Greek">Greek</option>
+        <option value="Modern Australian">Modern Australian</option>
+        <option value="Seafood">Seafood</option>
+        <option value="Vegan">Vegan</option>
+        <option value="Pizza">Pizza</option>
+        <option value="Burger">Burger</option>
+      </select>
+      <select id="suburbFilter"><option value="all">All suburbs</option></select>
+      <select id="sortSelect">
+        <option value="rating">Sort: highest rated</option>
+        <option value="price_asc">Sort: cheapest first</option>
+        <option value="price_desc">Sort: priciest first</option>
+        <option value="name">Sort: A–Z</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+<nav class="tabs" id="tabs" style="display:none;"></nav>
+
+<main>
+  <div class="landing" id="landing">
+    <p class="landing-title">Search a suburb to see what's around</p>
+    <p class="landing-sub">Or try one of these to start browsing</p>
+    <div class="chip-row" id="chipRow"></div>
+  </div>
+  <div class="meta-row" id="metaRow" style="display:none;">
+    <h2 id="sectionTitle">All spots</h2>
+    <div class="result-note" id="resultNote"></div>
+  </div>
+  <div class="grid" id="grid"></div>
+  <div class="empty" id="emptyState" style="display:none;">No spots match that search — try another suburb or keyword.</div>
+</main>
+
+<footer>
+  PROTOTYPE — venue data pulled live from Google Places for demonstration.<br>
+  Cost-per-head figures are estimates derived from category + published price level, not menu totals. Always confirm with the venue.
+</footer>
+
+<script>
+const DATA = [
+  // ---- CAFES ----
+  {name:"The Walrus Sydney CBD", category:"cafe", cuisine:"Café & Breakfast", suburb:"Sydney CBD", address:"Shop 1/276 Pitt St, Sydney NSW 2000", rating:4.4, reviews:1054, price:[25,35], hours:{Monday:"6:00 AM–3:00 PM",Tuesday:"6:00 AM–3:00 PM",Wednesday:"6:00 AM–3:00 PM",Thursday:"6:00 AM–3:00 PM",Friday:"6:00 AM–3:00 PM",Saturday:"6:00 AM–3:00 PM",Sunday:"6:00 AM–2:00 PM"}, place_id:"ChIJSWzs2z2uEmsRan3a5PCuTjM", phone:"+61 410 693 192"},
+  {name:"The Grounds of The City", category:"cafe", cuisine:"Café & Breakfast", suburb:"Sydney CBD", address:"Shop RG 12/500 George St, Sydney NSW 2000", rating:4.2, reviews:6400, price:[30,45], hours:{Monday:"7:00 AM–9:00 PM",Tuesday:"7:00 AM–9:00 PM",Wednesday:"7:00 AM–9:00 PM",Thursday:"7:00 AM–9:00 PM",Friday:"7:00 AM–9:00 PM",Saturday:"8:00 AM–9:30 PM",Sunday:"8:00 AM–5:00 PM"}, place_id:"ChIJ2QUmiz6uEmsRQfMmet7xkzs", phone:"+61 2 9699 2225"},
+  {name:"La Famiglia Cafe", category:"cafe", cuisine:"Café & Italian", suburb:"Sydney CBD", address:"284 Pitt St, Sydney NSW 2000", rating:4.8, reviews:726, price:[20,30], hours:{Monday:"5:00 AM–3:00 PM",Tuesday:"5:00 AM–3:00 PM",Wednesday:"5:00 AM–3:00 PM",Thursday:"5:00 AM–3:00 PM",Friday:"5:00 AM–2:30 PM",Saturday:"6:00–11:30 AM",Sunday:"Closed"}, place_id:"ChIJ4RQIt2OvEmsRWYP8zvGu9VY", phone:"+61 2 8065 9449"},
+  {name:"Regiment Specialty Coffee", category:"cafe", cuisine:"Café & Coffee", suburb:"Sydney CBD", address:"333 George St, Sydney NSW 2000", rating:4.3, reviews:446, price:[18,28], hours:{Monday:"7:00 AM–4:00 PM",Tuesday:"7:00 AM–4:00 PM",Wednesday:"7:00 AM–4:00 PM",Thursday:"7:00 AM–4:00 PM",Friday:"7:00 AM–4:00 PM",Saturday:"Closed",Sunday:"Closed"}, place_id:"ChIJK7gEjUCuEmsRoOoezoNj8fQ", phone:"+61 2 9299 4001"},
+  {name:"Pablo & Rusty's Sydney CBD", category:"cafe", cuisine:"Café & Coffee", suburb:"Sydney CBD", address:"161 Castlereagh St, Sydney NSW 2000", rating:4.3, reviews:786, price:[20,30], hours:{Monday:"7:30 AM–2:30 PM",Tuesday:"7:30 AM–2:30 PM",Wednesday:"7:30 AM–2:30 PM",Thursday:"7:30 AM–2:30 PM",Friday:"7:30 AM–2:30 PM",Saturday:"8:00 AM–2:00 PM",Sunday:"Closed"}, place_id:"ChIJlQzbPT6uEmsRdMutKU9hWds", phone:null},
+  {name:"Industry Beans York St", category:"cafe", cuisine:"Café & Brunch", suburb:"Sydney CBD", address:"Shop 2/40 York St, Sydney NSW 2000", rating:4.6, reviews:2377, price:[25,35], hours:{Monday:"7:00 AM–3:30 PM",Tuesday:"7:00 AM–3:30 PM",Wednesday:"7:00 AM–3:30 PM",Thursday:"7:00 AM–3:30 PM",Friday:"7:00 AM–3:30 PM",Saturday:"8:00 AM–3:30 PM",Sunday:"8:00 AM–3:30 PM"}, place_id:"ChIJeWDDDNOvEmsRF8SMPUwPbhw", phone:"+61 2 9188 8501"},
+  {name:"TenTo", category:"cafe", cuisine:"Café & Japanese", suburb:"Surry Hills", address:"3/8 Hill St, Surry Hills NSW 2010", rating:4.5, reviews:955, price:[25,35], hours:{Monday:"9:00 AM–2:45 PM",Tuesday:"9:00 AM–2:45 PM",Wednesday:"9:00 AM–2:45 PM, 5:30–9:30 PM",Thursday:"9:00 AM–2:45 PM, 5:30–9:30 PM",Friday:"9:00 AM–2:45 PM, 5:30–9:30 PM",Saturday:"9:00 AM–2:45 PM, 5:30–9:30 PM",Sunday:"9:00 AM–2:45 PM"}, place_id:"ChIJ0W6iFVCvEmsR02zSDYH9DEs", phone:null},
+
+  // ---- RESTAURANTS ----
+  {name:"NOMAD Sydney", category:"restaurant", cuisine:"Australian & Wine Bar", suburb:"Surry Hills", address:"16 Foster St, Surry Hills NSW 2010", rating:4.6, reviews:2821, price:[70,100], hours:{Monday:"5:30–9:30 PM",Tuesday:"5:30–9:30 PM",Wednesday:"12:00–2:30 PM, 5:30–9:30 PM",Thursday:"12:00–2:30 PM, 5:30–9:30 PM",Friday:"12:00–2:30 PM, 5:30–10:00 PM",Saturday:"12:00–2:30 PM, 5:00–10:00 PM",Sunday:"12:00–2:30 PM, 5:30–8:30 PM"}, place_id:"ChIJVyiVBxiuEmsRvRl_kNMT5-A", phone:"+61 2 9280 3395"},
+  {name:"Mishy's Sydney", category:"restaurant", cuisine:"Modern Bistro", suburb:"Surry Hills", address:"113 Reservoir St, Surry Hills NSW 2010", rating:4.9, reviews:422, price:[55,75], hours:{Monday:"Closed",Tuesday:"11:00 AM–3:00 PM",Wednesday:"11:00 AM–3:00 PM, 5:30–10:00 PM",Thursday:"11:00 AM–3:00 PM, 5:30–10:00 PM",Friday:"11:00 AM–10:00 PM",Saturday:"11:00 AM–3:00 PM, 5:30–10:00 PM",Sunday:"11:00 AM–3:00 PM"}, place_id:"ChIJSV3N8w2vEmsRXYee7WsX0wk", phone:"+61 2 5657 2925"},
+  {name:"NOUR", category:"restaurant", cuisine:"Lebanese Fine Dining", suburb:"Surry Hills", address:"3/490 Crown St, Surry Hills NSW 2010", rating:4.8, reviews:3352, price:[80,110], hours:{Monday:"5:30–9:00 PM",Tuesday:"5:30–9:00 PM",Wednesday:"5:30–9:00 PM",Thursday:"12:00–3:00 PM, 5:30–9:30 PM",Friday:"12:00–3:00 PM, 5:30–10:00 PM",Saturday:"12:00–3:00 PM, 5:30–10:00 PM",Sunday:"12:00–3:00 PM, 5:00–9:00 PM"}, place_id:"ChIJJVDZ3B6uEmsRh5d3g-9xJio", phone:"+61 2 9331 3413"},
+  {name:"Jane Surry Hills", category:"restaurant", cuisine:"Australian Fine Dining", suburb:"Surry Hills", address:"478 Bourke St, Surry Hills NSW 2010", rating:4.7, reviews:903, price:[90,120], hours:{Monday:"5:00–10:00 PM",Tuesday:"5:00–10:00 PM",Wednesday:"5:00–10:00 PM",Thursday:"5:00–10:00 PM",Friday:"12:00–11:30 PM",Saturday:"12:00–11:30 PM",Sunday:"12:00–10:00 PM"}, place_id:"ChIJuYrpKvOvEmsRYy6keJHBp2o", phone:"+61 403 632 355"},
+  {name:"VIVO 78", category:"restaurant", cuisine:"Italian & Pizza", suburb:"Surry Hills", address:"78 Campbell St, Surry Hills NSW 2010", rating:4.7, reviews:262, price:[40,55], hours:{Monday:"5:00–9:00 PM",Tuesday:"5:00–9:00 PM",Wednesday:"5:00–9:00 PM",Thursday:"12:00–2:30 PM, 5:00–9:00 PM",Friday:"12:00–2:30 PM, 5:00–9:30 PM",Saturday:"5:00–9:30 PM",Sunday:"5:00–9:00 PM"}, place_id:"ChIJCcvSpSKuEmsR8JTYXgM_FxQ", phone:"+61 2 9874 8839"},
+  {name:"Best Gourmet Restaurant", category:"restaurant", cuisine:"Chinese", suburb:"Newtown", address:"234 King St, Newtown NSW 2042", rating:4.8, reviews:3807, price:[20,30], hours:{Monday:"12:00–3:00 PM, 5:00–10:00 PM",Tuesday:"12:00–3:00 PM, 5:00–10:00 PM",Wednesday:"5:00–10:00 PM",Thursday:"12:00–3:00 PM, 5:00–10:00 PM",Friday:"12:00–3:00 PM, 5:00–10:30 PM",Saturday:"12:00–3:00 PM, 5:00–10:30 PM",Sunday:"12:00–3:00 PM, 5:00–10:00 PM"}, place_id:"ChIJx_jVoCSuEmsR_79nFpyS3Z4", phone:"+61 422 134 388"},
+  {name:"don Fred", category:"restaurant", cuisine:"Vegan Italian", suburb:"Newtown", address:"28 King St, Newtown NSW 2042", rating:4.9, reviews:700, price:[60,80], hours:{Monday:"Closed",Tuesday:"5:00–9:00 PM",Wednesday:"5:00–9:00 PM",Thursday:"5:00–9:00 PM",Friday:"5:00–9:00 PM",Saturday:"12:00–9:00 PM",Sunday:"12:00–8:00 PM"}, place_id:"ChIJhWaPhy2xEmsRdnP8moUNRFM", phone:null},
+  {name:"Thai Tip Street Food", category:"restaurant", cuisine:"Thai", suburb:"Newtown", address:"534 King St, Newtown NSW 2042", rating:4.9, reviews:156, price:[25,35], hours:{Monday:"11:30 AM–9:30 PM",Tuesday:"11:30 AM–9:00 PM",Wednesday:"11:30 AM–9:00 PM",Thursday:"11:30 AM–9:00 PM",Friday:"11:30 AM–9:30 PM",Saturday:"11:30 AM–9:30 PM",Sunday:"11:30 AM–9:30 PM"}, place_id:"ChIJWVkzG0-xEmsR0RDAHgvQPIY", phone:"+61 2 9519 9076"},
+  {name:"Casa Mia Osteria", category:"restaurant", cuisine:"Italian", suburb:"Newtown", address:"9/605 King St, Newtown NSW 2042", rating:4.6, reviews:462, price:[45,60], hours:{Monday:"Closed",Tuesday:"5:00–9:00 PM",Wednesday:"5:00–9:00 PM",Thursday:"5:00–9:00 PM",Friday:"5:00–9:30 PM",Saturday:"5:00–9:30 PM",Sunday:"5:00–9:00 PM"}, place_id:"ChIJG7ey8VqxEmsRSZWdOoZNCkU", phone:"+61 2 9557 1328"},
+  {name:"Thai Pothong", category:"restaurant", cuisine:"Thai", suburb:"Newtown", address:"294 King St, Newtown NSW 2042", rating:4.7, reviews:5920, price:[35,50], hours:{Monday:"12:00–3:30 PM, 5:30–10:00 PM",Tuesday:"12:00–3:30 PM, 5:30–10:00 PM",Wednesday:"12:00–3:30 PM, 5:30–10:00 PM",Thursday:"12:00–3:30 PM, 5:30–10:00 PM",Friday:"12:00–3:30 PM, 5:30–11:00 PM",Saturday:"12:00–3:30 PM, 5:30–11:00 PM",Sunday:"12:00–3:30 PM, 5:30–10:00 PM"}, place_id:"ChIJa5INSTGwEmsRlBrt1bZVYiQ", phone:"+61 2 9550 6277"},
+  {name:"North Bondi Fish", category:"restaurant", cuisine:"Seafood", suburb:"Bondi", address:"120 Ramsgate Ave, North Bondi NSW 2026", rating:4.1, reviews:1284, price:[55,80], hours:{Monday:"Closed",Tuesday:"Closed",Wednesday:"12:00–8:30 PM",Thursday:"12:00–8:30 PM",Friday:"12:00–10:00 PM",Saturday:"12:00–10:00 PM",Sunday:"12:00–6:00 PM"}, place_id:"ChIJ70O7r3WtEmsRJsr622aiB6c", phone:"+61 2 9130 2155"},
+  {name:"Sushi & Grill @ York Street", category:"restaurant", cuisine:"Japanese", suburb:"Sydney CBD", address:"119 York St, Sydney NSW 2000", rating:4.5, reviews:760, price:[25,35], hours:{Monday:"11:30 AM–3:00 PM, 5:30–9:30 PM",Tuesday:"11:30 AM–3:00 PM, 5:30–9:30 PM",Wednesday:"11:30 AM–3:00 PM, 5:30–9:30 PM",Thursday:"11:30 AM–3:00 PM, 5:30–9:30 PM",Friday:"11:30 AM–3:00 PM, 5:30–9:30 PM",Saturday:"Closed",Sunday:"Closed"}, place_id:"ChIJ453w6z6uEmsREm6g2UYjspo", phone:"+61 2 9264 7888"},
+  {name:"Sushi Hotaru Charcoal Bar", category:"restaurant", cuisine:"Japanese", suburb:"Sydney CBD", address:"LG2/455 George St, Sydney NSW 2000", rating:4.5, reviews:531, price:[30,45], hours:{Monday:"11:30 AM–9:00 PM",Tuesday:"11:30 AM–9:00 PM",Wednesday:"11:30 AM–9:00 PM",Thursday:"11:30 AM–9:30 PM",Friday:"11:30 AM–9:30 PM",Saturday:"11:30 AM–9:30 PM",Sunday:"11:30 AM–9:00 PM"}, place_id:"ChIJ0Rq0_K2vEmsRkr3_yG4RtGs", phone:"+61 2 8288 9093"},
+  {name:"Restaurant 317", category:"restaurant", cuisine:"Italian", suburb:"Parramatta", address:"317 Church St, Parramatta NSW 2150", rating:4.4, reviews:3641, price:[35,55], hours:{Monday:"11:30 AM–9:30 PM",Tuesday:"11:30 AM–9:30 PM",Wednesday:"11:30 AM–9:30 PM",Thursday:"11:30 AM–9:30 PM",Friday:"11:30 AM–10:30 PM",Saturday:"11:30 AM–10:30 PM",Sunday:"11:30 AM–9:30 PM"}, place_id:"ChIJm-Qsgh6jEmsRCLEfMPSSm10", phone:"+61 2 9893 8188"},
+
+  // ---- TAKEAWAY ----
+  {name:"Bondi Road Seafoods", category:"takeaway", cuisine:"Fish & Chips", suburb:"Bondi", address:"279 Bondi Rd, Bondi NSW 2026", rating:4.5, reviews:578, price:[15,25], hours:{Monday:"Closed",Tuesday:"Closed",Wednesday:"Closed",Thursday:"10:00 AM–8:00 PM",Friday:"10:00 AM–8:00 PM",Saturday:"10:00 AM–8:00 PM",Sunday:"10:00 AM–8:00 PM"}, place_id:"ChIJoYoc94-tEmsR72ne6U-IsA0", phone:"+61 2 9130 6465"},
+  {name:"Bondi Surf Seafoods", category:"takeaway", cuisine:"Fish & Chips", suburb:"Bondi Beach", address:"128 Campbell Parade, Bondi Beach NSW 2026", rating:3.7, reviews:614, price:[12,20], hours:{Monday:"10:00 AM–8:00 PM",Tuesday:"10:00 AM–8:00 PM",Wednesday:"10:00 AM–8:00 PM",Thursday:"10:00 AM–8:00 PM",Friday:"10:00 AM–8:00 PM",Saturday:"10:00 AM–8:00 PM",Sunday:"10:00 AM–8:00 PM"}, place_id:"ChIJySpJ95utEmsRJw5C2cxfeSs", phone:"+61 2 9130 4554"},
+  {name:"The One That Got Away", category:"takeaway", cuisine:"Fish & Chips", suburb:"Bondi", address:"163 Bondi Rd, Bondi NSW 2026", rating:3.8, reviews:97, price:[20,30], hours:{Monday:"8:00 AM–8:00 PM",Tuesday:"8:00 AM–8:00 PM",Wednesday:"8:00 AM–8:00 PM",Thursday:"8:00 AM–8:00 PM",Friday:"8:00 AM–8:00 PM",Saturday:"8:00 AM–8:00 PM",Sunday:"8:00 AM–8:00 PM"}, place_id:"ChIJ16mnFY6tEmsR0dImn-4WTRU", phone:"+61 410 069 611"},
+  {name:"Liverpool St Kebabs", category:"takeaway", cuisine:"Kebab & Pizza", suburb:"Sydney CBD", address:"94 Liverpool St, Sydney NSW 2000", rating:4.8, reviews:71, price:[12,18], hours:{Monday:"Open 24 hours",Tuesday:"Open 24 hours",Wednesday:"Open 24 hours",Thursday:"Open 24 hours",Friday:"Open 24 hours",Saturday:"Open 24 hours",Sunday:"Open 24 hours"}, place_id:"ChIJB9OLmKWvEmsRpZfLEL1kzD4", phone:"+61 416 257 358"},
+  {name:"Sydney City Kebabs", category:"takeaway", cuisine:"Kebab", suburb:"Haymarket", address:"790 George St, Haymarket NSW 2000", rating:4.7, reviews:2181, price:[12,18], hours:{Monday:"10:30 AM–12:00 AM",Tuesday:"10:30 AM–12:00 AM",Wednesday:"10:30 AM–12:00 AM",Thursday:"10:30 AM–12:00 AM",Friday:"11:00 AM–3:30 AM",Saturday:"11:00 AM–3:30 AM",Sunday:"10:30 AM–12:00 AM"}, place_id:"ChIJj5oijiOuEmsRLp4yU0i4iF4", phone:null},
+  {name:"Toros Kebab ASQ", category:"takeaway", cuisine:"Kebab", suburb:"Sydney CBD", address:"Shop 420/264 George St, Sydney NSW 2000", rating:4.7, reviews:49, price:[12,18], hours:{Monday:"8:00 AM–4:00 PM",Tuesday:"8:00 AM–4:00 PM",Wednesday:"8:00 AM–4:00 PM",Thursday:"8:00 AM–4:00 PM",Friday:"8:00 AM–4:00 PM",Saturday:"Closed",Sunday:"Closed"}, place_id:"ChIJKSa8wYyvEmsRbys5J3aWEF0", phone:"+61 405 532 023"},
+  {name:"Center Point Kebab, Pizza & Burger", category:"takeaway", cuisine:"Turkish & Pizza", suburb:"Sydney CBD", address:"25 Market St, Sydney NSW 2000", rating:4.8, reviews:83, price:[14,20], hours:{}, place_id:"ChIJMZ8WSMqvEmsR8yMNaDXmm9Y", phone:null},
+  {name:"Tomo Tomo Sydney", category:"takeaway", cuisine:"Japanese", suburb:"Sydney CBD", address:"Shop 2/265 Castlereagh St, Sydney NSW 2000", rating:5.0, reviews:34, price:[15,25], hours:{Monday:"10:00 AM–6:00 PM",Tuesday:"10:00 AM–6:00 PM",Wednesday:"10:00 AM–6:00 PM",Thursday:"10:00 AM–6:00 PM",Friday:"10:00 AM–6:00 PM",Saturday:"Closed",Sunday:"Closed"}, place_id:"ChIJB9gWKumvEmsRDYvgYN-hk2M", phone:"+61 2 9337 0784"},
+  {name:"Sushi Ichi Bar", category:"takeaway", cuisine:"Sushi", suburb:"Darlinghurst", address:"199 Darlinghurst Rd, Darlinghurst NSW 2010", rating:4.8, reviews:113, price:[15,25], hours:{Monday:"Closed",Tuesday:"11:00 AM–9:00 PM",Wednesday:"11:00 AM–9:00 PM",Thursday:"11:00 AM–9:00 PM",Friday:"11:00 AM–9:00 PM",Saturday:"11:00 AM–9:00 PM",Sunday:"11:00 AM–9:00 PM"}, place_id:"ChIJEzu9nQ2uEmsRN11PR7nxN9M", phone:"+61 426 818 550"},
+];
+
+const LIVE_API = "https://eat-out-oz.vercel.app/api/search";
+let LIVE_DATA = []; // results fetched live get appended here for this session
+let isSearchingLive = false;
+
+const CATS = [
+  {key:"all", label:"All spots"},
+  {key:"cafe", label:"Cafés"},
+  {key:"restaurant", label:"Restaurants"},
+  {key:"takeaway", label:"Takeaway"},
+];
+
+let activeCat = "all";
+let activeSuburb = "all";
+let activeSort = "rating";
+let query = "";
+
+const tabsEl = document.getElementById('tabs');
+const gridEl = document.getElementById('grid');
+const sectionTitle = document.getElementById('sectionTitle');
+const resultNote = document.getElementById('resultNote');
+const emptyState = document.getElementById('emptyState');
+const suburbFilter = document.getElementById('suburbFilter');
+const cuisineFilter = document.getElementById('cuisineFilter');
+const searchInput = document.getElementById('searchInput');
+const sortSelect = document.getElementById('sortSelect');
+const suggestionsEl = document.getElementById('suggestions');
+const searchBtn = document.getElementById('searchBtn');
+
+// populate suburb dropdown
+[...new Set(DATA.map(d => d.suburb))].sort().forEach(s => {
+  const opt = document.createElement('option');
+  opt.value = s; opt.textContent = s;
+  suburbFilter.appendChild(opt);
+});
+
+function renderTabs(){
+  tabsEl.innerHTML = "";
+  const combined = [...DATA, ...LIVE_DATA];
+  CATS.forEach(c => {
+    const count = c.key === "all" ? combined.length : combined.filter(d => d.category === c.key).length;
+    const el = document.createElement('div');
+    el.className = 'tab' + (c.key === activeCat ? ' active' : '');
+    el.innerHTML = `${c.label} <span class="count">${count}</span>`;
+    el.onclick = () => { activeCat = c.key; renderTabs(); renderGrid(); };
+    tabsEl.appendChild(el);
+  });
+}
+
+function priceFromLevel(level, category){
+  const table = {
+    0:[10,15], 1:[15,25], 2:[25,40], 3:[50,75], 4:[80,120]
+  };
+  if (level !== null && level !== undefined && table[level]) return table[level];
+  // sensible default when Google gives no price level
+  if (category === "cafe") return [20,30];
+  if (category === "takeaway") return [15,25];
+  return [35,55];
+}
+
+const DAY_NAMES = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+
+function todayHours(hours){
+  const day = DAY_NAMES[new Date().getDay()];
+  return hours && hours[day] ? hours[day] : null;
+}
+
+function isOpenNow(hours){
+  const todays = todayHours(hours);
+  if (!todays || todays === "Closed") return false;
+  if (todays.toLowerCase().includes("24 hours")) return true;
+  const now = new Date();
+  const nowMins = now.getHours()*60 + now.getMinutes();
+  const ranges = todays.split(",");
+  for (const r of ranges){
+    const parts = r.trim().split("–");
+    if (parts.length !== 2) continue;
+    const toMins = (t) => {
+      const m = t.trim().match(/(\d+):(\d+)\s?(AM|PM)/i);
+      if (!m) return null;
+      let h = parseInt(m[1]), min = parseInt(m[2]);
+      const ap = m[3].toUpperCase();
+      if (ap === "PM" && h !== 12) h += 12;
+      if (ap === "AM" && h === 12) h = 0;
+      return h*60+min;
+    };
+    const start = toMins(parts[0]), end = toMins(parts[1]);
+    if (start === null || end === null) continue;
+    if (nowMins >= start && nowMins <= end) return true;
+  }
+  return false;
+}
+
+function starString(rating){
+  const full = Math.round(rating);
+  return "★".repeat(full) + "☆".repeat(5-full);
+}
+
+function mapsUrl(place){
+  return `https://www.google.com/maps/place/?q=place_id:${place.place_id}`;
+}
+function searchUrl(place){
+  return `https://www.google.com/search?q=${encodeURIComponent(place.name + " " + place.suburb + " Sydney")}`;
+}
+
+function renderGrid(){
+  const combined = [...DATA, ...LIVE_DATA];
+  let items = combined.filter(d => (activeCat === "all" || d.category === activeCat));
+  if (activeSuburb !== "all") items = items.filter(d => d.suburb === activeSuburb);
+  if (query.trim()){
+    const q = query.toLowerCase();
+    items = items.filter(d => d.name.toLowerCase().includes(q) || (d.cuisine||"").toLowerCase().includes(q) || d.suburb.toLowerCase().includes(q));
+  }
+
+  items = [...items].sort((a,b) => {
+    if (activeSort === "rating") return b.rating - a.rating;
+    if (activeSort === "price_asc") return a.price[0] - b.price[0];
+    if (activeSort === "price_desc") return b.price[1] - a.price[1];
+    if (activeSort === "name") return a.name.localeCompare(b.name);
+    return 0;
+  });
+
+  const catLabel = CATS.find(c => c.key === activeCat).label;
+  sectionTitle.textContent = catLabel;
+
+  if (isSearchingLive){
+    resultNote.textContent = `Searching live for "${query}"…`;
+    gridEl.innerHTML = `<div class="empty" style="grid-column:1/-1;">Searching live for "${query}"… this can take a few seconds.</div>`;
+    emptyState.style.display = "none";
+    return;
+  } else {
+    resultNote.textContent = `${items.length} spot${items.length===1?'':'s'} listed`;
+  }
+
+  gridEl.innerHTML = "";
+  emptyState.style.display = items.length ? "none" : "block";
+
+  items.forEach(d => {
+    const open = d.source === "live" ? d.openNow : isOpenNow(d.hours);
+    const todays = d.source === "live" ? null : todayHours(d.hours);
+    const openLabel = open === true ? "Open now" : open === false ? "Closed now" : "Hours vary";
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.innerHTML = `
+      <div class="card-top">
+        <div>
+          <h3 class="card-title">${d.name}</h3>
+          <div class="card-sub">${d.cuisine} · ${d.suburb} ${d.source === 'live' ? '<span style="color:var(--sage);">· LIVE</span>' : ''}</div>
+        </div>
+        <span class="badge ${open ? 'open' : 'closed'}">${openLabel}</span>
+      </div>
+      <div class="rating-row">
+        <span class="stars">${starString(d.rating)}</span>
+        <span>${d.rating.toFixed(1)}</span>
+        <span class="rating-count">(${d.reviews.toLocaleString()} reviews)</span>
+      </div>
+      <div class="price-ticket">
+        <span class="price-label">Cost per head</span>
+        <span class="price-value">$${d.price[0]}–${d.price[1]}</span>
+      </div>
+      <div class="hours-line">${todays ? `Today: ${todays}` : d.address}</div>
+      <div class="card-actions">
+        <a class="primary" href="${mapsUrl(d)}" target="_blank" rel="noopener">Get directions</a>
+        <a href="${searchUrl(d)}" target="_blank" rel="noopener">Find website</a>
+      </div>
+    `;
+    gridEl.appendChild(card);
+  });
+}
+
+function buildSuggestionPool(){
+  const names = DATA.map(d => ({label:d.name, meta:`${d.cuisine} · ${d.suburb}`, type:'venue'}));
+  const cuisines = [...new Set(DATA.map(d => d.cuisine))].map(c => ({label:c, meta:'Cuisine', type:'cuisine'}));
+  const suburbs = [...new Set(DATA.map(d => d.suburb))].map(s => ({label:s, meta:'Suburb', type:'suburb'}));
+  return [...names, ...cuisines, ...suburbs];
+}
+const SUGGESTION_POOL = buildSuggestionPool();
+
+async function fetchLiveForSuburb(suburb){
+  isSearchingLive = true;
+  renderGrid();
+
+  const categories = ["cafe", "restaurant", "takeaway"];
+  const existingIds = new Set([...DATA, ...LIVE_DATA].map(d => d.place_id));
+  const cuisine = cuisineFilter.value;
+
+  try {
+    const responses = await Promise.all(categories.map(cat =>
+      fetch(`${LIVE_API}?suburb=${encodeURIComponent(suburb)}&category=${cat}&full=1${cuisine ? `&cuisine=${encodeURIComponent(cuisine)}` : ''}`)
+        .then(r => r.ok ? r.json() : {results:[]})
+        .catch(() => ({results:[]}))
+        .then(data => ({cat, data}))
+    ));
+
+    responses.forEach(({cat, data}) => {
+      (data.results || []).forEach(r => {
+        if (!r.placeId || existingIds.has(r.placeId)) return;
+        existingIds.add(r.placeId);
+        LIVE_DATA.push({
+          name: r.name,
+          category: cat,
+          cuisine: r.cuisine || (cat === "cafe" ? "Café" : cat === "takeaway" ? "Takeaway" : "Restaurant"),
+          suburb: suburb,
+          address: r.address,
+          rating: r.rating || 0,
+          reviews: r.reviews || 0,
+          price: priceFromLevel(r.priceLevel, cat),
+          openNow: r.openNow,
+          place_id: r.placeId,
+          source: "live",
+        });
+      });
+    });
+  } catch (err) {
+    console.error("Live search failed:", err);
+  }
+
+  isSearchingLive = false;
+  renderTabs();
+  renderGrid();
+}
+
+let hasSearched = false;
+
+function showResultsUI(){
+  hasSearched = true;
+  document.getElementById('landing').style.display = 'none';
+  document.getElementById('tabs').style.display = 'flex';
+  document.getElementById('metaRow').style.display = 'flex';
+}
+
+function runSearch(term){
+  showResultsUI();
+  query = term;
+  activeCat = "all";
+  renderTabs();
+  renderGrid();
+  suggestionsEl.classList.remove('show');
+  document.querySelector('main').scrollIntoView({behavior:'smooth', block:'start'});
+
+  // Treat the search term as a suburb and fetch live results too —
+  // covers both "search a suburb" and "search a dish/cuisine" cases,
+  // since a live suburb search costs nothing extra if the term isn't one.
+  if (term.trim().length > 1){
+    fetchLiveForSuburb(term.trim());
+  }
+}
+
+function renderSuggestions(term){
+  if (!term.trim()){ suggestionsEl.classList.remove('show'); return; }
+  const q = term.toLowerCase();
+  const matches = SUGGESTION_POOL.filter(s => s.label.toLowerCase().includes(q)).slice(0, 7);
+  if (!matches.length){ suggestionsEl.classList.remove('show'); return; }
+  suggestionsEl.innerHTML = matches.map(s => `
+    <div class="suggestion-item" data-label="${s.label.replace(/"/g,'&quot;')}">
+      <span>${s.label}</span>
+      <span class="s-meta">${s.meta}</span>
+    </div>
+  `).join('');
+  suggestionsEl.classList.add('show');
+  suggestionsEl.querySelectorAll('.suggestion-item').forEach(item => {
+    item.onclick = () => {
+      searchInput.value = item.dataset.label;
+      runSearch(item.dataset.label);
+    };
+  });
+}
+
+suburbFilter.addEventListener('change', e => { activeSuburb = e.target.value; renderGrid(); });
+sortSelect.addEventListener('change', e => { activeSort = e.target.value; renderGrid(); });
+cuisineFilter.addEventListener('change', () => {
+  if (hasSearched && searchInput.value.trim()){
+    LIVE_DATA = []; // cuisine changed — clear stale results and re-fetch
+    runSearch(searchInput.value.trim());
+  }
+});
+searchInput.addEventListener('input', e => {
+  query = e.target.value;
+  renderSuggestions(e.target.value);
+  if (hasSearched) renderGrid();
+});
+searchInput.addEventListener('keydown', e => {
+  if (e.key === 'Enter'){ e.preventDefault(); runSearch(searchInput.value); }
+});
+searchInput.addEventListener('focus', () => renderSuggestions(searchInput.value));
+searchBtn.addEventListener('click', () => runSearch(searchInput.value));
+document.addEventListener('click', e => {
+  if (!e.target.closest('.search-form')) suggestionsEl.classList.remove('show');
+});
+
+// Popular suburbs shown on the landing screen — clicking one runs a live search
+const POPULAR_SUBURBS = ["Sydney CBD", "Bondi", "Manly", "Surry Hills", "Newtown", "Parramatta", "Chatswood", "Coogee"];
+
+function initLanding(){
+  const chipRow = document.getElementById('chipRow');
+  chipRow.innerHTML = POPULAR_SUBURBS.map(s => `<div class="chip" data-suburb="${s}">${s}</div>`).join('');
+  chipRow.querySelectorAll('.chip').forEach(chip => {
+    chip.onclick = () => {
+      searchInput.value = chip.dataset.suburb;
+      runSearch(chip.dataset.suburb);
+    };
+  });
+}
+
+initLanding();
+</script>
+</body>
+</html>
