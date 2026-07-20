@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Eat Out Oz — Sydney dining finder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Work+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#DE3937;
+    --ink-soft:#B32E2C;
+    --paper:#FFFFFF;
+    --paper-dim:#FBEBEA;
+    --brass:#C42B29;
+    --brass-bright:#F0524F;
+    --sage:#4F8A5B;
+    --rust:#8A8078;
+    --line:#F0D9D8;
+    --text:#241412;
+    --text-dim:#7A6E6A;
+    --radius:2px;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--text);
+    font-family:'Work Sans', sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  ::selection{background:var(--brass-bright);color:var(--ink);}
+
+  /* ---------- HEADER ---------- */
+  header{
+    background:var(--ink);
+    color:var(--paper);
+    padding:56px 24px 40px;
+    position:relative;
+    overflow:hidden;
+  }
+  header::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    background-image:
+      repeating-linear-gradient(90deg, rgba(255,255,255,0.06) 0px, rgba(255,255,255,0.06) 1px, transparent 1px, transparent 64px);
+    pointer-events:none;
+  }
+  .header-inner{max-width:1080px;margin:0 auto;position:relative;}
+  .eyebrow{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    letter-spacing:0.18em;
+    text-transform:uppercase;
+    color:var(--brass-bright);
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-bottom:18px;
+  }
+  .eyebrow::before{content:"";width:22px;height:1px;background:var(--brass-bright);display:inline-block;}
+  .logo-row{display:flex;align-items:center;gap:14px;margin-bottom:18px;}
+  .logo-row .brand-mark{
+    font-family:'Fraunces', serif;
+    font-weight:700;
+    font-size:26px;
+    color:#FFFFFF;
+    letter-spacing:-0.01em;
+    line-height:1.1;
+  }
+  .brand-sub{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--brass-bright);
+    margin-top:2px;
+  }
+  h1 .highlight{color:#FFFFFF;}
+  h1{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size:clamp(38px, 6vw, 68px);
+    line-height:1.02;
+    margin:0 0 18px;
+    letter-spacing:-0.01em;
+  }
+  h1 em{font-style:italic;font-weight:400;color:var(--brass-bright);}
+  .sub{
+    max-width:520px;
+    font-size:16px;
+    line-height:1.55;
+    color:#FBDAD9;
+    margin-bottom:34px;
+  }
+
+  /* search + controls */
+  .controls{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    align-items:center;
+  }
+  .search-wrap{
+    flex:1 1 320px;
+    position:relative;
+  }
+  .search-form{
+    display:flex;
+    gap:8px;
+    flex:1 1 320px;
+    position:relative;
+  }
+  .search-wrap input{
+    width:100%;
+    background:var(--paper);
+    border:1px solid transparent;
+    color:var(--ink);
+    padding:16px 16px 16px 42px;
+    font-family:'Work Sans',sans-serif;
+    font-size:16px;
+    border-radius:var(--radius);
+    outline:none;
+  }
+  .search-wrap input:focus{outline:2px solid var(--brass-bright);outline-offset:1px;}
+  .search-wrap svg{position:absolute;left:14px;top:50%;transform:translateY(-50%);opacity:0.55;z-index:2;}
+  .search-btn{
+    font-family:'Work Sans',sans-serif;
+    font-weight:600;
+    font-size:15px;
+    background:var(--brass);
+    color:var(--ink);
+    border:none;
+    padding:0 24px;
+    border-radius:var(--radius);
+    cursor:pointer;
+    transition:background .15s ease;
+  }
+  .search-btn:hover{background:var(--brass-bright);}
+  .suggestions{
+    position:absolute;
+    top:calc(100% + 6px);
+    left:0;
+    right:0;
+    background:#FFFDF8;
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    box-shadow:0 14px 28px -12px rgba(27,36,48,0.35);
+    overflow:hidden;
+    z-index:30;
+    display:none;
+  }
+  .suggestions.show{display:block;}
+  .suggestion-item{
+    padding:11px 16px;
+    font-size:14px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    cursor:pointer;
+    border-bottom:1px solid var(--line);
+    color:var(--text);
+  }
+  .suggestion-item:last-child{border-bottom:none;}
+  .suggestion-item:hover{background:var(--paper-dim);}
+  .suggestion-item .s-meta{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    color:var(--text-dim);
+  }
+
+  select{
+    background:var(--ink-soft);
+    color:var(--paper);
+    border:1px solid #46536422;
+    padding:13px 14px;
+    font-family:'Work Sans',sans-serif;
+    font-size:14px;
+    border-radius:var(--radius);
+    cursor:pointer;
+    border:1px solid rgba(246,241,230,0.18);
+  }
+
+  /* ---------- CATEGORY TABS ---------- */
+  .tabs{
+    max-width:1080px;
+    margin:-24px auto 0;
+    padding:0 24px;
+    position:relative;
+    z-index:2;
+    display:flex;
+    gap:0;
+    flex-wrap:wrap;
+  }
+  .tab{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:13px;
+    letter-spacing:0.04em;
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-bottom:none;
+    padding:14px 22px 12px;
+    cursor:pointer;
+    color:var(--text-dim);
+    display:flex;
+    align-items:center;
+    gap:8px;
+    transition:color .15s ease, background .15s ease;
+  }
+  .tab .count{
+    font-size:11px;
+    background:var(--paper-dim);
+    padding:1px 6px;
+    border-radius:10px;
+    color:var(--text-dim);
+  }
+  .tab.active{
+    background:var(--paper);
+    color:var(--ink);
+    font-weight:600;
+    box-shadow: inset 0 3px 0 var(--brass);
+  }
+  .tab.active .count{background:var(--brass);color:var(--paper);}
+  .tab:hover:not(.active){color:var(--ink);}
+
+  main{
+    max-width:1080px;
+    margin:0 auto;
+    padding:36px 24px 80px;
+    border-top:1px solid var(--line);
+  }
+
+  .meta-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    margin-bottom:22px;
+    flex-wrap:wrap;
+    gap:10px;
+  }
+  .meta-row h2{
+    font-family:'Fraunces', serif;
+    font-size:22px;
+    font-weight:600;
+    margin:0;
+  }
+  .result-note{font-family:'IBM Plex Mono', monospace;font-size:12px;color:var(--text-dim);}
+
+  /* ---------- GRID / CARDS ---------- */
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(310px, 1fr));
+    gap:20px;
+  }
+  .card{
+    background:#FFFDF8;
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:22px 22px 18px;
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+    position:relative;
+    transition:transform .15s ease, box-shadow .15s ease;
+  }
+  .card:hover{
+    transform:translateY(-3px);
+    box-shadow:0 14px 28px -18px rgba(27,36,48,0.35);
+  }
+  .card-top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;}
+  .card-title{
+    font-family:'Fraunces', serif;
+    font-size:19px;
+    font-weight:600;
+    line-height:1.2;
+    margin:0;
+  }
+  .card-sub{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11.5px;
+    color:var(--text-dim);
+    text-transform:uppercase;
+    letter-spacing:0.05em;
+    margin-top:4px;
+  }
+  .badge{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:10.5px;
+    padding:3px 8px;
+    border-radius:20px;
+    white-space:nowrap;
+    letter-spacing:0.03em;
+    height:fit-content;
+  }
+  .badge.open{background:#5F7A5E1a;color:var(--sage);border:1px solid #5F7A5E55;}
+  .badge.closed{background:#9C4A3A1a;color:var(--rust);border:1px solid #9C4A3A55;}
+
+  .rating-row{display:flex;align-items:center;gap:8px;font-size:13.5px;}
+  .stars{color:var(--brass);letter-spacing:1px;font-size:13px;}
+  .rating-count{color:var(--text-dim);font-size:12.5px;}
+
+  .price-ticket{
+    border-top:1px dashed var(--line);
+    border-bottom:1px dashed var(--line);
+    padding:10px 0;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    font-family:'IBM Plex Mono', monospace;
+  }
+  .price-label{font-size:11.5px;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.05em;}
+  .price-value{font-size:16px;font-weight:600;color:var(--ink);}
+
+  .hours-line{font-size:12.5px;color:var(--text-dim);display:flex;gap:6px;align-items:center;}
+
+  .card-actions{
+    display:flex;
+    gap:8px;
+    margin-top:auto;
+    padding-top:6px;
+    flex-wrap:wrap;
+  }
+  .card-actions a{
+    flex:1;
+    text-align:center;
+    font-family:'Work Sans',sans-serif;
+    font-size:12.5px;
+    font-weight:600;
+    text-decoration:none;
+    padding:9px 10px;
+    border-radius:var(--radius);
+    border:1px solid var(--ink);
+    color:var(--ink);
+    transition:background .15s ease, color .15s ease;
+  }
+  .card-actions a.primary{background:var(--ink);color:var(--paper);}
+  .card-actions a.primary:hover{background:var(--brass);border-color:var(--brass);}
+  .card-actions a:not(.primary):hover{background:var(--paper-dim);}
+
+  .empty{
+    text-align:center;
+    padding:70px 20px;
+    color:var(--text-dim);
+    font-family:'IBM Plex Mono', monospace;
+    font-size:14px;
+  }
+
+  .landing{
+    text-align:center;
+    padding:60px 20px 40px;
+  }
+  .landing-title{
+    font-family:'Fraunces', serif;
+    font-size:22px;
+    font-weight:600;
+    margin:0 0 8px;
+    color:var(--text);
+  }
+  .landing-sub{
+    font-family:'Work Sans', sans-serif;
+    font-size:14px;
+    color:var(--text-dim);
+    margin:0 0 26px;
+  }
+  .chip-row{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    justify-content:center;
+    max-width:640px;
+    margin:0 auto;
+  }
+  .chip{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:13px;
+    background:#FFFDF8;
+    border:1px solid var(--line);
+    padding:9px 18px;
+    border-radius:20px;
+    cursor:pointer;
+    color:var(--text);
+    transition:background .15s ease, border-color .15s ease;
+  }
+  .chip:hover{background:var(--paper-dim);border-color:var(--ink);}
+
+  footer{
+    max-width:1080px;
+    margin:0 auto;
+    padding:30px 24px 60px;
+    color:var(--text-dim);
+    font-size:12.5px;
+    font-family:'IBM Plex Mono', monospace;
+    border-top:1px solid var(--line);
+    line-height:1.6;
+  }
+
+  @media (max-width:640px){
+    .tabs{margin-top:-16px;}
+    .tab{padding:12px 14px 10px;font-size:12px;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="logo-row">
+      <div>
+        <span class="brand-mark">outtoeat</span>
+        <div class="brand-sub">Sydney</div>
+      </div>
+    </div>
+    <h1>Where to eat<br><span class="highlight">tonight</span>, sorted.</h1>
+    <p class="sub">Cafés, restaurants and takeaway in one list — with a real cost-per-head estimate so nobody gets surprised by the bill.</p>
+    <div class="controls">
+      <div class="search-form">
+        <div class="search-wrap">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1B2430" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input id="searchInput" type="text" placeholder="Search a restaurant, cafe, cuisine or suburb…" autocomplete="off">
+          <div class="suggestions" id="suggestions"></div>
+        </div>
+        <button class="search-btn" id="searchBtn" type="button">Search</button>
+      </div>
+      <select id="cuisineFilter">
+        <option value="">Any cuisine</option>
+        <option value="Italian">Italian</option>
+        <option value="Thai">Thai</option>
+        <option value="Chinese">Chinese</option>
+        <option value="Japanese">Japanese</option>
+        <option value="Indian">Indian</option>
+        <option value="Mexican">Mexican</option>
+        <option value="Vietnamese">Vietnamese</option>
+        <option value="Korean">Korean</option>
+        <option value="Lebanese">Lebanese</option>
+        <option value="Greek">Greek</option>
+        <option value="Modern Australian">Modern Australian</option>
+        <option value="Seafood">Seafood</option>
+        <option value="Vegan">Vegan</option>
+        <option value="Pizza">Pizza</option>
+        <option value="Burger">Burger</option>
+      </select>
+      <select id="suburbFilter"><option value="all">All suburbs</option></select>
+      <select id="sortSelect">
+        <option value="rating">Sort: highest rated</option>
+        <option value="price_asc">Sort: cheapest first</option>
+        <option value="price_desc">Sort: priciest first</option>
+        <option value="name">Sort: A–Z</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+<nav class="tabs" id="tabs" style="display:none;"></nav>
+
+<main>
+  <div class="landing" id="landing">
+    <p class="landing-title">Search a suburb to see what's around</p>
+    <p class="landing-sub">Or try one of these to start browsing</p>
+    <div class="chip-row" id="chipRow"></div>
+  </div>
+  <div class="meta-row" id="metaRow" style="display:none;">
+    <h2 id="sectionTitle">All spots</h2>
+    <div class="result-note" id="resultNote"></div>
+  </div>
+  <div class="grid" id="grid"></div>
+  <div class="empty" id="emptyState" style="display:none;">No spots match that search — try another suburb or keyword.</div>
+</main>
+
+<footer>
+  PROTOTYPE — venue data pulled live from Google Places for demonstration.<br>
+  Cost-per-head figures are estimates derived from category + published price level, not menu totals. Always confirm with the venue.
+</footer>
+
+<script>
+const DATA = [
+  // ---- CAFES ----
+  {name:"The Walrus Sydney CBD", category:"cafe", cuisine:"Café & Breakfast", suburb:"Sydney CBD", address:"Shop 1/276 Pitt St, Sydney NSW 2000", rating:4.4, reviews:1054, price:[25,35], hours:{Monday:"6:00 AM–3:00 PM",Tuesday:"6:00 AM–3:00 PM",Wednesday:"6:00 AM–3:00 PM",Thursday:"6:00 AM–3:00 PM",Friday:"6:00 AM–3:00 PM",Saturday:"6:00 AM–3:00 PM",Sunday:"6:00 AM–2:00 PM"}, place_id:"ChIJSWzs2z2uEmsRan3a5PCuTjM", phone:"+61 410 693 192"},
+  {name:"The Grounds of The City", category:"cafe", cuisine:"Café & Breakfast", suburb:"Sydney CBD", address:"Shop RG 12/500 George St, Sydney NSW 2000", rating:4.2, reviews:6400, price:[30,45], hours:{Monday:"7:00 AM–9:00 PM",Tuesday:"7:00 AM–9:00 PM",Wednesday:"7:00 AM–9:00 PM",Thursday:"7:00 AM–9:00 PM",Friday:"7:00 AM–9:00 PM",Saturday:"8:00 AM–9:30 PM",Sunday:"8:00 AM–5:00 PM"}, place_id:"ChIJ2QUmiz6uEmsRQfMmet7xkzs", phone:"+61 2 9699 2225"},
+  {name:"La Famiglia Cafe", category:"cafe", cuisine:"Café & Italian", suburb:"Sydney CBD", address:"284 Pitt St, Sydney NSW 2000", rating:4.8, reviews:726, price:[20,30], hours:{Monday:"5:00 AM–3:00 PM",Tuesday:"5:00 AM–3:00 PM",Wednesday:"5:00 AM–3:00 PM",Thursday:"5:00 AM–3:00 PM",Friday:"5:00 AM–2:30 PM",Saturday:"6:00–11:30 AM",Sunday:"Closed"}, place_id:"ChIJ4RQIt2OvEmsRWYP8zvGu9VY", phone:"+61 2 8065 9449"},
+  {name:"Regiment Specialty Coffee", category:"cafe", cuisine:"Café & Coffee", suburb:"Sydney CBD", address:"333 George St, Sydney NSW 2000", rating:4.3, reviews:446, price:[18,28], hours:{Monday:"7:00 AM–4:00 PM",Tuesday:"7:00 AM–4:00 PM",Wednesday:"7:00 AM–4:00 PM",Thursday:"7:00 AM–4:00 PM",Friday:"7:00 AM–4:00 PM",Saturday:"Closed",Sunday:"Closed"}, place_id:"ChIJK7gEjUCuEmsRoOoezoNj8fQ", phone:"+61 2 9299 4001"},
+  {name:"Pablo & Rusty's Sydney CBD", category:"cafe", cuisine:"Café & Coffee", suburb:"Sydney CBD", address:"161 Castlereagh St, Sydney NSW 2000", rating:4.3, reviews:786, price:[20,30], hours:{Monday:"7:30 AM–2:30 PM",Tuesday:"7:30 AM–2:30 PM",Wednesday:"7:30 AM–2:30 PM",Thursday:"7:30 AM–2:30 PM",Friday:"7:30 AM–2:30 PM",Saturday:"8:00 AM–2:00 PM",Sunday:"Closed"}, place_id:"ChIJlQzbPT6uEmsRdMutKU9hWds", phone:null},
+  {name:"Industry Beans York St", category:"cafe", cuisine:"Café & Brunch", suburb:"Sydney CBD", address:"Shop 2/40 York St, Sydney NSW 2000", rating:4.6, reviews:2377, price:[25,35], hours:{Monday:"7:00 AM–3:30 PM",Tuesday:"7:00 AM–3:30 PM",Wednesday:"7:00 AM–3:30 PM",Thursday:"7:00 AM–3:30 PM",Friday:"7:00 AM–3:30 PM",Saturday:"8:00 AM–3:30 PM",Sunday:"8:00 AM–3:30 PM"}, place_id:"ChIJeWDDDNOvEmsRF8SMPUwPbhw", phone:"+61 2 9188 8501"},
+  {name:"TenTo", category:"cafe", cuisine:"Café & Japanese", suburb:"Surry Hills", address:"3/8 Hill St, Surry Hills NSW 2010", rating:4.5, reviews:955, price:[25,35], hours:{Monday:"9:00 AM–2:45 PM",Tuesday:"9:00 AM–2:45 PM",Wednesday:"9:00 AM–2:45 PM, 5:30–9:30 PM",Thursday:"9:00 AM–2:45 PM, 5:30–9:30 PM",Friday:"9:00 AM–2:45 PM, 5:30–9:30 PM",Saturday:"9:00 AM–2:45 PM, 5:30–9:30 PM",Sunday:"9:00 AM–2:45 PM"}, place_id:"ChIJ0W6iFVCvEmsR02zSDYH9DEs", phone:null},
+
+  // ---- RESTAURANTS ----
+  {name:"NOMAD Sydney", category:"restaurant", cuisine:"Australian & Wine Bar", suburb:"Surry Hills", address:"16 Foster St, Surry Hills NSW 2010", rating:4.6, reviews:2821, price:[70,100], hours:{Monday:"5:30–9:30 PM",Tuesday:"5:30–9:30 PM",Wednesday:"12:00–2:30 PM, 5:30–9:30 PM",Thursday:"12:00–2:30 PM, 5:30–9:30 PM",Friday:"12:00–2:30 PM, 5:30–10:00 PM",Saturday:"12:00–2:30 PM, 5:00–10:00 PM",Sunday:"12:00–2:30 PM, 5:30–8:30 PM"}, place_id:"ChIJVyiVBxiuEmsRvRl_kNMT5-A", phone:"+61 2 9280 3395"},
+  {name:"Mishy's Sydney", category:"restaurant", cuisine:"Modern Bistro", suburb:"Surry Hills", address:"113 Reservoir St, Surry Hills NSW 2010", rating:4.9, reviews:422, price:[55,75], hours:{Monday:"Closed",Tuesday:"11:00 AM–3:00 PM",Wednesday:"11:00 AM–3:00 PM, 5:30–10:00 PM",Thursday:"11:00 AM–3:00 PM, 5:30–10:00 PM",Friday:"11:00 AM–10:00 PM",Saturday:"11:00 AM–3:00 PM, 5:30–10:00 PM",Sunday:"11:00 AM–3:00 PM"}, place_id:"ChIJSV3N8w2vEmsRXYee7WsX0wk", phone:"+61 2 5657 2925"},
+  {name:"NOUR", category:"restaurant", cuisine:"Lebanese Fine Dining", suburb:"Surry Hills", address:"3/490 Crown St, Surry Hills NSW 2010", rating:4.8, reviews:3352, price:[80,110], hours:{Monday:"5:30–9:00 PM",Tuesday:"5:30–9:00 PM",Wednesday:"5:30–9:00 PM",Thursday:"12:00–3:00 PM, 5:30–9:30 PM",Friday:"12:00–3:00 PM, 5:30–10:00 PM",Saturday:"12:00–3:00 PM, 5:30–10:00 PM",Sunday:"12:00–3:00 PM, 5:00–9:00 PM"}, place_id:"ChIJJVDZ3B6uEmsRh5d3g-9xJio", phone:"+61 2 9331 3413"},
+  {name:"Jane Surry Hills", category:"restaurant", cuisine:"Australian Fine Dining", suburb:"Surry Hills", address:"478 Bourke St, Surry Hills NSW 2010", rating:4.7, reviews:903, price:[90,120], hours:{Monday:"5:00–10:00 PM",Tuesday:"5:00–10:00 PM",Wednesday:"5:00–10:00 PM",Thursday:"5:00–10:00 PM",Friday:"12:00–11:30 PM",Saturday:"12:00–11:30 PM",Sunday:"12:00–10:00 PM"}, place_id:"ChIJuYrpKvOvEmsRYy6keJHBp2o", phone:"+61 403 632 355"},
+  {name:"VIVO 78", category:"restaurant", cuisine:"Italian & Pizza", suburb:"Surry Hills", address:"78 Campbell St, Surry Hills NSW 2010", rating:4.7, reviews:262, price:[40,55], hours:{Monday:"5:00–9:00 PM",Tuesday:"5:00–9:00 PM",Wednesday:"5:00–9:00 PM",Thursday:"12:00–2:30 PM, 5:00–9:00 PM",Friday:"12:00–2:30 PM, 5:00–9:30 PM",Saturday:"5:00–9:30 PM",Sunday:"5:00–9:00 PM"}, place_id:"ChIJCcvSpSKuEmsR8JTYXgM_FxQ", phone:"+61 2 9874 8839"},
+  {name:"Best Gourmet Restaurant", category:"restaurant", cuisine:"Chinese", suburb:"Newtown", address:"234 King St, Newtown NSW 2042", rating:4.8, reviews:3807, price:[20,30], hours:{Monday:"12:00–3:00 PM, 5:00–10:00 PM",Tuesday:"12:00–3:00 PM, 5:00–10:00 PM",Wednesday:"5:00–10:00 PM",Thursday:"12:00–3:00 PM, 5:00–10:00 PM",Friday:"12:00–3:00 PM, 5:00–10:30 PM",Saturday:"12:00–3:00 PM, 5:00–10:30 PM",Sunday:"12:00–3:00 PM, 5:00–10:00 PM"}, place_id:"ChIJx_jVoCSuEmsR_79nFpyS3Z4", phone:"+61 422 134 388"},
+  {name:"don Fred", category:"restaurant", cuisine:"Vegan Italian", suburb:"Newtown", address:"28 King St, Newtown NSW 2042", rating:4.9, reviews:700, price:[60,80], hours:{Monday:"Closed",Tuesday:"5:00–9:00 PM",Wednesday:"5:00–9:00 PM",Thursday:"5:00–9:00 PM",Friday:"5:00–9:00 PM",Saturday:"12:00–9:00 PM",Sunday:"12:00–8:00 PM"}, place_id:"ChIJhWaPhy2xEmsRdnP8moUNRFM", phone:null},
+  {name:"Thai Tip Street Food", category:"restaurant", cuisine:"Thai", suburb:"Newtown", address:"534 King St, Newtown NSW 2042", rating:4.9, reviews:156, price:[25,35], hours:{Monday:"11:30 AM–9:30 PM",Tuesday:"11:30 AM–9:00 PM",Wednesday:"11:30 AM–9:00 PM",Thursday:"11:30 AM–9:00 PM",Friday:"11:30 AM–9:30 PM",Saturday:"11:30 AM–9:30 PM",Sunday:"11:30 AM–9:30 PM"}, place_id:"ChIJWVkzG0-xEmsR0RDAHgvQPIY", phone:"+61 2 9519 9076"},
+  {name:"Casa Mia Osteria", category:"restaurant", cuisine:"Italian", suburb:"Newtown", address:"9/605 King St, Newtown NSW 2042", rating:4.6, reviews:462, price:[45,60], hours:{Monday:"Closed",Tuesday:"5:00–9:00 PM",Wednesday:"5:00–9:00 PM",Thursday:"5:00–9:00 PM",Friday:"5:00–9:30 PM",Saturday:"5:00–9:30 PM",Sunday:"5:00–9:00 PM"}, place_id:"ChIJG7ey8VqxEmsRSZWdOoZNCkU", phone:"+61 2 9557 1328"},
+  {name:"Thai Pothong", category:"restaurant", cuisine:"Thai", suburb:"Newtown", address:"294 King St, Newtown NSW 2042", rating:4.7, reviews:5920, price:[35,50], hours:{Monday:"12:00–3:30 PM, 5:30–10:00 PM",Tuesday:"12:00–3:30 PM, 5:30–10:00 PM",Wednesday:"12:00–3:30 PM, 5:30–10:00 PM",Thursday:"12:00–3:30 PM, 5:30–10:00 PM",Friday:"12:00–3:30 PM, 5:30–11:00 PM",Saturday:"12:00–3:30 PM, 5:30–11:00 PM",Sunday:"12:00–3:30 PM, 5:30–10:00 PM"}, place_id:"ChIJa5INSTGwEmsRlBrt1bZVYiQ", phone:"+61 2 9550 6277"},
+  {name:"North Bondi Fish", category:"restaurant", cuisine:"Seafood", suburb:"Bondi", address:"120 Ramsgate Ave, North Bondi NSW 2026", rating:4.1, reviews:1284, price:[55,80], hours:{Monday:"Closed",Tuesday:"Closed",Wednesday:"12:00–8:30 PM",Thursday:"12:00–8:30 PM",Friday:"12:00–10:00 PM",Saturday:"12:00–10:00 PM",Sunday:"12:00–6:00 PM"}, place_id:"ChIJ70O7r3WtEmsRJsr622aiB6c", phone:"+61 2 9130 2155"},
+  {name:"Sushi & Grill @ York Street", category:"restaurant", cuisine:"Japanese", suburb:"Sydney CBD", address:"119 York St, Sydney NSW 2000", rating:4.5, reviews:760, price:[25,35], hours:{Monday:"11:30 AM–3:00 PM, 5:30–9:30 PM",Tuesday:"11:30 AM–3:00 PM, 5:30–9:30 PM",Wednesday:"11:30 AM–3:00 PM, 5:30–9:30 PM",Thursday:"11:30 AM–3:00 PM, 5:30–9:30 PM",Friday:"11:30 AM–3:00 PM, 5:30–9:30 PM",Saturday:"Closed",Sunday:"Closed"}, place_id:"ChIJ453w6z6uEmsREm6g2UYjspo", phone:"+61 2 9264 7888"},
+  {name:"Sushi Hotaru Charcoal Bar", category:"restaurant", cuisine:"Japanese", suburb:"Sydney CBD", address:"LG2/455 George St, Sydney NSW 2000", rating:4.5, reviews:531, price:[30,45], hours:{Monday:"11:30 AM–9:00 PM",Tuesday:"11:30 AM–9:00 PM",Wednesday:"11:30 AM–9:00 PM",Thursday:"11:30 AM–9:30 PM",Friday:"11:30 AM–9:30 PM",Saturday:"11:30 AM–9:30 PM",Sunday:"11:30 AM–9:00 PM"}, place_id:"ChIJ0Rq0_K2vEmsRkr3_yG4RtGs", phone:"+61 2 8288 9093"},
+  {name:"Restaurant 317", category:"restaurant", cuisine:"Italian", suburb:"Parramatta", address:"317 Church St, Parramatta NSW 2150", rating:4.4, reviews:3641, price:[35,55], hours:{Monday:"11:30 AM–9:30 PM",Tuesday:"11:30 AM–9:30 PM",Wednesday:"11:30 AM–9:30 PM",Thursday:"11:30 AM–9:30 PM",Friday:"11:30 AM–10:30 PM",Saturday:"11:30 AM–10:30 PM",Sunday:"11:30 AM–9:30 PM"}, place_id:"ChIJm-Qsgh6jEmsRCLEfMPSSm10", phone:"+61 2 9893 8188"},
+
+  // ---- TAKEAWAY ----
+  {name:"Bondi Road Seafoods", category:"takeaway", cuisine:"Fish & Chips", suburb:"Bondi", address:"279 Bondi Rd, Bondi NSW 2026", rating:4.5, reviews:578, price:[15,25], hours:{Monday:"Closed",Tuesday:"Closed",Wednesday:"Closed",Thursday:"10:00 AM–8:00 PM",Friday:"10:00 AM–8:00 PM",Saturday:"10:00 AM–8:00 PM",Sunday:"10:00 AM–8:00 PM"}, place_id:"ChIJoYoc94-tEmsR72ne6U-IsA0", phone:"+61 2 9130 6465"},
+  {name:"Bondi Surf Seafoods", category:"takeaway", cuisine:"Fish & Chips", suburb:"Bondi Beach", address:"128 Campbell Parade, Bondi Beach NSW 2026", rating:3.7, reviews:614, price:[12,20], hours:{Monday:"10:00 AM–8:00 PM",Tuesday:"10:00 AM–8:00 PM",Wednesday:"10:00 AM–8:00 PM",Thursday:"10:00 AM–8:00 PM",Friday:"10:00 AM–8:00 PM",Saturday:"10:00 AM–8:00 PM",Sunday:"10:00 AM–8:00 PM"}, place_id:"ChIJySpJ95utEmsRJw5C2cxfeSs", phone:"+61 2 9130 4554"},
+  {name:"The One That Got Away", category:"takeaway", cuisine:"Fish & Chips", suburb:"Bondi", address:"163 Bondi Rd, Bondi NSW 2026", rating:3.8, reviews:97, price:[20,30], hours:{Monday:"8:00 AM–8:00 PM",Tuesday:"8:00 AM–8:00 PM",Wednesday:"8:00 AM–8:00 PM",Thursday:"8:00 AM–8:00 PM",Friday:"8:00 AM–8:00 PM",Saturday:"8:00 AM–8:00 PM",Sunday:"8:00 AM–8:00 PM"}, place_id:"ChIJ16mnFY6tEmsR0dImn-4WTRU", phone:"+61 410 069 611"},
+  {name:"Liverpool St Kebabs", category:"takeaway", cuisine:"Kebab & Pizza", suburb:"Sydney CBD", address:"94 Liverpool St, Sydney NSW 2000", rating:4.8, reviews:71, price:[12,18], hours:{Monday:"Open 24 hours",Tuesday:"Open 24 hours",Wednesday:"Open 24 hours",Thursday:"Open 24 hours",Friday:"Open 24 hours",Saturday:"Open 24 hours",Sunday:"Open 24 hours"}, place_id:"ChIJB9OLmKWvEmsRpZfLEL1kzD4", phone:"+61 416 257 358"},
+  {name:"Sydney City Kebabs", category:"takeaway", cuisine:"Kebab", suburb:"Haymarket", address:"790 George St, Haymarket NSW 2000", rating:4.7, reviews:2181, price:[12,18], hours:{Monday:"10:30 AM–12:00 AM",Tuesday:"10:30 AM–12:00 AM",Wednesday:"10:30 AM–12:00 AM",Thursday:"10:30 AM–12:00 AM",Friday:"11:00 AM–3:30 AM",Saturday:"11:00 AM–3:30 AM",Sunday:"10:30 AM–12:00 AM"}, place_id:"ChIJj5oijiOuEmsRLp4yU0i4iF4", phone:null},
+  {name:"Toros Kebab ASQ", category:"takeaway", cuisine:"Kebab", suburb:"Sydney CBD", address:"Shop 420/264 George St, Sydney NSW 2000", rating:4.7, reviews:49, price:[12,18], hours:{Monday:"8:00 AM–4:00 PM",Tuesday:"8:00 AM–4:00 PM",Wednesday:"8:00 AM–4:00 PM",Thursday:"8:00 AM–4:00 PM",Friday:"8:00 AM–4:00 PM",Saturday:"Closed",Sunday:"Closed"}, place_id:"ChIJKSa8wYyvEmsRbys5J3aWEF0", phone:"+61 405 532 023"},
+  {name:"Center Point Kebab, Pizza & Burger", category:"takeaway", cuisine:"Turkish & Pizza", suburb:"Sydney CBD", address:"25 Market St, Sydney NSW 2000", rating:4.8, reviews:83, price:[14,20], hours:{}, place_id:"ChIJMZ8WSMqvEmsR8yMNaDXmm9Y", phone:null},
+  {name:"Tomo Tomo Sydney", category:"takeaway", cuisine:"Japanese", suburb:"Sydney CBD", address:"Shop 2/265 Castlereagh St, Sydney NSW 2000", rating:5.0, reviews:34, price:[15,25], hours:{Monday:"10:00 AM–6:00 PM",Tuesday:"10:00 AM–6:00 PM",Wednesday:"10:00 AM–6:00 PM",Thursday:"10:00 AM–6:00 PM",Friday:"10:00 AM–6:00 PM",Saturday:"Closed",Sunday:"Closed"}, place_id:"ChIJB9gWKumvEmsRDYvgYN-hk2M", phone:"+61 2 9337 0784"},
+  {name:"Sushi Ichi Bar", category:"takeaway", cuisine:"Sushi", suburb:"Darlinghurst", address:"199 Darlinghurst Rd, Darlinghurst NSW 2010", rating:4.8, reviews:113, price:[15,25], hours:{Monday:"Closed",Tuesday:"11:00 AM–9:00 PM",Wednesday:"11:00 AM–9:00 PM",Thursday:"11:00 AM–9:00 PM",Friday:"11:00 AM–9:00 PM",Saturday:"11:00 AM–9:00 PM",Sunday:"11:00 AM–9:00 PM"}, place_id:"ChIJEzu9nQ2uEmsRN11PR7nxN9M", phone:"+61 426 818 550"},
+];
+
+const LIVE_API = "https://eat-out-oz.vercel.app/api/search";
+let LIVE_DATA = []; // results fetched live get appended here for this session
+let isSearchingLive = false;
+
+const CATS = [
+  {key:"all", label:"All spots"},
+  {key:"cafe", label:"Cafés"},
+  {key:"restaurant", label:"Restaurants"},
+  {key:"takeaway", label:"Takeaway"},
+];
+
+let activeCat = "all";
+let activeSuburb = "all";
+let activeSort = "rating";
+let query = "";
+
+const tabsEl = document.getElementById('tabs');
+const gridEl = document.getElementById('grid');
+const sectionTitle = document.getElementById('sectionTitle');
+const resultNote = document.getElementById('resultNote');
+const emptyState = document.getElementById('emptyState');
+const suburbFilter = document.getElementById('suburbFilter');
+const cuisineFilter = document.getElementById('cuisineFilter');
+const searchInput = document.getElementById('searchInput');
+const sortSelect = document.getElementById('sortSelect');
+const suggestionsEl = document.getElementById('suggestions');
+const searchBtn = document.getElementById('searchBtn');
+
+// populate suburb dropdown
+[...new Set(DATA.map(d => d.suburb))].sort().forEach(s => {
+  const opt = document.createElement('option');
+  opt.value = s; opt.textContent = s;
+  suburbFilter.appendChild(opt);
+});
+
+function renderTabs(){
+  tabsEl.innerHTML = "";
+  const combined = [...DATA, ...LIVE_DATA];
+  CATS.forEach(c => {
+    const count = c.key === "all" ? combined.length : combined.filter(d => d.category === c.key).length;
+    const el = document.createElement('div');
+    el.className = 'tab' + (c.key === activeCat ? ' active' : '');
+    el.innerHTML = `${c.label} <span class="count">${count}</span>`;
+    el.onclick = () => { activeCat = c.key; renderTabs(); renderGrid(); };
+    tabsEl.appendChild(el);
+  });
+}
+
+function priceFromLevel(level, category){
+  const table = {
+    0:[10,15], 1:[15,25], 2:[25,40], 3:[50,75], 4:[80,120]
+  };
+  if (level !== null && level !== undefined && table[level]) return table[level];
+  // sensible default when Google gives no price level
+  if (category === "cafe") return [20,30];
+  if (category === "takeaway") return [15,25];
+  return [35,55];
+}
+
+const DAY_NAMES = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+
+function todayHours(hours){
+  const day = DAY_NAMES[new Date().getDay()];
+  return hours && hours[day] ? hours[day] : null;
+}
+
+function isOpenNow(hours){
+  const todays = todayHours(hours);
+  if (!todays || todays === "Closed") return false;
+  if (todays.toLowerCase().includes("24 hours")) return true;
+  const now = new Date();
+  const nowMins = now.getHours()*60 + now.getMinutes();
+  const ranges = todays.split(",");
+  for (const r of ranges){
+    const parts = r.trim().split("–");
+    if (parts.length !== 2) continue;
+    const toMins = (t) => {
+      const m = t.trim().match(/(\d+):(\d+)\s?(AM|PM)/i);
+      if (!m) return null;
+      let h = parseInt(m[1]), min = parseInt(m[2]);
+      const ap = m[3].toUpperCase();
+      if (ap === "PM" && h !== 12) h += 12;
+      if (ap === "AM" && h === 12) h = 0;
+      return h*60+min;
+    };
+    const start = toMins(parts[0]), end = toMins(parts[1]);
+    if (start === null || end === null) continue;
+    if (nowMins >= start && nowMins <= end) return true;
+  }
+  return false;
+}
+
+function starString(rating){
+  const full = Math.round(rating);
+  return "★".repeat(full) + "☆".repeat(5-full);
+}
+
+function mapsUrl(place){
+  return `https://www.google.com/maps/place/?q=place_id:${place.place_id}`;
+}
+function searchUrl(place){
+  return `https://www.google.com/search?q=${encodeURIComponent(place.name + " " + place.suburb + " Sydney")}`;
+}
+
+function renderGrid(){
+  const combined = [...DATA, ...LIVE_DATA];
+  let items = combined.filter(d => (activeCat === "all" || d.category === activeCat));
+  if (activeSuburb !== "all") items = items.filter(d => d.suburb === activeSuburb);
+  if (query.trim()){
+    const q = query.toLowerCase();
+    items = items.filter(d => d.name.toLowerCase().includes(q) || (d.cuisine||"").toLowerCase().includes(q) || d.suburb.toLowerCase().includes(q));
+  }
+
+  items = [...items].sort((a,b) => {
+    if (activeSort === "rating") return b.rating - a.rating;
+    if (activeSort === "price_asc") return a.price[0] - b.price[0];
+    if (activeSort === "price_desc") return b.price[1] - a.price[1];
+    if (activeSort === "name") return a.name.localeCompare(b.name);
+    return 0;
+  });
+
+  const catLabel = CATS.find(c => c.key === activeCat).label;
+  sectionTitle.textContent = catLabel;
+
+  if (isSearchingLive){
+    resultNote.textContent = `Searching live for "${query}"…`;
+    gridEl.innerHTML = `<div class="empty" style="grid-column:1/-1;">Searching live for "${query}"… this can take a few seconds.</div>`;
+    emptyState.style.display = "none";
+    return;
+  } else {
+    resultNote.textContent = `${items.length} spot${items.length===1?'':'s'} listed`;
+  }
+
+  gridEl.innerHTML = "";
+  emptyState.style.display = items.length ? "none" : "block";
+
+  items.forEach(d => {
+    const open = d.source === "live" ? d.openNow : isOpenNow(d.hours);
+    const todays = d.source === "live" ? null : todayHours(d.hours);
+    const openLabel = open === true ? "Open now" : open === false ? "Closed now" : "Hours vary";
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.innerHTML = `
+      <div class="card-top">
+        <div>
+          <h3 class="card-title">${d.name}</h3>
+          <div class="card-sub">${d.cuisine} · ${d.suburb} ${d.source === 'live' ? '<span style="color:var(--sage);">· LIVE</span>' : ''}</div>
+        </div>
+        <span class="badge ${open ? 'open' : 'closed'}">${openLabel}</span>
+      </div>
+      <div class="rating-row">
+        <span class="stars">${starString(d.rating)}</span>
+        <span>${d.rating.toFixed(1)}</span>
+        <span class="rating-count">(${d.reviews.toLocaleString()} reviews)</span>
+      </div>
+      <div class="price-ticket">
+        <span class="price-label">Cost per head</span>
+        <span class="price-value">$${d.price[0]}–${d.price[1]}</span>
+      </div>
+      <div class="hours-line">${todays ? `Today: ${todays}` : d.address}</div>
+      <div class="card-actions">
+        <a class="primary" href="${mapsUrl(d)}" target="_blank" rel="noopener">Get directions</a>
+        <a href="${searchUrl(d)}" target="_blank" rel="noopener">Find website</a>
+      </div>
+    `;
+    gridEl.appendChild(card);
+  });
+}
+
+function buildSuggestionPool(){
+  const names = DATA.map(d => ({label:d.name, meta:`${d.cuisine} · ${d.suburb}`, type:'venue'}));
+  const cuisines = [...new Set(DATA.map(d => d.cuisine))].map(c => ({label:c, meta:'Cuisine', type:'cuisine'}));
+  const suburbs = [...new Set(DATA.map(d => d.suburb))].map(s => ({label:s, meta:'Suburb', type:'suburb'}));
+  return [...names, ...cuisines, ...suburbs];
+}
+const SUGGESTION_POOL = buildSuggestionPool();
+
+async function fetchLiveForSuburb(suburb){
+  isSearchingLive = true;
+  renderGrid();
+
+  const categories = ["cafe", "restaurant", "takeaway"];
+  const existingIds = new Set([...DATA, ...LIVE_DATA].map(d => d.place_id));
+  const cuisine = cuisineFilter.value;
+
+  try {
+    const responses = await Promise.all(categories.map(cat =>
+      fetch(`${LIVE_API}?suburb=${encodeURIComponent(suburb)}&category=${cat}&full=1${cuisine ? `&cuisine=${encodeURIComponent(cuisine)}` : ''}`)
+        .then(r => r.ok ? r.json() : {results:[]})
+        .catch(() => ({results:[]}))
+        .then(data => ({cat, data}))
+    ));
+
+    responses.forEach(({cat, data}) => {
+      (data.results || []).forEach(r => {
+        if (!r.placeId || existingIds.has(r.placeId)) return;
+        existingIds.add(r.placeId);
+        LIVE_DATA.push({
+          name: r.name,
+          category: cat,
+          cuisine: r.cuisine || (cat === "cafe" ? "Café" : cat === "takeaway" ? "Takeaway" : "Restaurant"),
+          suburb: suburb,
+          address: r.address,
+          rating: r.rating || 0,
+          reviews: r.reviews || 0,
+          price: priceFromLevel(r.priceLevel, cat),
+          openNow: r.openNow,
+          place_id: r.placeId,
+          source: "live",
+        });
+      });
+    });
+  } catch (err) {
+    console.error("Live search failed:", err);
+  }
+
+  isSearchingLive = false;
+  renderTabs();
+  renderGrid();
+}
+
+let hasSearched = false;
+
+function showResultsUI(){
+  hasSearched = true;
+  document.getElementById('landing').style.display = 'none';
+  document.getElementById('tabs').style.display = 'flex';
+  document.getElementById('metaRow').style.display = 'flex';
+}
+
+function runSearch(term){
+  showResultsUI();
+  query = term;
+  activeCat = "all";
+  renderTabs();
+  renderGrid();
+  suggestionsEl.classList.remove('show');
+  document.querySelector('main').scrollIntoView({behavior:'smooth', block:'start'});
+
+  // Treat the search term as a suburb and fetch live results too —
+  // covers both "search a suburb" and "search a dish/cuisine" cases,
+  // since a live suburb search costs nothing extra if the term isn't one.
+  if (term.trim().length > 1){
+    fetchLiveForSuburb(term.trim());
+  }
+}
+
+function renderSuggestions(term){
+  if (!term.trim()){ suggestionsEl.classList.remove('show'); return; }
+  const q = term.toLowerCase();
+  const matches = SUGGESTION_POOL.filter(s => s.label.toLowerCase().includes(q)).slice(0, 7);
+  if (!matches.length){ suggestionsEl.classList.remove('show'); return; }
+  suggestionsEl.innerHTML = matches.map(s => `
+    <div class="suggestion-item" data-label="${s.label.replace(/"/g,'&quot;')}">
+      <span>${s.label}</span>
+      <span class="s-meta">${s.meta}</span>
+    </div>
+  `).join('');
+  suggestionsEl.classList.add('show');
+  suggestionsEl.querySelectorAll('.suggestion-item').forEach(item => {
+    item.onclick = () => {
+      searchInput.value = item.dataset.label;
+      runSearch(item.dataset.label);
+    };
+  });
+}
+
+suburbFilter.addEventListener('change', e => { activeSuburb = e.target.value; renderGrid(); });
+sortSelect.addEventListener('change', e => { activeSort = e.target.value; renderGrid(); });
+cuisineFilter.addEventListener('change', () => {
+  if (hasSearched && searchInput.value.trim()){
+    LIVE_DATA = []; // cuisine changed — clear stale results and re-fetch
+    runSearch(searchInput.value.trim());
+  }
+});
+searchInput.addEventListener('input', e => {
+  query = e.target.value;
+  renderSuggestions(e.target.value);
+  if (hasSearched) renderGrid();
+});
+searchInput.addEventListener('keydown', e => {
+  if (e.key === 'Enter'){ e.preventDefault(); runSearch(searchInput.value); }
+});
+searchInput.addEventListener('focus', () => renderSuggestions(searchInput.value));
+searchBtn.addEventListener('click', () => runSearch(searchInput.value));
+document.addEventListener('click', e => {
+  if (!e.target.closest('.search-form')) suggestionsEl.classList.remove('show');
+});
+
+// Popular suburbs shown on the landing screen — clicking one runs a live search
+const POPULAR_SUBURBS = ["Sydney CBD", "Bondi", "Manly", "Surry Hills", "Newtown", "Parramatta", "Chatswood", "Coogee"];
+
+function initLanding(){
+  const chipRow = document.getElementById('chipRow');
+  chipRow.innerHTML = POPULAR_SUBURBS.map(s => `<div class="chip" data-suburb="${s}">${s}</div>`).join('');
+  chipRow.querySelectorAll('.chip').forEach(chip => {
+    chip.onclick = () => {
+      searchInput.value = chip.dataset.suburb;
+      runSearch(chip.dataset.suburb);
+    };
+  });
+}
+
+initLanding();
+</script>
+</body>
+</html>
