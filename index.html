@@ -591,8 +591,12 @@ const searchBtn = document.getElementById('searchBtn');
 function renderTabs(){
   tabsEl.innerHTML = "";
   const combined = [...DATA, ...LIVE_DATA];
+  const q = query.trim().toLowerCase();
+  const matchesQuery = (d) => !q || d.name.toLowerCase().includes(q) || (d.cuisine||"").toLowerCase().includes(q) || d.suburb.toLowerCase().includes(q);
+  const relevant = combined.filter(matchesQuery);
+
   CATS.forEach(c => {
-    const count = c.key === "all" ? combined.length : combined.filter(d => d.category === c.key).length;
+    const count = c.key === "all" ? relevant.length : relevant.filter(d => d.category === c.key).length;
     const el = document.createElement('div');
     el.className = 'tab' + (c.key === activeCat ? ' active' : '');
     el.innerHTML = `${c.label} <span class="count">${count}</span>`;
