@@ -138,7 +138,7 @@
     font-weight:600;
     font-size:15px;
     background:var(--brass);
-    color:var(--ink);
+    color:#FFFFFF;
     border:none;
     padding:0 24px;
     border-radius:var(--radius);
@@ -473,7 +473,6 @@
         <option value="Pizza">Pizza</option>
         <option value="Burger">Burger</option>
       </select>
-      <select id="suburbFilter"><option value="all">All suburbs</option></select>
       <select id="sortSelect">
         <option value="rating">Sort: highest rated</option>
         <option value="price_asc">Sort: cheapest first</option>
@@ -568,19 +567,11 @@ const gridEl = document.getElementById('grid');
 const sectionTitle = document.getElementById('sectionTitle');
 const resultNote = document.getElementById('resultNote');
 const emptyState = document.getElementById('emptyState');
-const suburbFilter = document.getElementById('suburbFilter');
 const cuisineFilter = document.getElementById('cuisineFilter');
 const searchInput = document.getElementById('searchInput');
 const sortSelect = document.getElementById('sortSelect');
 const suggestionsEl = document.getElementById('suggestions');
 const searchBtn = document.getElementById('searchBtn');
-
-// populate suburb dropdown
-[...new Set(DATA.map(d => d.suburb))].sort().forEach(s => {
-  const opt = document.createElement('option');
-  opt.value = s; opt.textContent = s;
-  suburbFilter.appendChild(opt);
-});
 
 function renderTabs(){
   tabsEl.innerHTML = "";
@@ -760,9 +751,9 @@ async function fetchLiveForSuburb(suburb){
 
     responses.forEach(({cat, data}) => {
       (data.results || []).forEach(r => {
-        if (!r.placeId || existingIds.has(r.placeId)) return;
-        existingIds.add(r.placeId);
-        LIVE_DATA.push({
+        if (!r.placeId) return;
+
+        const freshEntry = {
           name: r.name,
           category: cat,
           cuisine: r.cuisine || (cat === "cafe" ? "Café" : cat === "takeaway" ? "Takeaway" : "Restaurant"),
@@ -774,7 +765,19 @@ async function fetchLiveForSuburb(suburb){
           openNow: r.openNow,
           place_id: r.placeId,
           source: "live",
-        });
+        };
+
+        if (existingIds.has(r.placeId)) {
+          // Already seen this place before — refresh its data in case
+          // anything (like the suburb) has since been corrected, rather
+          // than leaving a stale/wrong entry sitting there forever.
+          const idx = LIVE_DATA.findIndex(d => d.place_id === r.placeId);
+          if (idx !== -1) LIVE_DATA[idx] = freshEntry;
+          return;
+        }
+
+        existingIds.add(r.placeId);
+        LIVE_DATA.push(freshEntry);
       });
     });
   } catch (err) {
@@ -956,7 +959,6 @@ function renderSuggestions(term){
   });
 }
 
-suburbFilter.addEventListener('change', e => { activeSuburb = e.target.value; renderGrid(); });
 sortSelect.addEventListener('change', e => { activeSort = e.target.value; renderGrid(); });
 cuisineFilter.addEventListener('change', () => {
   if (hasSearched && searchInput.value.trim()){
