@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -792,6 +792,17 @@ async function checkBookable(){
 
 let currentBookingRestaurantId = null;
 
+function formatSlotDate(raw){
+  const d = new Date(raw);
+  return d.toLocaleDateString('en-AU', { weekday: 'short', day: 'numeric', month: 'short' });
+}
+function formatSlotTime(raw){
+  const [h, m] = raw.split(':').map(Number);
+  const period = h >= 12 ? 'PM' : 'AM';
+  const hour12 = h % 12 === 0 ? 12 : h % 12;
+  return `${hour12}:${String(m).padStart(2,'0')} ${period}`;
+}
+
 async function openBookingModal(placeId, name){
   currentBookingRestaurantId = BOOKABLE[placeId];
   if (!currentBookingRestaurantId) return;
@@ -819,19 +830,6 @@ async function openBookingModal(placeId, name){
         <div class="modal-actions"><button class="cancel" onclick="closeBookingModal()">Close</button></div>`;
       return;
     }
-
-function formatSlotDate(raw){
-  // raw comes back as an ISO string like 2026-07-29T00:00:00.000Z
-  const d = new Date(raw);
-  return d.toLocaleDateString('en-AU', { weekday: 'short', day: 'numeric', month: 'short' });
-}
-function formatSlotTime(raw){
-  // raw is HH:MM:SS — convert to a friendly 12-hour time
-  const [h, m] = raw.split(':').map(Number);
-  const period = h >= 12 ? 'PM' : 'AM';
-  const hour12 = h % 12 === 0 ? 12 : h % 12;
-  return `${hour12}:${String(m).padStart(2,'0')} ${period}`;
-}
 
     const options = data.slots.map(s =>
       `<option value="${s.id}">${formatSlotDate(s.slot_date)} · ${formatSlotTime(s.slot_time)} (${s.capacity - s.booked_count} left)</option>`
