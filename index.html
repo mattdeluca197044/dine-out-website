@@ -1,4 +1,4 @@
-<<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -661,6 +661,23 @@ function renderGrid(){
   }
 
   items = [...items].sort((a,b) => {
+    // If someone typed a search term, a restaurant whose NAME closely
+    // matches it should surface first, regardless of the sort dropdown —
+    // e.g. searching "Salty Buns" should show Salty Buns before other
+    // higher-rated places that just happen to be in the same suburb.
+    const q = query.trim().toLowerCase();
+    if (q){
+      const relevance = (d) => {
+        const nameLower = d.name.toLowerCase();
+        if (nameLower === q) return 3;           // exact name match
+        if (nameLower.startsWith(q)) return 2;    // name starts with the search term
+        if (nameLower.includes(q)) return 1;      // name contains it somewhere
+        return 0;                                  // matched on cuisine/suburb only
+      };
+      const relDiff = relevance(b) - relevance(a);
+      if (relDiff !== 0) return relDiff;
+    }
+
     if (activeSort === "rating") return b.rating - a.rating;
     if (activeSort === "price_asc") return a.price[0] - b.price[0];
     if (activeSort === "price_desc") return b.price[1] - a.price[1];
