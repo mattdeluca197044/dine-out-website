@@ -555,6 +555,8 @@ const CATS = [
   {key:"cafe", label:"Cafés"},
   {key:"restaurant", label:"Restaurants"},
   {key:"takeaway", label:"Takeaway"},
+  {key:"pub", label:"Pub Restaurants"},
+  {key:"hatted", label:"Hatted"},
 ];
 
 let activeCat = "all";
@@ -737,7 +739,7 @@ async function fetchLiveForSuburb(suburb){
   isSearchingLive = true;
   renderGrid();
 
-  const categories = ["cafe", "restaurant", "takeaway"];
+  const categories = ["cafe", "restaurant", "takeaway", "pub", "hatted"];
   const existingIds = new Set([...DATA, ...LIVE_DATA].map(d => d.place_id));
   const cuisine = cuisineFilter.value;
 
@@ -756,7 +758,7 @@ async function fetchLiveForSuburb(suburb){
         const freshEntry = {
           name: r.name,
           category: cat,
-          cuisine: r.cuisine || (cat === "cafe" ? "Café" : cat === "takeaway" ? "Takeaway" : "Restaurant"),
+          cuisine: r.cuisine || (cat === "cafe" ? "Café" : cat === "takeaway" ? "Takeaway" : cat === "pub" ? "Pub" : cat === "hatted" ? "Hatted" : "Restaurant"),
           suburb: r.suburb || suburb,
           address: r.address,
           rating: r.rating || 0,
