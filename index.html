@@ -254,6 +254,18 @@
     margin:0;
   }
   .result-note{font-family:'IBM Plex Mono', monospace;font-size:12px;color:var(--text-dim);}
+  .hatted-disclaimer{
+    font-family:'Work Sans', sans-serif;
+    font-size:13px;
+    line-height:1.5;
+    background:#FBEBEA;
+    border:1px solid var(--line);
+    border-left:3px solid var(--ink);
+    padding:12px 16px;
+    border-radius:4px;
+    margin:0 0 20px;
+    color:var(--text);
+  }
 
   /* ---------- GRID / CARDS ---------- */
   .grid{
@@ -495,6 +507,7 @@
     <h2 id="sectionTitle">All spots</h2>
     <div class="result-note" id="resultNote"></div>
   </div>
+  <div id="hattedDisclaimer" style="display:none;"></div>
   <div class="grid" id="grid"></div>
   <div class="empty" id="emptyState" style="display:none;">No spots match that search — try another suburb or keyword.</div>
 </main>
@@ -680,6 +693,15 @@ function renderGrid(){
 
   const catLabel = CATS.find(c => c.key === activeCat).label;
   sectionTitle.textContent = catLabel;
+
+  const hattedNote = document.getElementById('hattedDisclaimer');
+  if (activeCat === "hatted"){
+    hattedNote.style.display = "block";
+    hattedNote.className = "hatted-disclaimer";
+    hattedNote.textContent = "\"Hatted\" here is an approximate keyword search, not a verified list from the Good Food Guide or any official awards body. Please confirm a restaurant's current hat status independently before relying on it.";
+  } else {
+    hattedNote.style.display = "none";
+  }
 
   if (isSearchingLive){
     resultNote.textContent = `Searching live for "${query}"…`;
