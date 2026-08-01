@@ -766,7 +766,7 @@ async function fetchLiveForSuburb(suburb){
           name: r.name,
           category: cat,
           cuisine: r.cuisine || (cat === "cafe" ? "Café" : cat === "takeaway" ? "Takeaway" : "Restaurant"),
-          suburb: suburb,
+          suburb: r.suburb || suburb,
           address: r.address,
           rating: r.rating || 0,
           reviews: r.reviews || 0,
