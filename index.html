@@ -333,6 +333,9 @@
   .price-value{font-size:16px;font-weight:600;color:var(--ink);}
 
   .hours-line{font-size:12.5px;color:var(--text-dim);display:flex;gap:6px;align-items:center;}
+  .claimed-desc{font-size:13px;color:var(--text);line-height:1.4;padding-top:4px;}
+  .claimed-social{font-size:12.5px;font-family:'IBM Plex Mono',monospace;}
+  .claimed-social a{color:var(--ink);text-decoration:underline;}
 
   .card-actions{
     display:flex;
@@ -743,6 +746,8 @@ function renderGrid(){
         <span class="price-value">$${d.price[0]}–${d.price[1]}</span>
       </div>
       <div class="hours-line">${todays ? `Today: ${todays}` : d.address}</div>
+      ${BOOKABLE[d.place_id]?.description ? `<div class="claimed-desc">${BOOKABLE[d.place_id].description}</div>` : ''}
+      ${BOOKABLE[d.place_id] ? renderSocialLinks(BOOKABLE[d.place_id]) : ''}
       <div class="card-actions">
         <a class="primary" href="${mapsUrl(d)}" target="_blank" rel="noopener">Get directions</a>
         <a href="${searchUrl(d)}" target="_blank" rel="noopener">Find website</a>
@@ -751,6 +756,15 @@ function renderGrid(){
     `;
     gridEl.appendChild(card);
   });
+}
+
+function renderSocialLinks(profile){
+  const links = [];
+  if (profile.instagramUrl) links.push(`<a href="${profile.instagramUrl}" target="_blank" rel="noopener">Instagram</a>`);
+  if (profile.facebookUrl) links.push(`<a href="${profile.facebookUrl}" target="_blank" rel="noopener">Facebook</a>`);
+  if (profile.websiteUrl) links.push(`<a href="${profile.websiteUrl}" target="_blank" rel="noopener">Website</a>`);
+  if (!links.length) return '';
+  return `<div class="claimed-social">${links.join(' · ')}</div>`;
 }
 
 function buildSuggestionPool(){
@@ -852,7 +866,7 @@ function formatSlotTime(raw){
 }
 
 async function openBookingModal(placeId, name){
-  currentBookingRestaurantId = BOOKABLE[placeId];
+  currentBookingRestaurantId = BOOKABLE[placeId]?.restaurantId;
   if (!currentBookingRestaurantId) return;
 
   const overlay = document.createElement('div');
