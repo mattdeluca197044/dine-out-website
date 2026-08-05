@@ -431,6 +431,44 @@
   }
   .chip:hover{background:var(--paper-dim);border-color:var(--ink);}
 
+  .featured-section{
+    max-width:900px;
+    margin:56px auto 0;
+    padding-top:36px;
+    border-top:1px solid var(--line);
+  }
+  .featured-header{text-align:center;margin-bottom:24px;}
+  .featured-title{
+    font-family:'Fraunces', serif;
+    font-size:20px;
+    font-weight:600;
+    margin:0 0 4px;
+  }
+  .featured-title span{color:var(--ink);}
+  .featured-sub{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    color:var(--text-dim);
+    margin:0;
+  }
+  .featured-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(260px, 1fr));
+    gap:16px;
+  }
+  .featured-card{
+    background:#FFFDF8;
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:16px 18px;
+    cursor:pointer;
+    transition:transform .15s ease, box-shadow .15s ease;
+  }
+  .featured-card:hover{transform:translateY(-2px);box-shadow:0 10px 20px -14px rgba(27,36,48,0.35);}
+  .featured-card h4{font-family:'Fraunces', serif; font-size:15px; margin:0 0 4px;}
+  .featured-card .fc-meta{font-family:'IBM Plex Mono', monospace; font-size:11.5px; color:var(--text-dim);}
+  .featured-card .fc-rating{color:var(--brass); font-size:12.5px; margin-top:6px;}
+
   footer{
     max-width:1080px;
     margin:0 auto;
@@ -505,6 +543,14 @@
     <p class="landing-title">Search a suburb to see what's around</p>
     <p class="landing-sub">Or try one of these to start browsing</p>
     <div class="chip-row" id="chipRow"></div>
+
+    <div class="featured-section" id="featuredSection" style="display:none;">
+      <div class="featured-header">
+        <h3 class="featured-title">This week, we're spotlighting <span id="featuredSuburbName"></span></h3>
+        <p class="featured-sub">Top-rated spots in the area, refreshed weekly</p>
+      </div>
+      <div class="featured-grid" id="featuredGrid"></div>
+    </div>
   </div>
   <div class="meta-row" id="metaRow" style="display:none;">
     <h2 id="sectionTitle">All spots</h2>
@@ -1036,7 +1082,47 @@ function initLanding(){
   });
 }
 
+function getWeekNumber(date){
+  const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+  d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
+  const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+  return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+}
+
+async function loadFeaturedSuburb(){
+  const weekNum = getWeekNumber(new Date());
+  const suburb = POPULAR_SUBURBS[weekNum % POPULAR_SUBURBS.length];
+
+  document.getElementById('featuredSuburbName').textContent = suburb;
+
+  try {
+    const res = await fetch(`${LIVE_API}?suburb=${encodeURIComponent(suburb)}&category=restaurant`);
+    if (!res.ok) return;
+    const data = await res.json();
+    const top = (data.results || [])
+      .filter(r => r.rating)
+      .sort((a, b) => b.rating - a.rating)
+      .slice(0, 6);
+
+    if (!top.length) return;
+
+    const grid = document.getElementById('featuredGrid');
+    grid.innerHTML = top.map(r => `
+      <div class="featured-card" onclick="searchInput.value='${suburb.replace(/'/g,"&#39;")}'; runSearch('${suburb.replace(/'/g,"&#39;")}');">
+        <h4>${r.name}</h4>
+        <div class="fc-meta">${suburb}</div>
+        <div class="fc-rating">★ ${r.rating.toFixed(1)} (${(r.reviews||0).toLocaleString()} reviews)</div>
+      </div>
+    `).join('');
+
+    document.getElementById('featuredSection').style.display = 'block';
+  } catch (err) {
+    console.error('Featured suburb load failed:', err);
+  }
+}
+
 initLanding();
+loadFeaturedSuburb();
 </script>
 </body>
 </html>
