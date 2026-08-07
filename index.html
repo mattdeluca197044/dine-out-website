@@ -733,6 +733,17 @@ function starString(rating){
   return "★".repeat(full) + "☆".repeat(5-full);
 }
 
+// Restaurant owners submit description/currentSpecial/social URLs through
+// the portal, and those values get inserted into every visitor's page via
+// innerHTML. Without escaping, a malicious owner could store a <script>
+// tag as their "special" and have it execute in every viewer's browser.
+// This neutralizes any HTML in the text before it's ever rendered.
+function escapeHtml(str){
+  const div = document.createElement('div');
+  div.textContent = str || '';
+  return div.innerHTML;
+}
+
 function mapsUrl(place){
   return `https://www.google.com/maps/place/?q=place_id:${place.place_id}`;
 }
@@ -822,8 +833,8 @@ function renderGrid(){
         <span class="price-value">$${d.price[0]}–${d.price[1]}</span>
       </div>
       <div class="hours-line">${todays ? `Today: ${todays}` : d.address}</div>
-      ${BOOKABLE[d.place_id]?.description ? `<div class="claimed-desc">${BOOKABLE[d.place_id].description}</div>` : ''}
-      ${BOOKABLE[d.place_id]?.currentSpecial ? `<div class="special-badge">✨ ${BOOKABLE[d.place_id].currentSpecial}</div>` : ''}
+      ${BOOKABLE[d.place_id]?.description ? `<div class="claimed-desc">${escapeHtml(BOOKABLE[d.place_id].description)}</div>` : ''}
+      ${BOOKABLE[d.place_id]?.currentSpecial ? `<div class="special-badge">✨ ${escapeHtml(BOOKABLE[d.place_id].currentSpecial)}</div>` : ''}
       ${BOOKABLE[d.place_id] ? renderSocialLinks(BOOKABLE[d.place_id]) : ''}
       <div class="card-actions">
         <a class="primary" href="${mapsUrl(d)}" target="_blank" rel="noopener">Get directions</a>
@@ -839,9 +850,9 @@ let BOOKABLE = {}; // place_id -> restaurant_id, for venues that have joined the
 
 function renderSocialLinks(profile){
   const links = [];
-  if (profile.instagramUrl) links.push(`<a href="${profile.instagramUrl}" target="_blank" rel="noopener">Instagram</a>`);
-  if (profile.facebookUrl) links.push(`<a href="${profile.facebookUrl}" target="_blank" rel="noopener">Facebook</a>`);
-  if (profile.websiteUrl) links.push(`<a href="${profile.websiteUrl}" target="_blank" rel="noopener">Website</a>`);
+  if (profile.instagramUrl) links.push(`<a href="${escapeHtml(profile.instagramUrl)}" target="_blank" rel="noopener">Instagram</a>`);
+  if (profile.facebookUrl) links.push(`<a href="${escapeHtml(profile.facebookUrl)}" target="_blank" rel="noopener">Facebook</a>`);
+  if (profile.websiteUrl) links.push(`<a href="${escapeHtml(profile.websiteUrl)}" target="_blank" rel="noopener">Website</a>`);
   if (!links.length) return '';
   return `<div class="claimed-social">${links.join(' · ')}</div>`;
 }
