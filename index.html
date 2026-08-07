@@ -619,8 +619,27 @@ const DATA = [
 
 const LIVE_API = "https://eat-out-oz.vercel.app/api/search";
 const BOOKING_API = "https://eat-out-oz.vercel.app/api";
-let BOOKABLE = {}; // place_id -> restaurant_id, for venues that have joined the booking system
+
+// Normalize a name+address pair into a loose matching key so the same
+// physical venue can be recognized even if Google returns it under a
+// different place_id for different category searches (e.g. one listing
+// tagged "cafe", another tagged "takeaway", for the same shopfront).
+function dedupeKey(name, address){
+  const norm = (s) => (s || "")
+    .toLowerCase()
+    .replace(/[^\w\s]/g, "")
+    .replace(/\bstreet\b/g, "st")
+    .replace(/\bavenue\b/g, "ave")
+    .replace(/\bparade\b/g, "pde")
+    .replace(/\s+/g, " ")
+    .trim();
+  return `${norm(name)}|${norm(address)}`;
+}
+
 let LIVE_DATA = []; // results fetched live get appended here for this session
+let liveIds = new Set(DATA.map(d => d.place_id)); // persists across calls — unlike a local snapshot rebuilt per call, this sees what concurrent calls have already added
+let liveDedupeKeys = new Set(DATA.map(d => dedupeKey(d.name, d.address))); // fallback dedup by name+address, in case Google returns two place_ids for the same venue
+let searchGeneration = 0; // bumped on every new search; a stale in-flight fetch checks this before writing results, so an overlapping call can't stomp a newer one
 let isSearchingLive = false;
 
 const CATS = [
@@ -816,6 +835,8 @@ function renderGrid(){
   });
 }
 
+let BOOKABLE = {}; // place_id -> restaurant_id, for venues that have joined the booking system
+
 function renderSocialLinks(profile){
   const links = [];
   if (profile.instagramUrl) links.push(`<a href="${profile.instagramUrl}" target="_blank" rel="noopener">Instagram</a>`);
@@ -834,11 +855,11 @@ function buildSuggestionPool(){
 const SUGGESTION_POOL = buildSuggestionPool();
 
 async function fetchLiveForSuburb(suburb){
+  const myGeneration = ++searchGeneration; // this call's "ticket" — if a newer search starts, we bail out below
   isSearchingLive = true;
   renderGrid();
 
   const categories = ["cafe", "restaurant", "takeaway", "pub", "hatted"];
-  const existingIds = new Set([...DATA, ...LIVE_DATA].map(d => d.place_id));
   const cuisine = cuisineFilter.value;
 
   try {
@@ -848,6 +869,11 @@ async function fetchLiveForSuburb(suburb){
         .catch(() => ({results:[]}))
         .then(data => ({cat, data}))
     ));
+
+    // If a newer search started while we were waiting on the network,
+    // drop these results — they're stale and would otherwise race with
+    // the newer call's dedup check and produce duplicate cards.
+    if (myGeneration !== searchGeneration) return;
 
     responses.forEach(({cat, data}) => {
       (data.results || []).forEach(r => {
@@ -867,22 +893,34 @@ async function fetchLiveForSuburb(suburb){
           source: "live",
         };
 
-        if (existingIds.has(r.placeId)) {
-          // Already seen this place before — refresh its data in case
-          // anything (like the suburb) has since been corrected, rather
-          // than leaving a stale/wrong entry sitting there forever.
+        if (liveIds.has(r.placeId)) {
+          // Same place_id seen before — refresh its data in case anything
+          // (like the suburb) has since been corrected, rather than
+          // leaving a stale/wrong entry sitting there forever.
           const idx = LIVE_DATA.findIndex(d => d.place_id === r.placeId);
           if (idx !== -1) LIVE_DATA[idx] = freshEntry;
           return;
         }
 
-        existingIds.add(r.placeId);
+        const key = dedupeKey(freshEntry.name, freshEntry.address);
+        if (liveDedupeKeys.has(key)) {
+          // Different place_id, but same venue by name+address — Google
+          // returned a split/duplicate listing (e.g. one tagged "cafe",
+          // one tagged "takeaway" for the same shopfront). Skip it rather
+          // than showing two cards for one restaurant.
+          return;
+        }
+
+        liveIds.add(r.placeId);
+        liveDedupeKeys.add(key);
         LIVE_DATA.push(freshEntry);
       });
     });
   } catch (err) {
     console.error("Live search failed:", err);
   }
+
+  if (myGeneration !== searchGeneration) return; // a newer search superseded this one — don't stomp its UI state either
 
   isSearchingLive = false;
   renderTabs();
@@ -1062,7 +1100,10 @@ function renderSuggestions(term){
 sortSelect.addEventListener('change', e => { activeSort = e.target.value; renderGrid(); });
 cuisineFilter.addEventListener('change', () => {
   if (hasSearched && searchInput.value.trim()){
-    LIVE_DATA = []; // cuisine changed — clear stale results and re-fetch
+    // Cuisine changed — clear stale results and their dedup keys, then re-fetch.
+    LIVE_DATA = [];
+    liveIds = new Set(DATA.map(d => d.place_id));
+    liveDedupeKeys = new Set(DATA.map(d => dedupeKey(d.name, d.address)));
     runSearch(searchInput.value.trim());
   }
 });
