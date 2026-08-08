@@ -268,7 +268,7 @@ async function loadFeatured(){
   document.title = `${suburb} — Suburb of the Week — Eat Out Oz`;
   document.getElementById('browseCta').href = `index.html?suburb=${encodeURIComponent(suburb)}`;
 
-  const categories = ["cafe", "restaurant", "takeaway", "pub", "hatted"];
+  const categories = ["cafe", "restaurant", "takeaway", "pub", "club", "hatted"];
   const seen = new Set();
   let combined = [];
 
@@ -287,7 +287,7 @@ async function loadFeatured(){
         combined.push({
           name: r.name,
           category: cat,
-          cuisine: r.cuisine || (cat === "cafe" ? "Café" : cat === "takeaway" ? "Takeaway" : cat === "pub" ? "Pub" : cat === "hatted" ? "Hatted" : "Restaurant"),
+          cuisine: r.cuisine || (cat === "cafe" ? "Café" : cat === "takeaway" ? "Takeaway" : cat === "pub" ? "Pub" : cat === "club" ? "Club" : cat === "hatted" ? "Award Winning" : "Restaurant"),
           address: r.address,
           rating: r.rating || 0,
           reviews: r.reviews || 0,
