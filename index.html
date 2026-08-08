@@ -641,7 +641,8 @@ const CATS = [
   {key:"restaurant", label:"Restaurants"},
   {key:"takeaway", label:"Takeaway"},
   {key:"pub", label:"Pub Restaurants"},
-  {key:"hatted", label:"Hatted"},
+  {key:"club", label:"Clubs"},
+  {key:"hatted", label:"Award Winning"},
 ];
 
 let activeCat = "all";
@@ -785,7 +786,7 @@ function renderGrid(){
   if (activeCat === "hatted"){
     hattedNote.style.display = "block";
     hattedNote.className = "hatted-disclaimer";
-    hattedNote.textContent = "\"Hatted\" here is an approximate keyword search, not a verified list from the Good Food Guide or any official awards body. Please confirm a restaurant's current hat status independently before relying on it.";
+    hattedNote.textContent = "\"Award Winning\" here is an approximate keyword search, not a verified list from the Good Food Guide, Chef's Hat Awards, or any other official awards body. Please confirm a restaurant's current award status independently before relying on it.";
   } else {
     hattedNote.style.display = "none";
   }
@@ -863,7 +864,7 @@ async function fetchLiveForSuburb(suburb){
   isSearchingLive = true;
   renderGrid();
 
-  const categories = ["cafe", "restaurant", "takeaway", "pub", "hatted"];
+  const categories = ["cafe", "restaurant", "takeaway", "pub", "club", "hatted"];
   const cuisine = cuisineFilter.value;
 
   try {
@@ -886,7 +887,7 @@ async function fetchLiveForSuburb(suburb){
         const freshEntry = {
           name: r.name,
           category: cat,
-          cuisine: r.cuisine || (cat === "cafe" ? "Café" : cat === "takeaway" ? "Takeaway" : cat === "pub" ? "Pub" : cat === "hatted" ? "Hatted" : "Restaurant"),
+          cuisine: r.cuisine || (cat === "cafe" ? "Café" : cat === "takeaway" ? "Takeaway" : cat === "pub" ? "Pub" : cat === "club" ? "Club" : cat === "hatted" ? "Award Winning" : "Restaurant"),
           suburb: r.suburb || suburb,
           address: r.address,
           rating: r.rating || 0,
