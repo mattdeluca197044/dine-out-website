@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Loading… — outtoeat</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Work+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#DE3937; --ink-soft:#B32E2C; --paper:#FFFFFF; --paper-dim:#FBEBEA;
+    --brass:#C42B29; --brass-bright:#F0524F; --sage:#4F8A5B; --rust:#8A8078;
+    --line:#F0D9D8; --text:#241412; --text-dim:#7A6E6A; --radius:4px;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--paper);color:var(--text);font-family:'Work Sans',sans-serif;-webkit-font-smoothing:antialiased;}
+
+  header{background:var(--ink);padding:20px 24px;}
+  .header-inner{max-width:800px;margin:0 auto;}
+  .back-link{
+    display:inline-flex;align-items:center;gap:6px;
+    font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:#FBDAD9;text-decoration:none;
+  }
+  .back-link:hover{color:#fff;}
+
+  main{max-width:800px;margin:0 auto;padding:0 24px 80px;}
+
+  .gallery{
+    display:grid;
+    grid-template-columns:2fr 1fr;
+    gap:6px;
+    margin:20px 0;
+    border-radius:8px;
+    overflow:hidden;
+    max-height:420px;
+  }
+  .gallery img{width:100%;height:100%;object-fit:cover;display:block;background:var(--paper-dim);}
+  .gallery-main{grid-row:1 / 3;}
+  .gallery-thumbs{display:grid;grid-template-rows:1fr 1fr;gap:6px;}
+  .gallery-empty{
+    height:220px;border-radius:8px;background:var(--paper-dim);
+    display:flex;align-items:center;justify-content:center;
+    font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--text-dim);margin:20px 0;
+  }
+  @media (max-width:560px){
+    .gallery{grid-template-columns:1fr;max-height:none;}
+    .gallery-main{grid-row:auto;height:220px;}
+    .gallery-thumbs{grid-template-columns:1fr 1fr;grid-template-rows:none;height:110px;}
+  }
+
+  .title-row{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:8px;}
+  h1{font-family:'Fraunces',serif;font-size:clamp(26px,5vw,34px);font-weight:600;margin:0;line-height:1.1;}
+  .badge{
+    font-family:'IBM Plex Mono',monospace;font-size:11px;padding:4px 10px;border-radius:20px;
+    white-space:nowrap;letter-spacing:0.03em;height:fit-content;
+  }
+  .badge.open{background:#5F7A5E1a;color:var(--sage);border:1px solid #5F7A5E55;}
+  .badge.closed{background:#9C4A3A1a;color:var(--rust);border:1px solid #9C4A3A55;}
+
+  .rating-row{display:flex;align-items:center;gap:8px;font-size:15px;margin-bottom:16px;}
+  .stars{color:var(--brass);letter-spacing:1px;}
+  .rating-count{color:var(--text-dim);font-size:13px;}
+
+  .special-badge{
+    display:inline-block;background:var(--sage);color:#fff;
+    font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;
+    padding:8px 14px;border-radius:20px;margin-bottom:20px;
+  }
+
+  .desc{font-size:15px;line-height:1.6;margin-bottom:20px;}
+
+  .info-grid{
+    display:grid;grid-template-columns:1fr 1fr;gap:16px;
+    background:var(--paper-dim);border-radius:8px;padding:20px;margin-bottom:20px;
+  }
+  .info-item h4{
+    font-family:'IBM Plex Mono',monospace;font-size:11px;text-transform:uppercase;
+    letter-spacing:0.05em;color:var(--text-dim);margin:0 0 4px;
+  }
+  .info-item p{font-size:14px;margin:0;line-height:1.5;}
+  @media (max-width:560px){.info-grid{grid-template-columns:1fr;}}
+
+  .hours-list{font-size:13.5px;line-height:1.9;color:var(--text);}
+
+  .social-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:24px;}
+  .social-row a{
+    font-family:'Work Sans',sans-serif;font-size:13px;font-weight:600;
+    color:var(--ink);text-decoration:none;border:1px solid var(--ink);
+    padding:8px 14px;border-radius:var(--radius);
+  }
+  .social-row a:hover{background:var(--paper-dim);}
+
+  .action-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px;}
+  .action-row a, .action-row button{
+    flex:1;min-width:140px;text-align:center;font-family:'Work Sans',sans-serif;
+    font-size:14px;font-weight:600;text-decoration:none;padding:13px;
+    border-radius:var(--radius);border:1px solid var(--ink);color:var(--ink);
+    background:transparent;cursor:pointer;
+  }
+  .action-row a.primary{background:var(--ink);color:#fff;}
+  .action-row a.primary:hover{background:var(--brass);}
+  .action-row a:not(.primary):hover{background:var(--paper-dim);}
+  .action-row .book{background:var(--sage);color:#fff;border-color:var(--sage);}
+  .action-row .book:hover{background:#3f7049;}
+
+  .claimed-note{
+    font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--text-dim);
+    margin-top:24px;padding-top:16px;border-top:1px solid var(--line);
+  }
+
+  .loading, .error-state{
+    text-align:center;padding:100px 20px;color:var(--text-dim);
+    font-family:'IBM Plex Mono',monospace;font-size:14px;
+  }
+
+  .modal-overlay{
+    position:fixed;inset:0;background:rgba(36,20,18,0.55);
+    display:flex;align-items:center;justify-content:center;z-index:100;padding:20px;
+  }
+  .modal{background:#FFFDF8;border-radius:10px;padding:26px;max-width:420px;width:100%;max-height:85vh;overflow-y:auto;}
+  .modal h3{font-family:'Fraunces',serif;font-size:19px;margin:0 0 6px;}
+  .modal .modal-sub{font-size:13px;color:var(--text-dim);margin-bottom:18px;}
+  .modal label{display:block;font-size:13px;color:var(--text-dim);margin:12px 0 5px;}
+  .modal input, .modal select{width:100%;padding:9px 10px;font-size:14px;border:1px solid var(--line);border-radius:4px;font-family:'Work Sans',sans-serif;}
+  .modal-actions{display:flex;gap:8px;margin-top:20px;}
+  .modal-actions button{flex:1;padding:11px;font-size:14px;font-weight:600;border-radius:4px;cursor:pointer;border:none;}
+  .modal-actions .confirm{background:var(--ink);color:#fff;}
+  .modal-actions .cancel{background:transparent;color:var(--text-dim);border:1px solid var(--line);}
+  .modal-msg{font-size:13px;padding:10px;border-radius:4px;margin-top:12px;}
+  .modal-msg.error{background:#FCEBEB;color:#791F1F;}
+  .modal-msg.success{background:#EAF3DE;color:#27500A;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <a href="index.html" class="back-link">← Back to search</a>
+  </div>
+</header>
+
+<main>
+  <div class="loading" id="loadingState">Loading listing…</div>
+  <div class="error-state" id="errorState" style="display:none;">Couldn't find that listing — it may have been removed, or the link is incorrect.</div>
+  <div id="content" style="display:none;"></div>
+</main>
+
+<script>
+const BOOKING_API = "https://eat-out-oz.vercel.app/api";
+
+function escapeHtml(str){
+  const div = document.createElement('div');
+  div.textContent = str || '';
+  return div.innerHTML;
+}
+
+function starString(rating){
+  const full = Math.round(rating);
+  return "★".repeat(full) + "☆".repeat(5-full);
+}
+
+function priceFromLevel(level){
+  const table = { 0:[10,15], 1:[15,25], 2:[25,40], 3:[50,75], 4:[80,120] };
+  return (level !== null && level !== undefined && table[level]) ? table[level] : [35,55];
+}
+
+function mapsUrl(placeId){
+  return `https://www.google.com/maps/place/?q=place_id:${placeId}`;
+}
+function searchUrl(name, address){
+  return `https://www.google.com/search?q=${encodeURIComponent(name + " " + (address || ""))}`;
+}
+
+function getPlaceIdFromUrl(){
+  const params = new URLSearchParams(window.location.search);
+  return params.get('place') || params.get('placeId');
+}
+
+let currentRestaurantId = null;
+
+async function loadListing(){
+  const placeId = getPlaceIdFromUrl();
+  if (!placeId){
+    document.getElementById('loadingState').style.display = 'none';
+    document.getElementById('errorState').style.display = 'block';
+    return;
+  }
+
+  try {
+    const res = await fetch(`${BOOKING_API}/place-details?placeId=${encodeURIComponent(placeId)}`);
+    const data = await res.json();
+    if (!res.ok || !data.google){
+      document.getElementById('loadingState').style.display = 'none';
+      document.getElementById('errorState').style.display = 'block';
+      return;
+    }
+
+    const { google, claimed } = data;
+    document.title = `${google.name} — outtoeat`;
+
+    const photos = claimed?.photos || [];
+    const price = priceFromLevel(google.priceLevel);
+
+    let galleryHtml = '';
+    if (photos.length){
+      const main = photos[0];
+      const thumbs = photos.slice(1, 3);
+      galleryHtml = `
+        <div class="gallery">
+          <img class="gallery-main" src="${main}" alt="${escapeHtml(google.name)}" loading="lazy">
+          ${thumbs.length ? `<div class="gallery-thumbs">${thumbs.map(p => `<img src="${p}" alt="${escapeHtml(google.name)}" loading="lazy">`).join('')}</div>` : ''}
+        </div>
+      `;
+    } else {
+      galleryHtml = `<div class="gallery-empty">No photos uploaded yet</div>`;
+    }
+
+    const specialHtml = claimed?.currentSpecial
+      ? `<div class="special-badge">✨ ${escapeHtml(claimed.currentSpecial)}</div>`
+      : '';
+
+    const descHtml = claimed?.description
+      ? `<p class="desc">${escapeHtml(claimed.description)}</p>`
+      : '';
+
+    const hoursHtml = google.weekdayHours && google.weekdayHours.length
+      ? `<div class="hours-list">${google.weekdayHours.map(h => escapeHtml(h)).join('<br>')}</div>`
+      : `<p>Hours not available</p>`;
+
+    const socialLinks = [];
+    if (claimed?.instagramUrl) socialLinks.push(`<a href="${escapeHtml(claimed.instagramUrl)}" target="_blank" rel="noopener">Instagram</a>`);
+    if (claimed?.facebookUrl) socialLinks.push(`<a href="${escapeHtml(claimed.facebookUrl)}" target="_blank" rel="noopener">Facebook</a>`);
+    if (claimed?.websiteUrl) socialLinks.push(`<a href="${escapeHtml(claimed.websiteUrl)}" target="_blank" rel="noopener">Website</a>`);
+    const socialHtml = socialLinks.length ? `<div class="social-row">${socialLinks.join('')}</div>` : '';
+
+    currentRestaurantId = claimed?.restaurantId || null;
+    const bookBtn = currentRestaurantId
+      ? `<button class="book" onclick="openBookingModal('${escapeHtml(google.name)}')">Book a table</button>`
+      : '';
+
+    document.getElementById('content').innerHTML = `
+      ${galleryHtml}
+      <div class="title-row">
+        <h1>${escapeHtml(google.name)}</h1>
+        ${google.openNow !== null ? `<span class="badge ${google.openNow ? 'open' : 'closed'}">${google.openNow ? 'Open now' : 'Closed now'}</span>` : ''}
+      </div>
+      ${google.rating ? `
+        <div class="rating-row">
+          <span class="stars">${starString(google.rating)}</span>
+          <span>${google.rating.toFixed(1)}</span>
+          <span class="rating-count">(${(google.reviews||0).toLocaleString()} reviews)</span>
+        </div>
+      ` : ''}
+      ${specialHtml}
+      ${descHtml}
+      <div class="info-grid">
+        <div class="info-item">
+          <h4>Address</h4>
+          <p>${escapeHtml(google.address || 'Not available')}</p>
+        </div>
+        <div class="info-item">
+          <h4>Cost per head</h4>
+          <p>$${price[0]}–${price[1]}</p>
+        </div>
+        <div class="info-item">
+          <h4>Phone</h4>
+          <p>${escapeHtml(google.phone || 'Not listed')}</p>
+        </div>
+        <div class="info-item">
+          <h4>Hours</h4>
+          ${hoursHtml}
+        </div>
+      </div>
+      ${socialHtml}
+      <div class="action-row">
+        <a class="primary" href="${mapsUrl(placeId)}" target="_blank" rel="noopener">Get directions</a>
+        <a href="${google.googleWebsite || searchUrl(google.name, google.address)}" target="_blank" rel="noopener">Find website</a>
+        ${bookBtn}
+      </div>
+      ${!claimed ? `<div class="claimed-note">This listing hasn't been claimed by its owner yet — photos, specials, and booking will appear here once it is.</div>` : ''}
+    `;
+
+    document.getElementById('loadingState').style.display = 'none';
+    document.getElementById('content').style.display = 'block';
+  } catch (err) {
+    console.error('Listing load failed:', err);
+    document.getElementById('loadingState').style.display = 'none';
+    document.getElementById('errorState').style.display = 'block';
+  }
+}
+
+function formatSlotDate(raw){
+  const d = new Date(raw);
+  return d.toLocaleDateString('en-AU', { weekday: 'short', day: 'numeric', month: 'short' });
+}
+function formatSlotTime(raw){
+  const [h, m] = raw.split(':').map(Number);
+  const period = h >= 12 ? 'PM' : 'AM';
+  const hour12 = h % 12 === 0 ? 12 : h % 12;
+  return `${hour12}:${String(m).padStart(2,'0')} ${period}`;
+}
+
+async function openBookingModal(name){
+  if (!currentRestaurantId) return;
+
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.id = 'bookingOverlay';
+  overlay.innerHTML = `
+    <div class="modal">
+      <h3>Book a table</h3>
+      <div class="modal-sub">${name}</div>
+      <div id="modalBody">Loading available times…</div>
+    </div>
+  `;
+  overlay.onclick = (e) => { if (e.target === overlay) closeBookingModal(); };
+  document.body.appendChild(overlay);
+
+  try {
+    const res = await fetch(`${BOOKING_API}/slots?restaurantId=${currentRestaurantId}`);
+    const data = await res.json();
+    const body = document.getElementById('modalBody');
+
+    if (!data.slots || !data.slots.length){
+      body.innerHTML = `<div class="modal-msg error">No available time slots right now. Try again later.</div>
+        <div class="modal-actions"><button class="cancel" onclick="closeBookingModal()">Close</button></div>`;
+      return;
+    }
+
+    const options = data.slots.map(s =>
+      `<option value="${s.id}">${formatSlotDate(s.slot_date)} · ${formatSlotTime(s.slot_time)} (${s.capacity - s.booked_count} left)</option>`
+    ).join('');
+
+    body.innerHTML = `
+      <label>Choose a time</label>
+      <select id="bookSlot">${options}</select>
+      <label>Your name</label>
+      <input id="bookName" type="text" placeholder="Jane Smith">
+      <label>Email</label>
+      <input id="bookEmail" type="email" placeholder="jane@example.com">
+      <label>Phone (optional)</label>
+      <input id="bookPhone" type="text" placeholder="04xx xxx xxx">
+      <label>Party size</label>
+      <input id="bookParty" type="number" min="1" value="2">
+      <div id="bookMsg"></div>
+      <div class="modal-actions">
+        <button class="cancel" onclick="closeBookingModal()">Cancel</button>
+        <button class="confirm" onclick="submitBooking()">Confirm booking</button>
+      </div>
+    `;
+  } catch (err) {
+    document.getElementById('modalBody').innerHTML = `<div class="modal-msg error">Failed to load availability.</div>`;
+  }
+}
+
+function closeBookingModal(){
+  const overlay = document.getElementById('bookingOverlay');
+  if (overlay) overlay.remove();
+}
+
+async function submitBooking(){
+  const slotId = document.getElementById('bookSlot').value;
+  const name = document.getElementById('bookName').value.trim();
+  const email = document.getElementById('bookEmail').value.trim();
+  const phone = document.getElementById('bookPhone').value.trim();
+  const partySize = parseInt(document.getElementById('bookParty').value, 10);
+  const msgEl = document.getElementById('bookMsg');
+
+  if (!name || !email || !partySize){
+    msgEl.innerHTML = `<div class="modal-msg error">Please fill in your name, email and party size.</div>`;
+    return;
+  }
+
+  try {
+    const res = await fetch(`${BOOKING_API}/book`, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ slotId, name, email, phone: phone || null, partySize })
+    });
+    const data = await res.json();
+    if (!res.ok){
+      msgEl.innerHTML = `<div class="modal-msg error">${data.error || 'Booking failed.'}</div>`;
+      return;
+    }
+    document.getElementById('modalBody').innerHTML = `<div class="modal-msg success">Booked for ${formatSlotDate(data.slot.date)} at ${formatSlotTime(data.slot.time)}. A confirmation was recorded — the restaurant can see it in their dashboard.</div>
+      <div class="modal-actions"><button class="cancel" onclick="closeBookingModal()">Close</button></div>`;
+  } catch (err) {
+    msgEl.innerHTML = `<div class="modal-msg error">Something went wrong: ${err.message}</div>`;
+  }
+}
+
+loadListing();
+</script>
+</body>
+</html>
