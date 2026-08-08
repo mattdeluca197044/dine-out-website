@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Claim review — outtoeat admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Work+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#DE3937; --paper:#FFFFFF; --paper-dim:#FBEBEA;
+    --brass:#C42B29; --brass-bright:#F0524F; --sage:#4F8A5B;
+    --line:#F0D9D8; --text:#241412; --text-dim:#7A6E6A; --radius:4px;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--paper-dim);color:var(--text);font-family:'Work Sans',sans-serif;}
+
+  header{background:var(--ink);color:#fff;padding:24px;}
+  .brand{font-family:'Fraunces',serif;font-weight:700;font-size:20px;}
+  .brand-sub{font-family:'IBM Plex Mono',monospace;font-size:12px;color:#FBDAD9;margin-top:2px;}
+
+  main{max-width:640px;margin:0 auto;padding:32px 20px 80px;}
+
+  .gate{background:#FFFDF8;border:1px solid var(--line);border-radius:10px;padding:28px;}
+  .gate label{display:block;font-size:13px;color:var(--text-dim);margin-bottom:6px;}
+  .gate input{width:100%;padding:10px 12px;font-size:14px;border:1px solid var(--line);border-radius:var(--radius);}
+  .gate button{
+    width:100%;margin-top:14px;padding:12px;font-size:14px;font-weight:600;
+    background:var(--ink);color:#fff;border:none;border-radius:var(--radius);cursor:pointer;
+  }
+  .gate button:hover{background:var(--brass-bright);}
+  .gate .msg{font-size:13px;color:#791F1F;margin-top:10px;}
+
+  .claim-card{
+    background:#FFFDF8;border:1px solid var(--line);border-radius:10px;
+    padding:20px;margin-bottom:16px;
+  }
+  .claim-card h3{font-family:'Fraunces',serif;font-size:17px;margin:0 0 8px;}
+  .claim-meta{font-size:13px;color:var(--text-dim);line-height:1.8;margin-bottom:14px;}
+  .claim-meta a{color:var(--ink);}
+  .claim-actions{display:flex;gap:8px;}
+  .claim-actions button{
+    flex:1;padding:10px;font-size:13px;font-weight:600;border-radius:var(--radius);
+    cursor:pointer;border:none;
+  }
+  .approve-btn{background:var(--sage);color:#fff;}
+  .approve-btn:hover{background:#3f7049;}
+  .reject-btn{background:transparent;color:var(--ink);border:1px solid var(--ink) !important;}
+  .reject-btn:hover{background:var(--paper-dim);}
+
+  .empty{text-align:center;padding:60px 20px;color:var(--text-dim);font-family:'IBM Plex Mono',monospace;font-size:14px;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">outtoeat</div>
+  <div class="brand-sub">Listing claim review</div>
+</header>
+
+<main>
+  <div id="gateView" class="gate">
+    <label>Admin secret</label>
+    <input id="secretInput" type="password" placeholder="Enter admin secret">
+    <button onclick="loadPending()">View pending claims</button>
+    <div id="gateMsg" class="msg"></div>
+  </div>
+
+  <div id="listView" style="display:none;">
+    <div id="claimsList"></div>
+  </div>
+</main>
+
+<script>
+const API = "https://eat-out-oz.vercel.app/api";
+let adminSecret = sessionStorage.getItem('outtoeat_admin_secret') || '';
+
+if (adminSecret) {
+  document.getElementById('secretInput').value = adminSecret;
+}
+
+function mapsUrl(placeId){
+  return `https://www.google.com/maps/place/?q=place_id:${placeId}`;
+}
+
+async function loadPending(){
+  const secretField = document.getElementById('secretInput').value.trim();
+  if (!secretField){
+    document.getElementById('gateMsg').textContent = 'Enter the admin secret.';
+    return;
+  }
+  adminSecret = secretField;
+
+  try {
+    const res = await fetch(`${API}/admin-pending-claims`, {
+      headers: { 'x-admin-secret': adminSecret }
+    });
+    const data = await res.json();
+    if (!res.ok){
+      document.getElementById('gateMsg').textContent = data.error || 'Failed to load — check the secret.';
+      return;
+    }
+
+    // Only remember the secret for this browser tab session once it's
+    // actually confirmed correct — never persisted longer-term.
+    sessionStorage.setItem('outtoeat_admin_secret', adminSecret);
+
+    document.getElementById('gateView').style.display = 'none';
+    document.getElementById('listView').style.display = 'block';
+    renderClaims(data.pending || []);
+  } catch (err) {
+    document.getElementById('gateMsg').textContent = 'Something went wrong: ' + err.message;
+  }
+}
+
+function renderClaims(claims){
+  const list = document.getElementById('claimsList');
+  if (!claims.length){
+    list.innerHTML = '<div class="empty">No pending claims right now.</div>';
+    return;
+  }
+  list.innerHTML = claims.map(c => `
+    <div class="claim-card" id="claim-${c.id}">
+      <h3>${escapeHtml(c.name)}</h3>
+      <div class="claim-meta">
+        Email: ${escapeHtml(c.owner_email)}<br>
+        Subscription: ${escapeHtml(c.subscription_status)}<br>
+        Signed up: ${new Date(c.created_at).toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' })}<br>
+        <a href="${mapsUrl(c.place_id)}" target="_blank" rel="noopener">View the Google listing they're claiming →</a>
+      </div>
+      <div class="claim-actions">
+        <button class="approve-btn" onclick="reviewClaim(${c.id}, 'approve')">Approve</button>
+        <button class="reject-btn" onclick="reviewClaim(${c.id}, 'reject')">Reject</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function escapeHtml(str){
+  const div = document.createElement('div');
+  div.textContent = str || '';
+  return div.innerHTML;
+}
+
+async function reviewClaim(restaurantId, action){
+  if (action === 'reject' && !confirm('Reject this claim? This will unlink the Google listing from their account so they can try again if needed.')) {
+    return;
+  }
+  try {
+    const res = await fetch(`${API}/admin-review-claim`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-admin-secret': adminSecret },
+      body: JSON.stringify({ restaurantId, action })
+    });
+    const data = await res.json();
+    if (!res.ok){
+      alert(data.error || 'Action failed.');
+      return;
+    }
+    const card = document.getElementById(`claim-${restaurantId}`);
+    if (card) card.remove();
+    if (!document.getElementById('claimsList').children.length){
+      document.getElementById('claimsList').innerHTML = '<div class="empty">No pending claims right now.</div>';
+    }
+  } catch (err) {
+    alert('Something went wrong: ' + err.message);
+  }
+}
+
+if (adminSecret) loadPending();
+</script>
+</body>
+</html>
