@@ -282,6 +282,13 @@
     transform:translateY(-3px);
     box-shadow:0 14px 28px -18px rgba(27,36,48,0.35);
   }
+  .card-photo-strip{
+    width:calc(100% + 44px);
+    height:150px;
+    object-fit:cover;
+    margin:-22px -22px 4px -22px;
+    display:block;
+  }
   .card-top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;}
   .card-title{
     font-family:'Fraunces', serif;
@@ -436,6 +443,72 @@
   }
   .chip:hover{background:var(--paper-dim);border-color:var(--ink);}
 
+  .specials-section{
+    max-width:900px;
+    margin:0 auto;
+    padding-bottom:36px;
+    border-bottom:1px solid var(--line);
+  }
+  .specials-header{text-align:center;margin-bottom:24px;}
+  .specials-title{
+    font-family:'Fraunces', serif;
+    font-size:22px;
+    font-weight:600;
+    margin:0 0 4px;
+    color:var(--ink);
+  }
+  .specials-sub{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    color:var(--text-dim);
+    margin:0;
+  }
+  .specials-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(280px, 1fr));
+    gap:16px;
+  }
+  .special-card{
+    background:#FFFDF8;
+    border:1px solid var(--brass);
+    border-radius:6px;
+    overflow:hidden;
+    text-decoration:none;
+    color:var(--text);
+    display:flex;
+    flex-direction:column;
+    transition:transform .15s ease, box-shadow .15s ease;
+  }
+  .special-card:hover{transform:translateY(-2px);box-shadow:0 10px 20px -14px rgba(27,36,48,0.35);}
+  .special-card-photo{
+    width:100%;
+    height:130px;
+    object-fit:cover;
+    background:var(--paper-dim);
+  }
+  .special-card-photo.placeholder{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    color:var(--text-dim);
+  }
+  .special-card-body{padding:14px 16px 16px;}
+  .special-card-body h4{font-family:'Fraunces', serif; font-size:16px; margin:0 0 6px;}
+  .special-card-tag{
+    display:inline-block;
+    background:var(--sage);
+    color:#fff;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    font-weight:600;
+    padding:3px 9px;
+    border-radius:20px;
+    margin-bottom:8px;
+  }
+  .special-card-meta{font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--text-dim);}
+
   .featured-section{
     max-width:900px;
     margin:56px auto 0;
@@ -539,6 +612,14 @@
     <p class="landing-title">Search a suburb to see what's around</p>
     <p class="landing-sub">Or try one of these to start browsing</p>
     <div class="chip-row" id="chipRow"></div>
+
+    <div class="specials-section" id="specialsSection" style="display:none;">
+      <div class="specials-header">
+        <h3 class="specials-title">Today's Specials</h3>
+        <p class="specials-sub">What subscribed restaurants are running right now</p>
+      </div>
+      <div class="specials-grid" id="specialsGrid"></div>
+    </div>
 
     <div class="featured-section" id="featuredSection">
       <a href="featured.html" class="featured-cta" id="featuredCta">
@@ -812,6 +893,7 @@ function renderGrid(){
     const card = document.createElement('div');
     card.className = 'card';
     card.innerHTML = `
+      ${BOOKABLE[d.place_id]?.photos?.length ? `<img class="card-photo-strip" src="${BOOKABLE[d.place_id].photos[0]}" alt="${d.name.replace(/"/g,'&quot;')}" loading="lazy">` : ''}
       <div class="card-top">
         <div>
           <h3 class="card-title">${d.name}</h3>
@@ -1160,6 +1242,44 @@ function loadFeaturedSuburb(){
   document.getElementById('featuredCta').href = `featured.html?suburb=${encodeURIComponent(suburb)}`;
 }
 
+async function loadSpecials(){
+  try {
+    const res = await fetch(`${BOOKING_API}/specials`);
+    if (!res.ok) return;
+    const data = await res.json();
+    const specials = data.specials || [];
+    if (!specials.length) return; // nothing running right now — section stays hidden
+
+    const grid = document.getElementById('specialsGrid');
+    grid.innerHTML = specials.slice(0, 6).map(s => {
+      const photo = s.photos && s.photos.length ? s.photos[0] : null;
+      const photoHtml = photo
+        ? `<img class="special-card-photo" src="${photo}" alt="${escapeHtml(s.name)}" loading="lazy">`
+        : `<div class="special-card-photo placeholder">No photo yet</div>`;
+      const ratingHtml = s.rating
+        ? `<span class="special-card-meta">★ ${s.rating.toFixed(1)}${s.reviews ? ` (${s.reviews.toLocaleString()} reviews)` : ''}</span>`
+        : '';
+      const clickTarget = s.placeId
+        ? `searchInput.value='${s.name.replace(/'/g,"&#39;")}'; runSearch('${s.name.replace(/'/g,"&#39;")}');`
+        : '';
+      return `
+        <a href="#" class="special-card" onclick="${clickTarget} return false;">
+          ${photoHtml}
+          <div class="special-card-body">
+            <div class="special-card-tag">✨ ${escapeHtml(s.currentSpecial)}</div>
+            <h4>${escapeHtml(s.name)}</h4>
+            ${ratingHtml}
+          </div>
+        </a>
+      `;
+    }).join('');
+
+    document.getElementById('specialsSection').style.display = 'block';
+  } catch (err) {
+    console.error('Specials load failed:', err);
+  }
+}
+
 // If arriving from featured.html's "Search all spots in this suburb" link,
 // the suburb is passed via ?suburb= — run that search immediately instead
 // of showing the empty landing page.
@@ -1174,8 +1294,8 @@ function checkQuerySuburb(){
 
 initLanding();
 loadFeaturedSuburb();
+loadSpecials();
 checkQuerySuburb();
 </script>
 </body>
 </html>
-
