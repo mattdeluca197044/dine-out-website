@@ -743,7 +743,17 @@ function renderGrid(){
   if (activeSuburb !== "all") items = items.filter(d => d.suburb === activeSuburb);
   if (query.trim()){
     const q = query.toLowerCase();
-    items = items.filter(d => d.name.toLowerCase().includes(q) || (d.cuisine||"").toLowerCase().includes(q) || d.suburb.toLowerCase().includes(q));
+    items = items.filter(d => {
+      // Live results already went through the backend's suburb+cuisine
+      // filtering — re-checking whether the *entire* typed phrase appears
+      // literally in one field is too strict and wrongly excludes correct
+      // results (e.g. typing "lebanese parramatta" won't literally appear
+      // in a result whose cuisine is "Lebanese" and suburb is "Parramatta"
+      // as two separate fields). Only apply this substring check to the
+      // static sample DATA, where it's the only filtering mechanism.
+      if (d.source === 'live') return true;
+      return d.name.toLowerCase().includes(q) || (d.cuisine||"").toLowerCase().includes(q) || d.suburb.toLowerCase().includes(q);
+    });
   }
 
   items = [...items].sort((a,b) => {
@@ -1168,3 +1178,4 @@ checkQuerySuburb();
 </script>
 </body>
 </html>
+
