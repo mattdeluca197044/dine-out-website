@@ -112,6 +112,18 @@
     margin-top:24px;padding-top:16px;border-top:1px solid var(--line);
   }
 
+  .claim-cta{
+    margin-top:24px;padding:20px;background:var(--paper-dim);
+    border:1px solid var(--line);border-radius:8px;text-align:center;
+  }
+  .claim-cta p{font-size:13.5px;color:var(--text-dim);margin:0 0 12px;}
+  .claim-cta a{
+    display:inline-block;font-family:'Work Sans',sans-serif;font-weight:600;
+    font-size:14px;background:var(--ink);color:#fff;text-decoration:none;
+    padding:12px 22px;border-radius:var(--radius);
+  }
+  .claim-cta a:hover{background:var(--brass);}
+
   .loading, .error-state{
     text-align:center;padding:100px 20px;color:var(--text-dim);
     font-family:'IBM Plex Mono',monospace;font-size:14px;
@@ -302,7 +314,12 @@ async function loadListing(){
         <a href="${isRealWebsite(google.googleWebsite) ? google.googleWebsite : searchUrl(google.name, google.address)}" target="_blank" rel="noopener">Find website</a>
         ${bookBtn}
       </div>
-      ${!claimed ? `<div class="claimed-note">This listing hasn't been claimed by its owner yet — photos, specials, and booking will appear here once it is.</div>` : ''}
+      ${!claimed ? `
+        <div class="claim-cta">
+          <p>Are you the owner?</p>
+          <a href="https://restaurant-portal-seven.vercel.app/?claim=1&placeId=${encodeURIComponent(placeId)}&name=${encodeURIComponent(google.name)}">Claim your listing now →</a>
+        </div>
+      ` : ''}
     `;
 
     document.getElementById('loadingState').style.display = 'none';
