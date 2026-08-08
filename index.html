@@ -276,6 +276,7 @@
     flex-direction:column;
     gap:12px;
     position:relative;
+    cursor:pointer;
     transition:transform .15s ease, box-shadow .15s ease;
   }
   .card:hover{
@@ -921,6 +922,16 @@ function renderGrid(){
       </div>
     `;
     gridEl.appendChild(card);
+
+    // Whole card navigates to the listing detail page, except clicks on
+    // the action buttons themselves (directions/website/book), which have
+    // their own behavior and shouldn't also trigger a page navigation.
+    if (d.place_id){
+      card.onclick = (e) => {
+        if (e.target.closest('.card-actions')) return;
+        window.location.href = `listing.html?place=${encodeURIComponent(d.place_id)}`;
+      };
+    }
   });
 }
 
@@ -1259,11 +1270,11 @@ async function loadSpecials(){
       const ratingHtml = s.rating
         ? `<span class="special-card-meta">★ ${s.rating.toFixed(1)}${s.reviews ? ` (${s.reviews.toLocaleString()} reviews)` : ''}</span>`
         : '';
-      const clickTarget = s.placeId
-        ? `searchInput.value='${s.name.replace(/'/g,"&#39;")}'; runSearch('${s.name.replace(/'/g,"&#39;")}');`
-        : '';
+      const href = s.placeId
+        ? `listing.html?place=${encodeURIComponent(s.placeId)}`
+        : '#';
       return `
-        <a href="#" class="special-card" onclick="${clickTarget} return false;">
+        <a href="${href}" class="special-card">
           ${photoHtml}
           <div class="special-card-body">
             <div class="special-card-tag">✨ ${escapeHtml(s.currentSpecial)}</div>
