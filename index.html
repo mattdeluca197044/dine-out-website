@@ -1157,8 +1157,21 @@ function loadFeaturedSuburb(){
   document.getElementById('featuredCta').href = `featured.html?suburb=${encodeURIComponent(suburb)}`;
 }
 
+// If arriving from featured.html's "Search all spots in this suburb" link,
+// the suburb is passed via ?suburb= — run that search immediately instead
+// of showing the empty landing page.
+function checkQuerySuburb(){
+  const params = new URLSearchParams(window.location.search);
+  const suburb = params.get('suburb');
+  if (suburb && suburb.trim()){
+    searchInput.value = suburb;
+    runSearch(suburb);
+  }
+}
+
 initLanding();
 loadFeaturedSuburb();
+checkQuerySuburb();
 </script>
 </body>
 </html>
