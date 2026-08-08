@@ -171,6 +171,22 @@ function searchUrl(name, address){
   return `https://www.google.com/search?q=${encodeURIComponent(name + " " + (address || ""))}`;
 }
 
+// Google's own "website" field for a listing sometimes actually contains a
+// social media URL (common for small businesses without a proper site) —
+// showing that under "Find website" is redundant with the dedicated
+// Instagram/Facebook buttons and can be actively misleading. Only trust it
+// as a real website if it isn't one of the well-known social domains.
+const SOCIAL_DOMAINS = ["instagram.com", "facebook.com", "twitter.com", "x.com", "tiktok.com"];
+function isRealWebsite(url){
+  if (!url) return false;
+  try {
+    const host = new URL(url).hostname.replace(/^www\./, "");
+    return !SOCIAL_DOMAINS.some((d) => host === d || host.endsWith("." + d));
+  } catch {
+    return false;
+  }
+}
+
 function getPlaceIdFromUrl(){
   const params = new URLSearchParams(window.location.search);
   return params.get('place') || params.get('placeId');
@@ -274,7 +290,7 @@ async function loadListing(){
       ${socialHtml}
       <div class="action-row">
         <a class="primary" href="${mapsUrl(placeId)}" target="_blank" rel="noopener">Get directions</a>
-        <a href="${google.googleWebsite || searchUrl(google.name, google.address)}" target="_blank" rel="noopener">Find website</a>
+        <a href="${isRealWebsite(google.googleWebsite) ? google.googleWebsite : searchUrl(google.name, google.address)}" target="_blank" rel="noopener">Find website</a>
         ${bookBtn}
       </div>
       ${!claimed ? `<div class="claimed-note">This listing hasn't been claimed by its owner yet — photos, specials, and booking will appear here once it is.</div>` : ''}
