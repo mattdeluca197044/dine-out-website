@@ -84,11 +84,13 @@
 
   .social-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:24px;}
   .social-row a{
-    font-family:'Work Sans',sans-serif;font-size:13px;font-weight:600;
-    color:var(--ink);text-decoration:none;border:1px solid var(--ink);
-    padding:8px 14px;border-radius:var(--radius);
+    display:flex;align-items:center;justify-content:center;
+    width:42px;height:42px;border-radius:50%;
+    border:1.5px solid var(--ink);color:var(--ink);
+    transition:background .15s ease, color .15s ease, border-color .15s ease;
   }
-  .social-row a:hover{background:var(--paper-dim);}
+  .social-row a:hover{background:var(--ink);color:#fff;}
+  .social-row a svg{width:19px;height:19px;}
 
   .action-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px;}
   .action-row a, .action-row button{
@@ -244,9 +246,14 @@ async function loadListing(){
       : `<p>Hours not available</p>`;
 
     const socialLinks = [];
-    if (claimed?.instagramUrl) socialLinks.push(`<a href="${escapeHtml(claimed.instagramUrl)}" target="_blank" rel="noopener">Instagram</a>`);
-    if (claimed?.facebookUrl) socialLinks.push(`<a href="${escapeHtml(claimed.facebookUrl)}" target="_blank" rel="noopener">Facebook</a>`);
-    if (claimed?.websiteUrl) socialLinks.push(`<a href="${escapeHtml(claimed.websiteUrl)}" target="_blank" rel="noopener">Website</a>`);
+    const ICONS = {
+      instagram: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5.5"/><circle cx="12" cy="12" r="4.2"/><circle cx="17.4" cy="6.6" r="1.1" fill="currentColor" stroke="none"/></svg>`,
+      facebook: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15.5 3h-2.7A4.3 4.3 0 0 0 8.5 7.3V10H6v4h2.5v7h4v-7h3l.7-4h-3.7V7.6a1 1 0 0 1 1-1h2.7z"/></svg>`,
+      website: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9.5"/><line x1="2.5" y1="12" x2="21.5" y2="12"/><path d="M12 2.5a14.5 14.5 0 0 1 3.8 9.5A14.5 14.5 0 0 1 12 21.5 14.5 14.5 0 0 1 8.2 12 14.5 14.5 0 0 1 12 2.5z"/></svg>`,
+    };
+    if (claimed?.instagramUrl) socialLinks.push(`<a href="${escapeHtml(claimed.instagramUrl)}" target="_blank" rel="noopener" title="Instagram" aria-label="Instagram">${ICONS.instagram}</a>`);
+    if (claimed?.facebookUrl) socialLinks.push(`<a href="${escapeHtml(claimed.facebookUrl)}" target="_blank" rel="noopener" title="Facebook" aria-label="Facebook">${ICONS.facebook}</a>`);
+    if (claimed?.websiteUrl) socialLinks.push(`<a href="${escapeHtml(claimed.websiteUrl)}" target="_blank" rel="noopener" title="Website" aria-label="Website">${ICONS.website}</a>`);
     const socialHtml = socialLinks.length ? `<div class="social-row">${socialLinks.join('')}</div>` : '';
 
     currentRestaurantId = claimed?.restaurantId || null;
