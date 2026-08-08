@@ -706,6 +706,17 @@ const DATA = [
 ];
 
 const LIVE_API = "https://eat-out-oz.vercel.app/api/search";
+
+// Fire-and-forget click tracking — never blocks the actual navigation.
+function trackEvent(placeId, eventType){
+  try {
+    fetch(`${BOOKING_API}/track-event`, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ placeId, eventType })
+    }).catch(() => {});
+  } catch (err) {}
+}
 const BOOKING_API = "https://eat-out-oz.vercel.app/api";
 
 // Normalize a name+address pair into a loose matching key so the same
@@ -937,8 +948,8 @@ function renderGrid(){
       ${BOOKABLE[d.place_id]?.currentSpecial ? `<div class="special-badge">✨ ${escapeHtml(BOOKABLE[d.place_id].currentSpecial)}</div>` : ''}
       ${BOOKABLE[d.place_id] ? renderSocialLinks(BOOKABLE[d.place_id]) : ''}
       <div class="card-actions">
-        <a class="primary" href="${mapsUrl(d)}" target="_blank" rel="noopener">Get directions</a>
-        <a href="${searchUrl(d)}" target="_blank" rel="noopener">Find website</a>
+        <a class="primary" href="${mapsUrl(d)}" target="_blank" rel="noopener" onclick="trackEvent('${d.place_id}','directions')">Get directions</a>
+        <a href="${searchUrl(d)}" target="_blank" rel="noopener" onclick="trackEvent('${d.place_id}','website')">Find website</a>
         ${BOOKABLE[d.place_id] ? `<a class="book" href="#" onclick="openBookingModal('${d.place_id}', '${d.name.replace(/'/g,"&#39;")}'); return false;">Book a table</a>` : ''}
       </div>
     `;
