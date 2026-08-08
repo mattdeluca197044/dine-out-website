@@ -114,12 +114,6 @@
     flex:1 1 320px;
     position:relative;
   }
-  .search-form{
-    display:flex;
-    gap:8px;
-    flex:1 1 320px;
-    position:relative;
-  }
   .search-wrap input{
     width:100%;
     background:var(--paper);
@@ -504,13 +498,10 @@
     <h1>Where to eat<br><span class="highlight">tonight</span>, sorted.</h1>
     <p class="sub">Cafés, restaurants and takeaway in one list — with a real cost-per-head estimate so nobody gets surprised by the bill.</p>
     <div class="controls">
-      <div class="search-form">
-        <div class="search-wrap">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1B2430" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          <input id="searchInput" type="text" placeholder="Search a restaurant, cafe, cuisine or suburb…" autocomplete="off">
-          <div class="suggestions" id="suggestions"></div>
-        </div>
-        <button class="search-btn" id="searchBtn" type="button">Search</button>
+      <div class="search-wrap" id="searchWrap">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1B2430" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input id="searchInput" type="text" placeholder="Search a restaurant, cafe, cuisine or suburb…" autocomplete="off">
+        <div class="suggestions" id="suggestions"></div>
       </div>
       <select id="cuisineFilter">
         <option value="">Any cuisine</option>
@@ -536,6 +527,7 @@
         <option value="price_desc">Sort: priciest first</option>
         <option value="name">Sort: A–Z</option>
       </select>
+      <button class="search-btn" id="searchBtn" type="button">Search</button>
     </div>
   </div>
 </header>
@@ -1123,7 +1115,7 @@ searchInput.addEventListener('keydown', e => {
 searchInput.addEventListener('focus', () => renderSuggestions(searchInput.value));
 searchBtn.addEventListener('click', () => runSearch(searchInput.value));
 document.addEventListener('click', e => {
-  if (!e.target.closest('.search-form')) suggestionsEl.classList.remove('show');
+  if (!e.target.closest('#searchWrap')) suggestionsEl.classList.remove('show');
 });
 
 // Popular suburbs shown on the landing screen — clicking one runs a live search
