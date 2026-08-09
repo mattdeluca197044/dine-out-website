@@ -816,12 +816,24 @@ const suggestionsEl = document.getElementById('suggestions');
 const searchBtn = document.getElementById('searchBtn');
 
 function renderSuburbFilter(items){
-  const suburbs = [...new Set(items.map(d => d.suburb).filter(Boolean))].sort();
+  const byState = {};
+  items.forEach(d => {
+    if (!d.suburb) return;
+    const state = d.state || "NSW";
+    if (!byState[state]) byState[state] = new Set();
+    byState[state].add(d.suburb);
+  });
 
-  if (activeSuburb !== "all" && !suburbs.includes(activeSuburb)) activeSuburb = "all";
+  const allSuburbs = Object.values(byState).flatMap(set => [...set]);
+  if (activeSuburb !== "all" && !allSuburbs.includes(activeSuburb)) activeSuburb = "all";
 
-  const options = suburbs.map(s => `<option value="${escapeHtml(s)}" ${s === activeSuburb ? 'selected' : ''}>${escapeHtml(s)}</option>`).join('');
-  suburbFilter.innerHTML = `<option value="all" ${activeSuburb === 'all' ? 'selected' : ''}>All suburbs</option>${options}`;
+  const optgroups = Object.keys(byState).sort().map(state => {
+    const suburbs = [...byState[state]].sort();
+    const options = suburbs.map(s => `<option value="${escapeHtml(s)}" ${s === activeSuburb ? 'selected' : ''}>${escapeHtml(s)}</option>`).join('');
+    return `<optgroup label="${escapeHtml(state)}">${options}</optgroup>`;
+  }).join('');
+
+  suburbFilter.innerHTML = `<option value="all" ${activeSuburb === 'all' ? 'selected' : ''}>All suburbs</option>${optgroups}`;
 }
 
 function renderStateFilter(items){
