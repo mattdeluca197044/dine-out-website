@@ -836,16 +836,11 @@ function renderSuburbFilter(items){
   suburbFilter.innerHTML = `<option value="all" ${activeSuburb === 'all' ? 'selected' : ''}>All suburbs</option>${optgroups}`;
 }
 
-function renderStateFilter(items){
-  const states = [...new Set(items.map(d => d.state || "NSW"))].sort();
+const ALL_AU_STATES = ["ACT", "NSW", "NT", "QLD", "SA", "TAS", "VIC", "WA"];
 
-  // Preserve the current selection if it's still valid for this result
-  // set; otherwise fall back to "all" rather than silently filtering to
-  // an empty grid.
-  if (activeState !== "all" && !states.includes(activeState)) activeState = "all";
-
-  const options = states.map(s => `<option value="${s}" ${s === activeState ? 'selected' : ''}>${s}</option>`).join('');
-  stateFilter.innerHTML = `<option value="all" ${activeState === 'all' ? 'selected' : ''}>All states</option>${options}`;
+function populateStateDropdown(){
+  const options = ALL_AU_STATES.map(s => `<option value="${s}">${s}</option>`).join('');
+  stateFilter.innerHTML = `<option value="all">All states</option>${options}`;
 }
 
 function renderLocationPicker(branchGroup){
@@ -898,7 +893,7 @@ function renderTabs(){
     const el = document.createElement('div');
     el.className = 'tab' + (c.key === activeCat ? ' active' : '');
     el.innerHTML = `${c.label} <span class="count">${count}</span>`;
-    el.onclick = () => { activeCat = c.key; locationFilterPlaceId = null; activeSuburb = "all"; activeState = "all"; renderTabs(); renderGrid(); };
+    el.onclick = () => { activeCat = c.key; locationFilterPlaceId = null; activeSuburb = "all"; renderTabs(); renderGrid(); };
     tabsEl.appendChild(el);
   });
 }
@@ -1005,7 +1000,6 @@ function renderGrid(){
   // one doesn't narrow the other's options.
   const queryRelevant = combined.filter(d => matchesQuery(d) && matchesCuisine(d));
   renderSuburbFilter(queryRelevant);
-  renderStateFilter(queryRelevant);
 
   // The actually-displayed set: category tab + query + cuisine + whichever
   // suburb/state filter is currently selected.
@@ -1177,10 +1171,11 @@ async function fetchLiveForSuburb(suburb){
 
   const categories = ["cafe", "restaurant", "takeaway", "pub", "club", "hatted"];
   const cuisine = cuisineFilter.value;
+  const stateParam = activeState !== "all" ? activeState : "";
 
   try {
     const responses = await Promise.all(categories.map(cat =>
-      fetch(`${LIVE_API}?suburb=${encodeURIComponent(suburb)}&category=${cat}&full=1${cuisine ? `&cuisine=${encodeURIComponent(cuisine)}` : ''}`)
+      fetch(`${LIVE_API}?suburb=${encodeURIComponent(suburb)}&category=${cat}&full=1${cuisine ? `&cuisine=${encodeURIComponent(cuisine)}` : ''}${stateParam ? `&state=${encodeURIComponent(stateParam)}` : ''}`)
         .then(r => r.ok ? r.json() : {results:[]})
         .catch(() => ({results:[]}))
         .then(data => ({cat, data}))
@@ -1383,6 +1378,7 @@ function runSearch(term){
   activeCat = "all";
   activeSuburb = "all";
   activeState = "all";
+  stateFilter.value = "all";
   locationFilterPlaceId = null;
   renderTabs();
   renderGrid();
@@ -1430,7 +1426,21 @@ function renderSuggestions(term){
 
 sortSelect.addEventListener('change', e => { activeSort = e.target.value; renderGrid(); });
 suburbFilter.addEventListener('change', e => { activeSuburb = e.target.value; locationFilterPlaceId = null; renderGrid(); });
-stateFilter.addEventListener('change', e => { activeState = e.target.value; locationFilterPlaceId = null; renderGrid(); });
+stateFilter.addEventListener('change', e => {
+  activeState = e.target.value;
+  locationFilterPlaceId = null;
+  if (!hasSearched) showResultsUI();
+  // State is a real search input now, not just a post-fetch filter — a
+  // fresh live search is needed so results actually come from that state,
+  // rather than filtering whatever happened to already be fetched (which
+  // might not include that state at all).
+  LIVE_DATA = [];
+  liveIds = new Set(DATA.map(d => d.place_id));
+  liveDedupeKeys = new Set(DATA.map(d => dedupeKey(d.name, d.address)));
+  renderTabs();
+  renderGrid();
+  fetchLiveForSuburb(searchInput.value.trim());
+});
 cuisineFilter.addEventListener('change', () => {
   if (!hasSearched) return;
   // Cuisine changed — clear stale results and their dedup keys, then re-fetch.
@@ -1535,6 +1545,7 @@ function checkQuerySuburb(){
   }
 }
 
+populateStateDropdown();
 initLanding();
 loadFeaturedSuburb();
 loadSpecials();
