@@ -1377,8 +1377,6 @@ function runSearch(term){
   query = term;
   activeCat = "all";
   activeSuburb = "all";
-  activeState = "all";
-  stateFilter.value = "all";
   locationFilterPlaceId = null;
   renderTabs();
   renderGrid();
@@ -1404,13 +1402,10 @@ function runSearch(term){
   }
 }
 
-function renderSuggestions(term){
-  if (!term.trim()){ suggestionsEl.classList.remove('show'); return; }
-  const q = term.toLowerCase();
-  const matches = SUGGESTION_POOL.filter(s => s.label.toLowerCase().includes(q)).slice(0, 7);
+function renderSuggestionList(matches){
   if (!matches.length){ suggestionsEl.classList.remove('show'); return; }
   suggestionsEl.innerHTML = matches.map(s => `
-    <div class="suggestion-item" data-label="${s.label.replace(/"/g,'&quot;')}">
+    <div class="suggestion-item" data-label="${s.label.replace(/"/g,'&quot;')}" data-state="${s.state || ''}">
       <span>${s.label}</span>
       <span class="s-meta">${s.meta}</span>
     </div>
@@ -1419,9 +1414,54 @@ function renderSuggestions(term){
   suggestionsEl.querySelectorAll('.suggestion-item').forEach(item => {
     item.onclick = () => {
       searchInput.value = item.dataset.label;
+      // If this suggestion came with a known state (a live Google suburb
+      // suggestion), auto-select it too — saves picking it separately.
+      if (item.dataset.state && ALL_AU_STATES.includes(item.dataset.state)){
+        activeState = item.dataset.state;
+        stateFilter.value = item.dataset.state;
+      }
       runSearch(item.dataset.label);
     };
   });
+}
+
+let suggestionRequestId = 0; // guards against a stale live-suburb fetch overwriting a newer one
+let suburbSuggestTimer = null;
+
+function renderSuggestions(term){
+  if (!term.trim()){
+    suggestionsEl.classList.remove('show');
+    clearTimeout(suburbSuggestTimer);
+    return;
+  }
+  const q = term.toLowerCase();
+  const localMatches = SUGGESTION_POOL.filter(s => s.label.toLowerCase().includes(q)).slice(0, 5);
+  renderSuggestionList(localMatches); // instant feedback while the live lookup is still in flight
+
+  // Debounced — waits for a short pause in typing before hitting the live
+  // suburb API, rather than firing a network request on every keystroke.
+  clearTimeout(suburbSuggestTimer);
+  const myRequestId = ++suggestionRequestId;
+  suburbSuggestTimer = setTimeout(async () => {
+    try {
+      const res = await fetch(`${BOOKING_API}/suburb-autocomplete?input=${encodeURIComponent(term.trim())}`);
+      if (!res.ok) return;
+      const data = await res.json();
+      // Bail if the input changed again since this request was fired, or
+      // the suggestions dropdown isn't even showing anymore.
+      if (myRequestId !== suggestionRequestId) return;
+      if (searchInput.value.trim().toLowerCase() !== term.trim().toLowerCase()) return;
+
+      const localLabels = new Set(localMatches.map(m => m.label.toLowerCase()));
+      const liveSuburbs = (data.suggestions || [])
+        .filter(s => !localLabels.has(s.mainText.toLowerCase()))
+        .map(s => ({ label: s.mainText, meta: s.secondaryText || 'Suburb', state: s.state }));
+
+      renderSuggestionList([...localMatches, ...liveSuburbs].slice(0, 8));
+    } catch (err) {
+      // Silent failure — suggestions are a nice-to-have, not core search.
+    }
+  }, 300);
 }
 
 sortSelect.addEventListener('change', e => { activeSort = e.target.value; renderGrid(); });
