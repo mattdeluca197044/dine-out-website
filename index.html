@@ -1381,8 +1381,19 @@ function runSearch(term){
   // Treat the search term as a suburb and fetch live results too —
   // covers both "search a suburb" and "search a dish/cuisine" cases,
   // since a live suburb search costs nothing extra if the term isn't one.
-  if (term.trim().length > 1){
+  // Also fires when a cuisine is selected with an empty box — search.js
+  // already handles "cuisine, no suburb" with a nationwide, location-
+  // biased fallback, but that path was never reachable without this.
+  if (term.trim().length > 1 || cuisineFilter.value){
     fetchLiveForSuburb(term.trim());
+  } else {
+    // Nothing meaningful to search on — clear any stale live results from
+    // a previous search rather than leaving them showing.
+    LIVE_DATA = [];
+    liveIds = new Set(DATA.map(d => d.place_id));
+    liveDedupeKeys = new Set(DATA.map(d => dedupeKey(d.name, d.address)));
+    renderTabs();
+    renderGrid();
   }
 }
 
