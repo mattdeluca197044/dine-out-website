@@ -244,6 +244,30 @@
     border-top:1px solid var(--line);
   }
 
+  .location-picker{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    flex-wrap:wrap;
+    background:var(--paper-dim);
+    border:1px solid var(--line);
+    border-left:3px solid var(--ink);
+    border-radius:4px;
+    padding:12px 16px;
+    margin-bottom:18px;
+    font-size:13.5px;
+  }
+  .location-picker select{
+    background:var(--paper);
+    color:var(--text);
+    border:1px solid var(--line);
+    padding:7px 10px;
+    font-family:'Work Sans',sans-serif;
+    font-size:13px;
+    border-radius:4px;
+    cursor:pointer;
+  }
+
   .meta-row{
     display:flex;
     justify-content:space-between;
@@ -651,6 +675,7 @@
       </a>
     </div>
   </div>
+  <div class="location-picker" id="locationPicker" style="display:none;"></div>
   <div class="meta-row" id="metaRow" style="display:none;">
     <h2 id="sectionTitle">All spots</h2>
     <div class="result-note" id="resultNote"></div>
@@ -753,6 +778,7 @@ const CATS = [
 
 let activeCat = "all";
 let activeSuburb = "all";
+let locationFilterPlaceId = null; // when set, narrows results to one specific branch of a same-named chain
 let activeSort = "rating";
 let query = "";
 
@@ -767,6 +793,44 @@ const sortSelect = document.getElementById('sortSelect');
 const suggestionsEl = document.getElementById('suggestions');
 const searchBtn = document.getElementById('searchBtn');
 
+function renderLocationPicker(branchGroup){
+  const picker = document.getElementById('locationPicker');
+
+  if (!branchGroup.length){
+    picker.style.display = 'none';
+    picker.innerHTML = '';
+    if (locationFilterPlaceId) locationFilterPlaceId = null; // nothing left to filter by
+    return;
+  }
+
+  // If a previously-chosen branch no longer appears in this group (e.g.
+  // the search term changed), drop the stale selection.
+  if (locationFilterPlaceId && !branchGroup.some(d => d.place_id === locationFilterPlaceId)){
+    locationFilterPlaceId = null;
+  }
+
+  const name = branchGroup[0].name;
+  const options = branchGroup
+    .slice()
+    .sort((a,b) => a.suburb.localeCompare(b.suburb))
+    .map(d => `<option value="${d.place_id}" ${d.place_id === locationFilterPlaceId ? 'selected' : ''}>${d.suburb}</option>`)
+    .join('');
+
+  picker.innerHTML = `
+    <span>📍 ${branchGroup.length} locations found for "<strong>${name}</strong>" — </span>
+    <select id="branchSelect">
+      <option value="" ${!locationFilterPlaceId ? 'selected' : ''}>Show all ${branchGroup.length}</option>
+      ${options}
+    </select>
+  `;
+  picker.style.display = 'flex';
+
+  document.getElementById('branchSelect').onchange = (e) => {
+    locationFilterPlaceId = e.target.value || null;
+    renderGrid();
+  };
+}
+
 function renderTabs(){
   tabsEl.innerHTML = "";
   const combined = [...DATA, ...LIVE_DATA];
@@ -779,7 +843,7 @@ function renderTabs(){
     const el = document.createElement('div');
     el.className = 'tab' + (c.key === activeCat ? ' active' : '');
     el.innerHTML = `${c.label} <span class="count">${count}</span>`;
-    el.onclick = () => { activeCat = c.key; renderTabs(); renderGrid(); };
+    el.onclick = () => { activeCat = c.key; locationFilterPlaceId = null; renderTabs(); renderGrid(); };
     tabsEl.appendChild(el);
   });
 }
@@ -868,6 +932,38 @@ function renderGrid(){
       if (d.source === 'live') return true;
       return d.name.toLowerCase().includes(q) || (d.cuisine||"").toLowerCase().includes(q) || d.suburb.toLowerCase().includes(q);
     });
+  }
+
+  // If the search closely matches the name of more than one branch (a
+  // chain with locations in different suburbs/states — e.g. searching a
+  // brand name that exists in both NSW and VIC), show a picker so the
+  // person can narrow down to the specific branch they meant, rather than
+  // scrolling through several identically-named cards.
+  const q = query.trim().toLowerCase();
+  let branchGroup = [];
+  if (q){
+    const strongMatch = (d) => {
+      const nameLower = d.name.toLowerCase();
+      return nameLower === q || nameLower.startsWith(q);
+    };
+    const matches = items.filter(strongMatch);
+    const byName = {};
+    matches.forEach(d => {
+      const key = d.name.toLowerCase().trim();
+      (byName[key] = byName[key] || []).push(d);
+    });
+    const groups = Object.values(byName).filter(g => g.length > 1);
+    if (groups.length){
+      // If multiple different chains all matched, just use the largest
+      // group — keeps the picker focused on one thing rather than
+      // stacking several dropdowns.
+      branchGroup = groups.sort((a,b) => b.length - a.length)[0];
+    }
+  }
+  renderLocationPicker(branchGroup);
+
+  if (locationFilterPlaceId){
+    items = items.filter(d => d.place_id === locationFilterPlaceId);
   }
 
   items = [...items].sort((a,b) => {
@@ -1202,6 +1298,7 @@ function runSearch(term){
   showResultsUI();
   query = term;
   activeCat = "all";
+  locationFilterPlaceId = null;
   renderTabs();
   renderGrid();
   suggestionsEl.classList.remove('show');
