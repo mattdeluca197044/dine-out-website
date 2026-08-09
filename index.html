@@ -646,6 +646,9 @@
         <option value="price_desc">Sort: priciest first</option>
         <option value="name">Sort: A–Z</option>
       </select>
+      <select id="stateFilter">
+        <option value="all">All states</option>
+      </select>
       <button class="search-btn" id="searchBtn" type="button">Search</button>
     </div>
   </div>
@@ -748,6 +751,19 @@ const BOOKING_API = "https://eat-out-oz.vercel.app/api";
 // physical venue can be recognized even if Google returns it under a
 // different place_id for different category searches (e.g. one listing
 // tagged "cafe", another tagged "takeaway", for the same shopfront).
+// Normalizes text for comparing a search term against a business name.
+// Handles common real-world variations that a literal string comparison
+// would otherwise miss — e.g. "Rockpool Bar & Grill" vs someone typing
+// "rockpool bar and grill" — without this, that business scores zero
+// relevance despite being the obvious intended match.
+function normalizeForMatch(s){
+  return (s || "")
+    .toLowerCase()
+    .replace(/&/g, " and ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 function dedupeKey(name, address){
   const norm = (s) => (s || "")
     .toLowerCase()
@@ -779,6 +795,7 @@ const CATS = [
 let activeCat = "all";
 let activeSuburb = "all";
 let locationFilterPlaceId = null; // when set, narrows results to one specific branch of a same-named chain
+let activeState = "all"; // NSW/VIC/etc — persistent filter next to Sort, independent of the branch picker above
 let activeSort = "rating";
 let query = "";
 
@@ -790,8 +807,21 @@ const emptyState = document.getElementById('emptyState');
 const cuisineFilter = document.getElementById('cuisineFilter');
 const searchInput = document.getElementById('searchInput');
 const sortSelect = document.getElementById('sortSelect');
+const stateFilter = document.getElementById('stateFilter');
 const suggestionsEl = document.getElementById('suggestions');
 const searchBtn = document.getElementById('searchBtn');
+
+function renderStateFilter(items){
+  const states = [...new Set(items.map(d => d.state || "NSW"))].sort();
+
+  // Preserve the current selection if it's still valid for this result
+  // set; otherwise fall back to "all" rather than silently filtering to
+  // an empty grid.
+  if (activeState !== "all" && !states.includes(activeState)) activeState = "all";
+
+  const options = states.map(s => `<option value="${s}" ${s === activeState ? 'selected' : ''}>${s}</option>`).join('');
+  stateFilter.innerHTML = `<option value="all" ${activeState === 'all' ? 'selected' : ''}>All states</option>${options}`;
+}
 
 function renderLocationPicker(branchGroup){
   const picker = document.getElementById('locationPicker');
@@ -843,7 +873,7 @@ function renderTabs(){
     const el = document.createElement('div');
     el.className = 'tab' + (c.key === activeCat ? ' active' : '');
     el.innerHTML = `${c.label} <span class="count">${count}</span>`;
-    el.onclick = () => { activeCat = c.key; locationFilterPlaceId = null; renderTabs(); renderGrid(); };
+    el.onclick = () => { activeCat = c.key; locationFilterPlaceId = null; activeState = "all"; renderTabs(); renderGrid(); };
     tabsEl.appendChild(el);
   });
 }
@@ -919,6 +949,7 @@ function renderGrid(){
   const combined = [...DATA, ...LIVE_DATA];
   let items = combined.filter(d => (activeCat === "all" || d.category === activeCat));
   if (activeSuburb !== "all") items = items.filter(d => d.suburb === activeSuburb);
+
   if (query.trim()){
     const q = query.toLowerCase();
     items = items.filter(d => {
@@ -934,17 +965,21 @@ function renderGrid(){
     });
   }
 
+  renderStateFilter(items);
+  if (activeState !== "all") items = items.filter(d => (d.state || "NSW") === activeState);
+
   // If the search closely matches the name of more than one branch (a
   // chain with locations in different suburbs/states — e.g. searching a
   // brand name that exists in both NSW and VIC), show a picker so the
   // person can narrow down to the specific branch they meant, rather than
   // scrolling through several identically-named cards.
   const q = query.trim().toLowerCase();
+  const qNorm = normalizeForMatch(q);
   let branchGroup = [];
   if (q){
     const strongMatch = (d) => {
-      const nameLower = d.name.toLowerCase();
-      return nameLower === q || nameLower.startsWith(q);
+      const nameNorm = normalizeForMatch(d.name);
+      return nameNorm === qNorm || nameNorm.startsWith(qNorm);
     };
     const matches = items.filter(strongMatch);
     const byName = {};
@@ -973,11 +1008,12 @@ function renderGrid(){
     // higher-rated places that just happen to be in the same suburb.
     const q = query.trim().toLowerCase();
     if (q){
+      const qNorm = normalizeForMatch(q);
       const relevance = (d) => {
-        const nameLower = d.name.toLowerCase();
-        if (nameLower === q) return 3;           // exact name match
-        if (nameLower.startsWith(q)) return 2;    // name starts with the search term
-        if (nameLower.includes(q)) return 1;      // name contains it somewhere
+        const nameNorm = normalizeForMatch(d.name);
+        if (nameNorm === qNorm) return 3;           // exact name match
+        if (nameNorm.startsWith(qNorm)) return 2;    // name starts with the search term
+        if (nameNorm.includes(qNorm)) return 1;      // name contains it somewhere
         return 0;                                  // matched on cuisine/suburb only
       };
       const relDiff = relevance(b) - relevance(a);
@@ -1119,6 +1155,7 @@ async function fetchLiveForSuburb(suburb){
           cuisine: r.cuisine || (cat === "cafe" ? "Café" : cat === "takeaway" ? "Takeaway" : cat === "pub" ? "Pub" : cat === "club" ? "Club" : cat === "hatted" ? "Award Winning" : "Restaurant"),
           suburb: r.suburb || suburb,
           address: r.address,
+          state: r.state || null,
           rating: r.rating || 0,
           reviews: r.reviews || 0,
           price: priceFromLevel(r.priceLevel, cat),
@@ -1298,6 +1335,7 @@ function runSearch(term){
   showResultsUI();
   query = term;
   activeCat = "all";
+  activeState = "all";
   locationFilterPlaceId = null;
   renderTabs();
   renderGrid();
@@ -1333,6 +1371,7 @@ function renderSuggestions(term){
 }
 
 sortSelect.addEventListener('change', e => { activeSort = e.target.value; renderGrid(); });
+stateFilter.addEventListener('change', e => { activeState = e.target.value; locationFilterPlaceId = null; renderGrid(); });
 cuisineFilter.addEventListener('change', () => {
   if (hasSearched && searchInput.value.trim()){
     // Cuisine changed — clear stale results and their dedup keys, then re-fetch.
