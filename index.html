@@ -987,19 +987,30 @@ function renderGrid(){
     return d.name.toLowerCase().includes(qLower) || (d.cuisine||"").toLowerCase().includes(qLower) || d.suburb.toLowerCase().includes(qLower);
   };
 
-  // Dropdown options are built from every query-matching result across
-  // ALL categories — not just whichever tab is currently active — so
-  // switching tabs never shrinks the suburb/state lists. Suburb and state
-  // are independent filters (not cascading), so picking one doesn't
-  // narrow the other's options.
-  const queryRelevant = combined.filter(matchesQuery);
+  // Live results were already filtered by cuisine server-side (their
+  // cuisine field is set to whatever was selected, by definition, so this
+  // always passes harmlessly for them). The static sample DATA array was
+  // never being filtered by cuisine at all until now — this closes that
+  // gap, so selecting e.g. "Italian" doesn't leave unrelated cuisines
+  // (Chinese, Fish & Chips, etc.) showing from the hardcoded sample set.
+  const matchesCuisine = (d) => {
+    if (!cuisineFilter.value) return true;
+    return (d.cuisine || "").toLowerCase().includes(cuisineFilter.value.toLowerCase());
+  };
+
+  // Dropdown options are built from every query- and cuisine-matching
+  // result across ALL categories — not just whichever tab is currently
+  // active — so switching tabs never shrinks the suburb/state lists.
+  // Suburb and state are independent filters (not cascading), so picking
+  // one doesn't narrow the other's options.
+  const queryRelevant = combined.filter(d => matchesQuery(d) && matchesCuisine(d));
   renderSuburbFilter(queryRelevant);
   renderStateFilter(queryRelevant);
 
-  // The actually-displayed set: category tab + query + whichever
+  // The actually-displayed set: category tab + query + cuisine + whichever
   // suburb/state filter is currently selected.
   let items = combined.filter(d => (activeCat === "all" || d.category === activeCat));
-  items = items.filter(matchesQuery);
+  items = items.filter(d => matchesQuery(d) && matchesCuisine(d));
   if (activeSuburb !== "all") items = items.filter(d => d.suburb === activeSuburb);
   if (activeState !== "all") items = items.filter(d => (d.state || "NSW") === activeState);
 
@@ -1421,13 +1432,12 @@ sortSelect.addEventListener('change', e => { activeSort = e.target.value; render
 suburbFilter.addEventListener('change', e => { activeSuburb = e.target.value; locationFilterPlaceId = null; renderGrid(); });
 stateFilter.addEventListener('change', e => { activeState = e.target.value; locationFilterPlaceId = null; renderGrid(); });
 cuisineFilter.addEventListener('change', () => {
-  if (hasSearched && searchInput.value.trim()){
-    // Cuisine changed — clear stale results and their dedup keys, then re-fetch.
-    LIVE_DATA = [];
-    liveIds = new Set(DATA.map(d => d.place_id));
-    liveDedupeKeys = new Set(DATA.map(d => dedupeKey(d.name, d.address)));
-    runSearch(searchInput.value.trim());
-  }
+  if (!hasSearched) return;
+  // Cuisine changed — clear stale results and their dedup keys, then re-fetch.
+  LIVE_DATA = [];
+  liveIds = new Set(DATA.map(d => d.place_id));
+  liveDedupeKeys = new Set(DATA.map(d => dedupeKey(d.name, d.address)));
+  runSearch(searchInput.value.trim());
 });
 searchInput.addEventListener('input', e => {
   query = e.target.value;
