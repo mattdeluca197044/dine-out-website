@@ -1171,7 +1171,11 @@ function buildSuggestionPool(){
 }
 const SUGGESTION_POOL = buildSuggestionPool();
 
-async function fetchLiveForSuburb(suburb){
+// Fetches live results across one or more suburbs at once. Used both for
+// a normal single-suburb search, and for the curated waterfront-suburb
+// fallback below (searching several known suburbs in parallel, then
+// merging/deduping the results exactly the same way a single search does).
+async function fetchLiveForSuburbs(suburbList){
   const myGeneration = ++searchGeneration; // this call's "ticket" — if a newer search starts, we bail out below
   isSearchingLive = true;
   renderGrid();
@@ -1182,19 +1186,26 @@ async function fetchLiveForSuburb(suburb){
   const stateParam = activeState !== "all" ? activeState : "";
 
   try {
-    const responses = await Promise.all(categories.map(cat =>
-      fetch(`${LIVE_API}?suburb=${encodeURIComponent(suburb)}&category=${cat}&full=1${cuisine ? `&cuisine=${encodeURIComponent(cuisine)}` : ''}${occasion ? `&occasion=${encodeURIComponent(occasion)}` : ''}${stateParam ? `&state=${encodeURIComponent(stateParam)}` : ''}`)
-        .then(r => r.ok ? r.json() : {results:[]})
-        .catch(() => ({results:[]}))
-        .then(data => ({cat, data}))
-    ));
+    const tasks = [];
+    suburbList.forEach(suburb => {
+      categories.forEach(cat => {
+        tasks.push(
+          fetch(`${LIVE_API}?suburb=${encodeURIComponent(suburb)}&category=${cat}&full=1${cuisine ? `&cuisine=${encodeURIComponent(cuisine)}` : ''}${occasion ? `&occasion=${encodeURIComponent(occasion)}` : ''}${stateParam ? `&state=${encodeURIComponent(stateParam)}` : ''}`)
+            .then(r => r.ok ? r.json() : {results:[]})
+            .catch(() => ({results:[]}))
+            .then(data => ({cat, suburb, data}))
+        );
+      });
+    });
+
+    const responses = await Promise.all(tasks);
 
     // If a newer search started while we were waiting on the network,
     // drop these results — they're stale and would otherwise race with
     // the newer call's dedup check and produce duplicate cards.
     if (myGeneration !== searchGeneration) return;
 
-    responses.forEach(({cat, data}) => {
+    responses.forEach(({cat, suburb, data}) => {
       (data.results || []).forEach(r => {
         if (!r.placeId) return;
 
@@ -1247,6 +1258,17 @@ async function fetchLiveForSuburb(suburb){
   renderGrid();
   checkBookable();
 }
+
+// Backward-compatible wrapper for the common case: a single suburb.
+function fetchLiveForSuburb(suburb){
+  return fetchLiveForSuburbs([suburb]);
+}
+
+// Known genuinely waterfront/harbourside Sydney suburbs. Used only when
+// someone picks the "Near the water" occasion with no suburb typed — see
+// the note in runSearch() for why a keyword-only approach isn't enough
+// on its own for this particular occasion.
+const WATERFRONT_SUBURBS = ["Circular Quay", "Barangaroo", "Manly", "Rose Bay", "Cronulla"];
 
 let CHECKED_IDS = new Set(); // place_ids we've already asked the backend about, so we don't keep re-checking them
 
@@ -1391,6 +1413,24 @@ function runSearch(term){
   suggestionsEl.classList.remove('show');
   document.querySelector('main').scrollIntoView({behavior:'smooth', block:'start'});
 
+  const trimmedTerm = term.trim();
+
+  // "Near the water" with no suburb typed means "show me genuinely
+  // waterfront places", not "show me whatever's near my IP address that
+  // vaguely mentions water". Google's Text Search has no real geographic
+  // "distance to coastline" filter — it only matches the word
+  // "waterfront" etc. against whatever's in a place's Google-indexed
+  // name/description, and when that signal is weak it just falls back to
+  // ordinary nearby-by-location results (confirmed: an empty-suburb
+  // "water" search was returning inland Newtown restaurants). Searching a
+  // small curated list of known waterfront suburbs instead guarantees
+  // geographic accuracy, since we're searching directly in the right
+  // places rather than hoping a keyword match saves us.
+  if (occasionFilter.value === "water" && trimmedTerm.length <= 1){
+    fetchLiveForSuburbs(WATERFRONT_SUBURBS);
+    return;
+  }
+
   // Treat the search term as a suburb and fetch live results too —
   // covers both "search a suburb" and "search a dish/cuisine" cases,
   // since a live suburb search costs nothing extra if the term isn't one.
@@ -1398,8 +1438,8 @@ function runSearch(term){
   // search.js already handles "cuisine/occasion, no suburb" with a
   // nationwide, location-biased fallback, but that path was never
   // reachable without this.
-  if (term.trim().length > 1 || cuisineFilter.value || occasionFilter.value){
-    fetchLiveForSuburb(term.trim());
+  if (trimmedTerm.length > 1 || cuisineFilter.value || occasionFilter.value){
+    fetchLiveForSuburb(trimmedTerm);
   } else {
     // Nothing meaningful to search on — clear any stale live results from
     // a previous search rather than leaving them showing.
