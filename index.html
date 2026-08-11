@@ -890,7 +890,7 @@ function renderLocationPicker(branchGroup){
 
 function renderTabs(){
   tabsEl.innerHTML = "";
-  const combined = [...DATA, ...LIVE_DATA];
+  const combined = [...DATA, ...LIVE_DATA].filter(d => occasionAllowsCategory(d.category));
   const q = query.trim().toLowerCase();
   const matchesQuery = (d) => !q || d.name.toLowerCase().includes(q) || (d.cuisine||"").toLowerCase().includes(q) || d.suburb.toLowerCase().includes(q);
   const relevant = combined.filter(matchesQuery);
@@ -973,7 +973,7 @@ function searchUrl(place){
 }
 
 function renderGrid(){
-  const combined = [...DATA, ...LIVE_DATA];
+  const combined = [...DATA, ...LIVE_DATA].filter(d => occasionAllowsCategory(d.category));
 
   const qLower = query.trim().toLowerCase();
   const matchesQuery = (d) => {
@@ -1180,6 +1180,15 @@ const DEFAULT_CATEGORIES = ["cafe", "restaurant", "takeaway", "pub", "club", "ha
 // how Google's text relevance scores it. Cafes and pubs stay in for all
 // three — a good pub meal or a nice waterside cafe can genuinely fit.
 const OCCASION_EXCLUDED_CATEGORIES = ["takeaway", "club"];
+
+// Applies that same exclusion to EVERY rendered result, not just live
+// Google fetches — the hardcoded sample DATA array includes several
+// takeaway/kebab entries that were still showing up under "Date night"
+// etc. because nothing was filtering them out of the always-present
+// static list, only out of what got freshly fetched.
+function occasionAllowsCategory(category){
+  return !occasionFilter.value || !OCCASION_EXCLUDED_CATEGORIES.includes(category);
+}
 
 // Fetches live results across one or more suburbs at once. Used both for
 // a normal single-suburb search, and for the curated waterfront-suburb
