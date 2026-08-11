@@ -1171,6 +1171,16 @@ function buildSuggestionPool(){
 }
 const SUGGESTION_POOL = buildSuggestionPool();
 
+// Full category set used for a normal (no occasion selected) search.
+const DEFAULT_CATEGORIES = ["cafe", "restaurant", "takeaway", "pub", "club", "hatted"];
+
+// When an occasion IS selected, drop the categories that don't fit any of
+// them — a takeaway kebab shop or licensed club isn't what anyone means
+// by "date night", "special occasion", or "near the water", regardless of
+// how Google's text relevance scores it. Cafes and pubs stay in for all
+// three — a good pub meal or a nice waterside cafe can genuinely fit.
+const OCCASION_EXCLUDED_CATEGORIES = ["takeaway", "club"];
+
 // Fetches live results across one or more suburbs at once. Used both for
 // a normal single-suburb search, and for the curated waterfront-suburb
 // fallback below (searching several known suburbs in parallel, then
@@ -1180,10 +1190,18 @@ async function fetchLiveForSuburbs(suburbList){
   isSearchingLive = true;
   renderGrid();
 
-  const categories = ["cafe", "restaurant", "takeaway", "pub", "club", "hatted"];
   const cuisine = cuisineFilter.value;
   const occasion = occasionFilter.value;
   const stateParam = activeState !== "all" ? activeState : "";
+
+  // An occasion search implies a certain kind of venue, not just a certain
+  // kind of language — a kebab shop can easily slip through a "date
+  // night" search on keyword relevance alone even though nobody actually
+  // wants that. Narrowing which categories get searched at all is a more
+  // reliable filter than hoping the text-matching sorts it out.
+  const categories = occasion
+    ? DEFAULT_CATEGORIES.filter(c => !OCCASION_EXCLUDED_CATEGORIES.includes(c))
+    : DEFAULT_CATEGORIES;
 
   try {
     const tasks = [];
