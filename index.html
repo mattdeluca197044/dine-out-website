@@ -890,7 +890,7 @@ function renderLocationPicker(branchGroup){
 
 function renderTabs(){
   tabsEl.innerHTML = "";
-  const combined = [...DATA, ...LIVE_DATA].filter(d => occasionAllowsCategory(d.category));
+  const combined = [...DATA, ...LIVE_DATA].filter(d => occasionAllowsItem(d));
   const q = query.trim().toLowerCase();
   const matchesQuery = (d) => !q || d.name.toLowerCase().includes(q) || (d.cuisine||"").toLowerCase().includes(q) || d.suburb.toLowerCase().includes(q);
   const relevant = combined.filter(matchesQuery);
@@ -973,7 +973,7 @@ function searchUrl(place){
 }
 
 function renderGrid(){
-  const combined = [...DATA, ...LIVE_DATA].filter(d => occasionAllowsCategory(d.category));
+  const combined = [...DATA, ...LIVE_DATA].filter(d => occasionAllowsItem(d));
 
   const qLower = query.trim().toLowerCase();
   const matchesQuery = (d) => {
@@ -1197,6 +1197,21 @@ function occasionAllowsCategory(category){
   const allowed = OCCASION_ALLOWED_CATEGORIES[occasionFilter.value];
   if (allowed) return allowed.includes(category);
   return !OCCASION_EXCLUDED_CATEGORIES.includes(category);
+}
+
+// "Near the water" results are only trustworthy for LIVE results — the
+// backend checks each one's real lat/lng against known waterline points.
+// The hardcoded sample DATA has no coordinates at all, so a Newtown
+// restaurant tagged "restaurant" (an otherwise-allowed category) was
+// still slipping through a water search on category alone, with no
+// distance check ever applied to it. Rather than maintaining a second,
+// separate "which static suburbs count as waterfront" list that could
+// drift out of sync with the backend's real geo check, simplest and most
+// accurate is to just not show unverified static entries for this one
+// occasion — live results already cover it properly.
+function occasionAllowsItem(d){
+  if (occasionFilter.value === "water" && d.source !== "live") return false;
+  return occasionAllowsCategory(d.category);
 }
 
 // Fetches live results across one or more suburbs at once. Used both for
