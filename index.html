@@ -1210,7 +1210,19 @@ async function fetchLiveForSuburbs(suburbList){
 
   const cuisine = cuisineFilter.value;
   const occasion = occasionFilter.value;
-  const stateParam = activeState !== "all" ? activeState : "";
+
+  // The backend rejects any request that has neither a suburb nor a
+  // state — by design, so it never does an unbounded worldwide search.
+  // That's a problem specifically for an occasion- or cuisine-only search
+  // with an empty search box (e.g. picking "Date night" with nothing
+  // typed): every suburb in the list ends up "", so without a state too,
+  // every request to the backend was being rejected outright — the site
+  // was silently getting zero live results and nobody could tell,
+  // because the hardcoded sample data was quietly filling the gap.
+  // Defaulting to NSW here (this site's actual coverage area) keeps the
+  // request valid instead of failing closed.
+  const allSuburbsEmpty = suburbList.every((s) => !s || !s.trim());
+  const stateParam = activeState !== "all" ? activeState : (allSuburbsEmpty ? "NSW" : "");
 
   // An occasion search implies a certain kind of venue, not just a certain
   // kind of language — a kebab shop can easily slip through a "date
