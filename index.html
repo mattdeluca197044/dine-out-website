@@ -640,6 +640,12 @@
         <option value="Pizza">Pizza</option>
         <option value="Burger">Burger</option>
       </select>
+      <select id="occasionFilter">
+        <option value="">Any occasion</option>
+        <option value="date-night">Date night</option>
+        <option value="water">Near the water</option>
+        <option value="special-occasion">Special occasion</option>
+      </select>
       <select id="sortSelect">
         <option value="rating">Sort: highest rated</option>
         <option value="price_asc">Sort: cheapest first</option>
@@ -808,6 +814,7 @@ const sectionTitle = document.getElementById('sectionTitle');
 const resultNote = document.getElementById('resultNote');
 const emptyState = document.getElementById('emptyState');
 const cuisineFilter = document.getElementById('cuisineFilter');
+const occasionFilter = document.getElementById('occasionFilter');
 const searchInput = document.getElementById('searchInput');
 const sortSelect = document.getElementById('sortSelect');
 const suburbFilter = document.getElementById('suburbFilter');
@@ -1171,11 +1178,12 @@ async function fetchLiveForSuburb(suburb){
 
   const categories = ["cafe", "restaurant", "takeaway", "pub", "club", "hatted"];
   const cuisine = cuisineFilter.value;
+  const occasion = occasionFilter.value;
   const stateParam = activeState !== "all" ? activeState : "";
 
   try {
     const responses = await Promise.all(categories.map(cat =>
-      fetch(`${LIVE_API}?suburb=${encodeURIComponent(suburb)}&category=${cat}&full=1${cuisine ? `&cuisine=${encodeURIComponent(cuisine)}` : ''}${stateParam ? `&state=${encodeURIComponent(stateParam)}` : ''}`)
+      fetch(`${LIVE_API}?suburb=${encodeURIComponent(suburb)}&category=${cat}&full=1${cuisine ? `&cuisine=${encodeURIComponent(cuisine)}` : ''}${occasion ? `&occasion=${encodeURIComponent(occasion)}` : ''}${stateParam ? `&state=${encodeURIComponent(stateParam)}` : ''}`)
         .then(r => r.ok ? r.json() : {results:[]})
         .catch(() => ({results:[]}))
         .then(data => ({cat, data}))
@@ -1386,10 +1394,11 @@ function runSearch(term){
   // Treat the search term as a suburb and fetch live results too —
   // covers both "search a suburb" and "search a dish/cuisine" cases,
   // since a live suburb search costs nothing extra if the term isn't one.
-  // Also fires when a cuisine is selected with an empty box — search.js
-  // already handles "cuisine, no suburb" with a nationwide, location-
-  // biased fallback, but that path was never reachable without this.
-  if (term.trim().length > 1 || cuisineFilter.value){
+  // Also fires when a cuisine or occasion is selected with an empty box —
+  // search.js already handles "cuisine/occasion, no suburb" with a
+  // nationwide, location-biased fallback, but that path was never
+  // reachable without this.
+  if (term.trim().length > 1 || cuisineFilter.value || occasionFilter.value){
     fetchLiveForSuburb(term.trim());
   } else {
     // Nothing meaningful to search on — clear any stale live results from
@@ -1484,6 +1493,16 @@ stateFilter.addEventListener('change', e => {
 cuisineFilter.addEventListener('change', () => {
   if (!hasSearched) return;
   // Cuisine changed — clear stale results and their dedup keys, then re-fetch.
+  LIVE_DATA = [];
+  liveIds = new Set(DATA.map(d => d.place_id));
+  liveDedupeKeys = new Set(DATA.map(d => dedupeKey(d.name, d.address)));
+  runSearch(searchInput.value.trim());
+});
+occasionFilter.addEventListener('change', () => {
+  // Occasion changed — clear stale results and their dedup keys, then
+  // re-fetch. Runs even before a first search, since an occasion pick
+  // (e.g. "Date night") with no suburb typed should still trigger a
+  // nationwide, location-biased search — same behavior as cuisine.
   LIVE_DATA = [];
   liveIds = new Set(DATA.map(d => d.place_id));
   liveDedupeKeys = new Set(DATA.map(d => dedupeKey(d.name, d.address)));
