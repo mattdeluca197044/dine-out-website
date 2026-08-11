@@ -1134,16 +1134,28 @@ function renderGrid(){
   emptyState.style.display = items.length ? "none" : "block";
 
   items.forEach(d => {
+    const bookable = BOOKABLE[d.place_id];
+
+    // A subscribed restaurant's own saved name/address/hours now take
+    // precedence over whatever Google's listing shows — this is the
+    // actual point of letting them edit these in the portal at all;
+    // without this override, those edits would save successfully but
+    // never visibly change anything a diner sees.
+    const displayName = bookable?.customName || d.name;
+    const displayAddress = bookable?.customAddress || d.address;
+    const todayName = DAY_NAMES[new Date().getDay()];
+    const customHoursToday = bookable?.customHours?.[todayName];
+
     const open = d.source === "live" ? d.openNow : isOpenNow(d.hours);
-    const todays = d.source === "live" ? null : todayHours(d.hours);
+    const todays = customHoursToday || (d.source === "live" ? null : todayHours(d.hours));
     const openLabel = open === true ? "Open now" : open === false ? "Closed now" : "Hours vary";
     const card = document.createElement('div');
     card.className = 'card';
     card.innerHTML = `
-      ${BOOKABLE[d.place_id]?.photos?.length ? `<img class="card-photo-strip" src="${BOOKABLE[d.place_id].photos[0]}" alt="${d.name.replace(/"/g,'&quot;')}" loading="lazy">` : ''}
+      ${bookable?.photos?.length ? `<img class="card-photo-strip" src="${bookable.photos[0]}" alt="${displayName.replace(/"/g,'&quot;')}" loading="lazy">` : ''}
       <div class="card-top">
         <div>
-          <h3 class="card-title">${d.name}</h3>
+          <h3 class="card-title">${displayName}</h3>
           <div class="card-sub">${d.cuisine} · ${d.suburb} ${d.source === 'live' ? '<span style="color:var(--sage);">· LIVE</span>' : ''}</div>
         </div>
         <span class="badge ${open ? 'open' : 'closed'}">${openLabel}</span>
@@ -1157,14 +1169,16 @@ function renderGrid(){
         <span class="price-label">Cost per head</span>
         <span class="price-value">$${d.price[0]}–${d.price[1]}</span>
       </div>
-      <div class="hours-line">${todays ? `Today: ${todays}` : d.address}</div>
-      ${BOOKABLE[d.place_id]?.description ? `<div class="claimed-desc">${escapeHtml(BOOKABLE[d.place_id].description)}</div>` : ''}
-      ${BOOKABLE[d.place_id]?.currentSpecial ? `<div class="special-badge">✨ ${escapeHtml(BOOKABLE[d.place_id].currentSpecial)}</div>` : ''}
-      ${BOOKABLE[d.place_id] ? renderSocialLinks(BOOKABLE[d.place_id]) : ''}
+      <div class="hours-line">${todays ? `Today: ${todays}` : displayAddress}</div>
+      ${bookable?.menuUrl ? `<a href="${bookable.menuUrl}" target="_blank" rel="noopener" onclick="event.stopPropagation(); trackEvent('${d.place_id}','menu');" style="font-size:12.5px;color:var(--ink);font-weight:600;text-decoration:none;">📄 View menu</a>` : ''}
+      ${bookable?.description ? `<div class="claimed-desc">${escapeHtml(bookable.description)}</div>` : ''}
+      ${bookable?.currentSpecial ? `<div class="special-badge">✨ ${escapeHtml(bookable.currentSpecial)}</div>` : ''}
+      ${bookable ? renderSocialLinks(bookable) : ''}
       <div class="card-actions">
         <a class="primary" href="${mapsUrl(d)}" target="_blank" rel="noopener" onclick="trackEvent('${d.place_id}','directions')">Get directions</a>
+
         <a href="${searchUrl(d)}" target="_blank" rel="noopener" onclick="trackEvent('${d.place_id}','website')">Find website</a>
-        ${BOOKABLE[d.place_id] ? `<a class="book" href="#" onclick="openBookingModal('${d.place_id}', '${d.name.replace(/'/g,"&#39;")}'); return false;">Book a table</a>` : ''}
+        ${bookable ? `<a class="book" href="#" onclick="openBookingModal('${d.place_id}', '${displayName.replace(/'/g,"&#39;")}'); return false;">Book a table</a>` : ''}
       </div>
     `;
     gridEl.appendChild(card);
