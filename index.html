@@ -642,7 +642,7 @@
       </select>
       <select id="occasionFilter">
         <option value="">Any occasion</option>
-        <option value="date-night">Date night</option>
+        <option value="date-night">Date night (award-winning only)</option>
         <option value="water">Near the water</option>
         <option value="special-occasion">Special occasion</option>
       </select>
@@ -1174,20 +1174,29 @@ const SUGGESTION_POOL = buildSuggestionPool();
 // Full category set used for a normal (no occasion selected) search.
 const DEFAULT_CATEGORIES = ["cafe", "restaurant", "takeaway", "pub", "club", "hatted"];
 
-// When an occasion IS selected, drop the categories that don't fit any of
-// them — a takeaway kebab shop or licensed club isn't what anyone means
-// by "date night", "special occasion", or "near the water", regardless of
-// how Google's text relevance scores it. Cafes and pubs stay in for all
-// three — a good pub meal or a nice waterside cafe can genuinely fit.
+// When an occasion IS selected, drop the categories that don't fit — a
+// takeaway kebab shop or licensed club isn't what anyone means by "date
+// night", "special occasion", or "near the water", regardless of how
+// Google's text relevance scores it. Cafes and pubs stay in for special
+// occasion / water — a good pub meal or a nice waterside cafe can
+// genuinely fit those. Date night is deliberately stricter: only
+// award-winning venues, per an explicit request to keep that one curated
+// tighter than the other two.
 const OCCASION_EXCLUDED_CATEGORIES = ["takeaway", "club"];
+const OCCASION_ALLOWED_CATEGORIES = {
+  "date-night": ["hatted"],
+};
 
-// Applies that same exclusion to EVERY rendered result, not just live
+// Applies that same filtering to EVERY rendered result, not just live
 // Google fetches — the hardcoded sample DATA array includes several
-// takeaway/kebab entries that were still showing up under "Date night"
-// etc. because nothing was filtering them out of the always-present
-// static list, only out of what got freshly fetched.
+// takeaway/kebab entries (and no "hatted" ones at all) that would
+// otherwise still show up under an occasion filter, since nothing was
+// filtering the always-present static list, only what got freshly fetched.
 function occasionAllowsCategory(category){
-  return !occasionFilter.value || !OCCASION_EXCLUDED_CATEGORIES.includes(category);
+  if (!occasionFilter.value) return true;
+  const allowed = OCCASION_ALLOWED_CATEGORIES[occasionFilter.value];
+  if (allowed) return allowed.includes(category);
+  return !OCCASION_EXCLUDED_CATEGORIES.includes(category);
 }
 
 // Fetches live results across one or more suburbs at once. Used both for
@@ -1206,11 +1215,10 @@ async function fetchLiveForSuburbs(suburbList){
   // An occasion search implies a certain kind of venue, not just a certain
   // kind of language — a kebab shop can easily slip through a "date
   // night" search on keyword relevance alone even though nobody actually
-  // wants that. Narrowing which categories get searched at all is a more
+  // wants that. Narrowing which categories get fetched at all is a more
   // reliable filter than hoping the text-matching sorts it out.
-  const categories = occasion
-    ? DEFAULT_CATEGORIES.filter(c => !OCCASION_EXCLUDED_CATEGORIES.includes(c))
-    : DEFAULT_CATEGORIES;
+  const categories = OCCASION_ALLOWED_CATEGORIES[occasion]
+    || (occasion ? DEFAULT_CATEGORIES.filter(c => !OCCASION_EXCLUDED_CATEGORIES.includes(c)) : DEFAULT_CATEGORIES);
 
   try {
     const tasks = [];
