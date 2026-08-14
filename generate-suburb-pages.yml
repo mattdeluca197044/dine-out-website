@@ -1,0 +1,33 @@
+name: Generate suburb landing pages
+
+# Runs daily to keep suburb pages fresh with current restaurant data, and
+# can also be triggered manually from the Actions tab (useful for the
+# very first run, right after adding this workflow).
+on:
+  schedule:
+    - cron: '0 18 * * *'   # 18:00 UTC = ~4-5am Sydney time (adjust if you prefer a different time)
+  workflow_dispatch: {}
+
+permissions:
+  contents: write   # needed so the workflow can commit the generated pages back to the repo
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Generate suburb pages
+        run: node generate-suburb-pages.js
+
+      - name: Commit and push if anything changed
+        run: |
+          git config user.name "outtoeat-bot"
+          git config user.email "bot@outtoeat.com.au"
+          git add restaurants sitemap.xml
+          git diff --cached --quiet || git commit -m "Auto-update suburb landing pages"
+          git push
