@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://outtoeat.com.au/sitemap.xml
