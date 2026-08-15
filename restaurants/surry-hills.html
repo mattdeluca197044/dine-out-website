@@ -86,6 +86,27 @@
       "position": 4,
       "item": {
         "@type": "Restaurant",
+        "name": "Café Tanja",
+        "address": {
+          "@type": "PostalAddress",
+          "streetAddress": "638 Crown St, Surry Hills NSW 2010, Australia",
+          "addressLocality": "Surry Hills",
+          "addressRegion": "NSW",
+          "addressCountry": "AU"
+        },
+        "priceRange": "$25-40",
+        "aggregateRating": {
+          "@type": "AggregateRating",
+          "ratingValue": 4.9,
+          "reviewCount": 481
+        }
+      }
+    },
+    {
+      "@type": "ListItem",
+      "position": 5,
+      "item": {
+        "@type": "Restaurant",
         "name": "Golosa",
         "address": {
           "@type": "PostalAddress",
@@ -99,27 +120,6 @@
           "@type": "AggregateRating",
           "ratingValue": 4.9,
           "reviewCount": 271
-        }
-      }
-    },
-    {
-      "@type": "ListItem",
-      "position": 5,
-      "item": {
-        "@type": "Restaurant",
-        "name": "Café Tanja",
-        "address": {
-          "@type": "PostalAddress",
-          "streetAddress": "638 Crown St, Surry Hills NSW 2010, Australia",
-          "addressLocality": "Surry Hills",
-          "addressRegion": "NSW",
-          "addressCountry": "AU"
-        },
-        "priceRange": "$25-40",
-        "aggregateRating": {
-          "@type": "AggregateRating",
-          "ratingValue": 4.9,
-          "reviewCount": 480
         }
       }
     },
@@ -161,7 +161,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.8,
-          "reviewCount": 3371
+          "reviewCount": 3374
         }
       }
     },
@@ -224,7 +224,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.8,
-          "reviewCount": 151
+          "reviewCount": 152
         }
       }
     },
@@ -245,7 +245,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.8,
-          "reviewCount": 804
+          "reviewCount": 805
         }
       }
     },
@@ -350,34 +350,13 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.8,
-          "reviewCount": 3178
+          "reviewCount": 3181
         }
       }
     },
     {
       "@type": "ListItem",
       "position": 17,
-      "item": {
-        "@type": "Restaurant",
-        "name": "Lil’ miss piggy",
-        "address": {
-          "@type": "PostalAddress",
-          "streetAddress": "2/265 Crown St, Surry Hills NSW 2010, Australia",
-          "addressLocality": "Surry Hills",
-          "addressRegion": "NSW",
-          "addressCountry": "AU"
-        },
-        "priceRange": "$25-40",
-        "aggregateRating": {
-          "@type": "AggregateRating",
-          "ratingValue": 4.8,
-          "reviewCount": 575
-        }
-      }
-    },
-    {
-      "@type": "ListItem",
-      "position": 18,
       "item": {
         "@type": "Restaurant",
         "name": "Jane Surry Hills",
@@ -392,13 +371,13 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.7,
-          "reviewCount": 918
+          "reviewCount": 920
         }
       }
     },
     {
       "@type": "ListItem",
-      "position": 19,
+      "position": 18,
       "item": {
         "@type": "Restaurant",
         "name": "White Horse",
@@ -419,7 +398,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 20,
+      "position": 19,
       "item": {
         "@type": "Restaurant",
         "name": "Arthur Surry Hills",
@@ -434,7 +413,28 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.7,
-          "reviewCount": 690
+          "reviewCount": 691
+        }
+      }
+    },
+    {
+      "@type": "ListItem",
+      "position": 20,
+      "item": {
+        "@type": "Restaurant",
+        "name": "Shaffa",
+        "address": {
+          "@type": "PostalAddress",
+          "streetAddress": "80 Albion St, Surry Hills NSW 2010, Australia",
+          "addressLocality": "Surry Hills",
+          "addressRegion": "NSW",
+          "addressCountry": "AU"
+        },
+        "priceRange": "$25-40",
+        "aggregateRating": {
+          "@type": "AggregateRating",
+          "ratingValue": 4.7,
+          "reviewCount": 1584
         }
       }
     }
@@ -566,6 +566,30 @@
     <div class="card">
       <div class="card-top">
         <div>
+          <h2 class="card-title">Café Tanja</h2>
+          <div class="card-sub">Café · Surry Hills</div>
+        </div>
+      </div>
+      
+      <div class="rating-row">
+        <span class="stars">★★★★★</span>
+        <span>4.9</span>
+        <span class="rating-count">(481 reviews)</span>
+      </div>
+      <div class="price-ticket">
+        <span class="price-label">Cost per head</span>
+        <span class="price-value">$25–40</span>
+      </div>
+      <div class="hours-line">638 Crown St, Surry Hills NSW 2010, Australia</div>
+      <div class="card-actions">
+        <a class="primary" href="https://www.google.com/maps/place/?q=place_id:ChIJqWpoTwCxEmsRz53_4AP6eEI" target="_blank" rel="noopener">Get directions</a>
+        <a href="https://outtoeat.com.au/listing.html?place=ChIJqWpoTwCxEmsRz53_4AP6eEI">View listing</a>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-top">
+        <div>
           <h2 class="card-title">Golosa</h2>
           <div class="card-sub">Café · Surry Hills</div>
         </div>
@@ -584,30 +608,6 @@
       <div class="card-actions">
         <a class="primary" href="https://www.google.com/maps/place/?q=place_id:ChIJK-hFHACvEmsRj_Vfcr3y2HE" target="_blank" rel="noopener">Get directions</a>
         <a href="https://outtoeat.com.au/listing.html?place=ChIJK-hFHACvEmsRj_Vfcr3y2HE">View listing</a>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-top">
-        <div>
-          <h2 class="card-title">Café Tanja</h2>
-          <div class="card-sub">Café · Surry Hills</div>
-        </div>
-      </div>
-      
-      <div class="rating-row">
-        <span class="stars">★★★★★</span>
-        <span>4.9</span>
-        <span class="rating-count">(480 reviews)</span>
-      </div>
-      <div class="price-ticket">
-        <span class="price-label">Cost per head</span>
-        <span class="price-value">$25–40</span>
-      </div>
-      <div class="hours-line">638 Crown St, Surry Hills NSW 2010, Australia</div>
-      <div class="card-actions">
-        <a class="primary" href="https://www.google.com/maps/place/?q=place_id:ChIJqWpoTwCxEmsRz53_4AP6eEI" target="_blank" rel="noopener">Get directions</a>
-        <a href="https://outtoeat.com.au/listing.html?place=ChIJqWpoTwCxEmsRz53_4AP6eEI">View listing</a>
       </div>
     </div>
 
@@ -646,7 +646,7 @@
       <div class="rating-row">
         <span class="stars">★★★★★</span>
         <span>4.8</span>
-        <span class="rating-count">(3,371 reviews)</span>
+        <span class="rating-count">(3,374 reviews)</span>
       </div>
       <div class="price-ticket">
         <span class="price-label">Cost per head</span>
@@ -718,7 +718,7 @@
       <div class="rating-row">
         <span class="stars">★★★★★</span>
         <span>4.8</span>
-        <span class="rating-count">(151 reviews)</span>
+        <span class="rating-count">(152 reviews)</span>
       </div>
       <div class="price-ticket">
         <span class="price-label">Cost per head</span>
@@ -742,7 +742,7 @@
       <div class="rating-row">
         <span class="stars">★★★★★</span>
         <span>4.8</span>
-        <span class="rating-count">(804 reviews)</span>
+        <span class="rating-count">(805 reviews)</span>
       </div>
       <div class="price-ticket">
         <span class="price-label">Cost per head</span>
@@ -862,7 +862,7 @@
       <div class="rating-row">
         <span class="stars">★★★★★</span>
         <span>4.8</span>
-        <span class="rating-count">(3,178 reviews)</span>
+        <span class="rating-count">(3,181 reviews)</span>
       </div>
       <div class="price-ticket">
         <span class="price-label">Cost per head</span>
@@ -878,30 +878,6 @@
     <div class="card">
       <div class="card-top">
         <div>
-          <h2 class="card-title">Lil’ miss piggy</h2>
-          <div class="card-sub">Café · Surry Hills</div>
-        </div>
-      </div>
-      
-      <div class="rating-row">
-        <span class="stars">★★★★★</span>
-        <span>4.8</span>
-        <span class="rating-count">(575 reviews)</span>
-      </div>
-      <div class="price-ticket">
-        <span class="price-label">Cost per head</span>
-        <span class="price-value">$25–40</span>
-      </div>
-      <div class="hours-line">2/265 Crown St, Surry Hills NSW 2010, Australia</div>
-      <div class="card-actions">
-        <a class="primary" href="https://www.google.com/maps/place/?q=place_id:ChIJOS3BGJWvEmsRkf7KdPjloPI" target="_blank" rel="noopener">Get directions</a>
-        <a href="https://outtoeat.com.au/listing.html?place=ChIJOS3BGJWvEmsRkf7KdPjloPI">View listing</a>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-top">
-        <div>
           <h2 class="card-title">Jane Surry Hills</h2>
           <div class="card-sub">Restaurant · Surry Hills</div>
         </div>
@@ -910,7 +886,7 @@
       <div class="rating-row">
         <span class="stars">★★★★★</span>
         <span>4.7</span>
-        <span class="rating-count">(918 reviews)</span>
+        <span class="rating-count">(920 reviews)</span>
       </div>
       <div class="price-ticket">
         <span class="price-label">Cost per head</span>
@@ -958,7 +934,7 @@
       <div class="rating-row">
         <span class="stars">★★★★★</span>
         <span>4.7</span>
-        <span class="rating-count">(690 reviews)</span>
+        <span class="rating-count">(691 reviews)</span>
       </div>
       <div class="price-ticket">
         <span class="price-label">Cost per head</span>
@@ -982,7 +958,7 @@
       <div class="rating-row">
         <span class="stars">★★★★★</span>
         <span>4.7</span>
-        <span class="rating-count">(1,583 reviews)</span>
+        <span class="rating-count">(1,584 reviews)</span>
       </div>
       <div class="price-ticket">
         <span class="price-label">Cost per head</span>
@@ -1030,7 +1006,7 @@
       <div class="rating-row">
         <span class="stars">★★★★★</span>
         <span>4.7</span>
-        <span class="rating-count">(345 reviews)</span>
+        <span class="rating-count">(346 reviews)</span>
       </div>
       <div class="price-ticket">
         <span class="price-label">Cost per head</span>
@@ -1064,6 +1040,30 @@
       <div class="card-actions">
         <a class="primary" href="https://www.google.com/maps/place/?q=place_id:ChIJf_YQAF2vEmsRXuw4DPS_O3Y" target="_blank" rel="noopener">Get directions</a>
         <a href="https://outtoeat.com.au/listing.html?place=ChIJf_YQAF2vEmsRXuw4DPS_O3Y">View listing</a>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-top">
+        <div>
+          <h2 class="card-title">Paripé</h2>
+          <div class="card-sub">Restaurant · Surry Hills</div>
+        </div>
+      </div>
+      
+      <div class="rating-row">
+        <span class="stars">★★★★★</span>
+        <span>4.7</span>
+        <span class="rating-count">(735 reviews)</span>
+      </div>
+      <div class="price-ticket">
+        <span class="price-label">Cost per head</span>
+        <span class="price-value">$25–40</span>
+      </div>
+      <div class="hours-line">348 Crown St, Surry Hills NSW 2010, Australia</div>
+      <div class="card-actions">
+        <a class="primary" href="https://www.google.com/maps/place/?q=place_id:ChIJzz9XpgGvEmsRlRO57qvO-mI" target="_blank" rel="noopener">Get directions</a>
+        <a href="https://outtoeat.com.au/listing.html?place=ChIJzz9XpgGvEmsRlRO57qvO-mI">View listing</a>
       </div>
     </div>
   </div>
