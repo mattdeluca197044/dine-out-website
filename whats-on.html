@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>What's On — outtoeat</title>
+<meta name="description" content="Current deals and specials from restaurants across Sydney, updated as venues post them.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Work+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#DE3937;
+    --ink-soft:#B32E2C;
+    --paper:#FFFFFF;
+    --paper-dim:#FBEBEA;
+    --brass:#C42B29;
+    --brass-bright:#F0524F;
+    --sage:#4F8A5B;
+    --rust:#8A8078;
+    --line:#F0D9D8;
+    --text:#241412;
+    --text-dim:#7A6E6A;
+    --radius:2px;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--text);
+    font-family:'Work Sans', sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  header{
+    background:var(--ink);
+    color:var(--paper);
+    padding:40px 24px 44px;
+    position:relative;
+    overflow:hidden;
+  }
+  header::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    background-image:
+      repeating-linear-gradient(90deg, rgba(255,255,255,0.06) 0px, rgba(255,255,255,0.06) 1px, transparent 1px, transparent 64px);
+    pointer-events:none;
+  }
+  .header-inner{max-width:1080px;margin:0 auto;position:relative;}
+  .back-link{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12.5px;
+    color:#FBDAD9;
+    text-decoration:none;
+    margin-bottom:22px;
+  }
+  .back-link:hover{color:#fff;}
+  .eyebrow{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    letter-spacing:0.18em;
+    text-transform:uppercase;
+    color:var(--brass-bright);
+    margin-bottom:12px;
+  }
+  h1{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size:clamp(30px, 5vw, 48px);
+    line-height:1.05;
+    margin:0 0 10px;
+  }
+  .sub{
+    font-size:15px;
+    line-height:1.5;
+    color:#FBDAD9;
+    max-width:520px;
+    margin:0;
+  }
+
+  main{
+    max-width:1080px;
+    margin:0 auto;
+    padding:36px 24px 80px;
+  }
+  .meta-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    margin-bottom:22px;
+    flex-wrap:wrap;
+    gap:10px;
+  }
+  .result-note{font-family:'IBM Plex Mono', monospace;font-size:12px;color:var(--text-dim);}
+
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(280px, 1fr));
+    gap:20px;
+  }
+  .special-card{
+    background:#FFFDF8;
+    border:1px solid var(--brass);
+    border-radius:6px;
+    overflow:hidden;
+    text-decoration:none;
+    color:var(--text);
+    display:flex;
+    flex-direction:column;
+    transition:transform .15s ease, box-shadow .15s ease;
+  }
+  .special-card:hover{transform:translateY(-3px);box-shadow:0 14px 28px -18px rgba(27,36,48,0.35);}
+  .special-card-photo{
+    width:100%;
+    height:160px;
+    object-fit:cover;
+    background:var(--paper-dim);
+    display:block;
+  }
+  .special-card-photo.placeholder{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    color:var(--text-dim);
+  }
+  .special-card-body{padding:16px 18px 18px;}
+  .special-card-tag{
+    display:inline-block;
+    background:var(--sage);
+    color:#fff;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    font-weight:600;
+    padding:5px 11px;
+    border-radius:20px;
+    margin-bottom:10px;
+  }
+  .special-card-body h3{
+    font-family:'Fraunces', serif;
+    font-size:18px;
+    font-weight:600;
+    margin:0 0 6px;
+  }
+  .special-card-meta{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    color:var(--text-dim);
+  }
+
+  .empty{
+    text-align:center;
+    padding:90px 20px;
+    color:var(--text-dim);
+    font-family:'IBM Plex Mono', monospace;
+    font-size:14px;
+    line-height:1.7;
+  }
+  .empty-cta{
+    display:inline-block;
+    margin-top:18px;
+    font-family:'Work Sans', sans-serif;
+    font-weight:600;
+    font-size:14px;
+    background:var(--ink);
+    color:#fff;
+    text-decoration:none;
+    padding:12px 22px;
+    border-radius:var(--radius);
+  }
+  .empty-cta:hover{background:var(--brass);}
+
+  footer{
+    max-width:1080px;
+    margin:0 auto;
+    padding:30px 24px 60px;
+    color:var(--text-dim);
+    font-size:12.5px;
+    font-family:'IBM Plex Mono', monospace;
+    border-top:1px solid var(--line);
+    line-height:1.6;
+  }
+  footer a{color:var(--ink);}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <a href="index.html" class="back-link">← Back to search</a>
+    <div class="eyebrow">What's on right now</div>
+    <h1>Deals &amp; specials</h1>
+    <p class="sub">Live promotions from restaurants across Sydney — posted directly by the venues themselves.</p>
+  </div>
+</header>
+
+<main>
+  <div class="meta-row">
+    <div class="result-note" id="resultNote">Loading…</div>
+  </div>
+  <div class="grid" id="grid"></div>
+  <div class="empty" id="emptyState" style="display:none;">
+    No specials are running right now — check back soon.<br>
+    Running a restaurant?
+    <br>
+    <a class="empty-cta" href="https://restaurant-portal-seven.vercel.app">List your special here →</a>
+  </div>
+</main>
+
+<footer>
+  outtoeat is a trading name of Eat Out Oz.<br>
+  Specials are posted directly by subscribed restaurants and may change without notice — always confirm with the venue.<br>
+  <a href="/privacy.html">Privacy Policy</a> · <a href="/terms.html">Terms of Service</a>
+</footer>
+
+<script>
+const BOOKING_API = "https://eat-out-oz.vercel.app/api";
+
+function escapeHtml(str){
+  const div = document.createElement('div');
+  div.textContent = str || '';
+  return div.innerHTML;
+}
+
+async function loadWhatsOn(){
+  const grid = document.getElementById('grid');
+  const emptyState = document.getElementById('emptyState');
+  const resultNote = document.getElementById('resultNote');
+
+  try {
+    const res = await fetch(`${BOOKING_API}/specials`);
+    if (!res.ok) throw new Error('Failed to load');
+    const data = await res.json();
+    const specials = data.specials || [];
+
+    if (!specials.length){
+      resultNote.textContent = '';
+      grid.innerHTML = '';
+      emptyState.style.display = 'block';
+      return;
+    }
+
+    resultNote.textContent = `${specials.length} special${specials.length===1?'':'s'} running now`;
+    emptyState.style.display = 'none';
+
+    grid.innerHTML = specials.map(s => {
+      const photo = s.photos && s.photos.length ? s.photos[0] : null;
+      const photoHtml = photo
+        ? `<img class="special-card-photo" src="${photo}" alt="${escapeHtml(s.name)}" loading="lazy">`
+        : `<div class="special-card-photo placeholder">No photo yet</div>`;
+      const ratingHtml = s.rating
+        ? `<span class="special-card-meta">★ ${s.rating.toFixed(1)}${s.reviews ? ` (${s.reviews.toLocaleString()} reviews)` : ''}</span>`
+        : '';
+      const href = s.placeId
+        ? `listing.html?place=${encodeURIComponent(s.placeId)}`
+        : '#';
+      return `
+        <a href="${href}" class="special-card">
+          ${photoHtml}
+          <div class="special-card-body">
+            <div class="special-card-tag">✨ ${escapeHtml(s.currentSpecial)}</div>
+            <h3>${escapeHtml(s.name)}</h3>
+            ${ratingHtml}
+          </div>
+        </a>
+      `;
+    }).join('');
+  } catch (err) {
+    console.error('Whats On load failed:', err);
+    resultNote.textContent = '';
+    grid.innerHTML = '';
+    emptyState.innerHTML = "Couldn't load specials right now — try again shortly.";
+    emptyState.style.display = 'block';
+  }
+}
+
+loadWhatsOn();
+</script>
+</body>
+</html>
