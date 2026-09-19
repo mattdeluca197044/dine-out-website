@@ -145,7 +145,18 @@
   .modal-msg{font-size:13px;padding:10px;border-radius:4px;margin-top:12px;}
   .modal-msg.error{background:#FCEBEB;color:#791F1F;}
   .modal-msg.success{background:#EAF3DE;color:#27500A;}
-</style>
+
+  footer{
+    max-width:800px;
+    margin:0 auto;
+    padding:30px 24px 60px;
+    color:var(--text-dim);
+    font-size:12.5px;
+    font-family:'IBM Plex Mono', monospace;
+    border-top:1px solid var(--line);
+    line-height:1.6;
+  }
+</style>  
 </head>
 <body>
 
@@ -160,6 +171,13 @@
   <div class="error-state" id="errorState" style="display:none;">Couldn't find that listing — it may have been removed, or the link is incorrect.</div>
   <div id="content" style="display:none;"></div>
 </main>
+
+<footer>
+  outtoeat is a trading name of Eat Out Oz.<br>
+  PROTOTYPE — venue data pulled live from Google Places for demonstration.<br>
+  Cost-per-head figures are estimates derived from category + published price level, not menu totals. Always confirm with the venue.<br>
+  <a href="/privacy.html" style="color:var(--ink);">Privacy Policy</a> · <a href="/terms.html" style="color:var(--ink);">Terms of Service</a>
+</footer>
 
 <script>
 const BOOKING_API = "https://eat-out-oz.vercel.app/api";
