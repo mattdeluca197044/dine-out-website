@@ -1412,12 +1412,33 @@ async function fetchLiveForSuburbs(suburbList){
           source: "live",
         };
 
+        // Generic fallback labels used only when Google gave no real
+        // cuisine for a result. If a later category fetch (e.g. "hatted")
+        // returns one of these for a place we've already seen with a real
+        // cuisine (e.g. "Italian" from its "restaurant" category fetch),
+        // that real cuisine must NOT be overwritten — this was previously
+        // clobbering correct cuisine labels with "Award Winning" purely
+        // because of category fetch ordering, not because of any actual
+        // change in the restaurant itself.
+        const GENERIC_CUISINE_FALLBACKS = new Set(["Café", "Takeaway", "Pub", "Club", "Award Winning", "Restaurant"]);
+
         if (liveIds.has(r.placeId)) {
           // Same place_id seen before — refresh its data in case anything
           // (like the suburb) has since been corrected, rather than
-          // leaving a stale/wrong entry sitting there forever.
+          // leaving a stale/wrong entry sitting there forever. But keep
+          // whichever cuisine value is more specific, so a later, more
+          // generic category fetch can't clobber a real cuisine already
+          // found for this same place.
           const idx = LIVE_DATA.findIndex(d => d.place_id === r.placeId);
-          if (idx !== -1) LIVE_DATA[idx] = freshEntry;
+          if (idx !== -1) {
+            const existingCuisine = LIVE_DATA[idx].cuisine;
+            const newCuisineIsGeneric = GENERIC_CUISINE_FALLBACKS.has(freshEntry.cuisine);
+            const existingCuisineIsReal = existingCuisine && !GENERIC_CUISINE_FALLBACKS.has(existingCuisine);
+            if (newCuisineIsGeneric && existingCuisineIsReal) {
+              freshEntry.cuisine = existingCuisine;
+            }
+            LIVE_DATA[idx] = freshEntry;
+          }
           return;
         }
 
