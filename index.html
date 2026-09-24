@@ -654,6 +654,36 @@
     .tabs{margin-top:-16px;}
     .tab{padding:12px 14px 10px;font-size:12px;}
   }
+
+  /* ---------- CHAT WIDGET ---------- */
+  #chatToggleBtn{
+    position:fixed; bottom:24px; right:24px; width:56px; height:56px; border-radius:50%;
+    background:var(--ink); color:#fff; border:none; font-size:24px; cursor:pointer;
+    box-shadow:0 10px 24px -8px rgba(36,20,18,0.45); z-index:200;
+  }
+  #chatToggleBtn:hover{background:var(--brass-bright);}
+  .chat-panel{
+    position:fixed; bottom:90px; right:24px; width:340px; max-width:calc(100vw - 32px);
+    height:460px; max-height:calc(100vh - 140px); background:#FFFDF8; border:1px solid var(--line);
+    border-radius:10px; box-shadow:0 20px 45px -15px rgba(36,20,18,0.4); display:none; flex-direction:column;
+    overflow:hidden; z-index:200; font-family:'Work Sans',sans-serif;
+  }
+  .chat-header{
+    background:var(--ink); color:#fff; padding:14px 16px; display:flex; justify-content:space-between; align-items:center;
+    font-family:'Fraunces',serif; font-weight:600; font-size:15px;
+  }
+  .chat-header button{background:none;border:none;color:#fff;font-size:20px;cursor:pointer;line-height:1;padding:0;}
+  .chat-messages{flex:1;overflow-y:auto;padding:14px 16px;display:flex;flex-direction:column;gap:10px;}
+  .chat-msg{max-width:85%;padding:9px 12px;border-radius:12px;font-size:13.5px;line-height:1.45;}
+  .chat-msg.user{align-self:flex-end;background:var(--ink);color:#fff;border-bottom-right-radius:2px;}
+  .chat-msg.assistant{align-self:flex-start;background:var(--paper-dim);color:var(--text);border-bottom-left-radius:2px;}
+  .chat-msg.typing{align-self:flex-start;background:var(--paper-dim);color:var(--text-dim);font-style:italic;}
+  .chat-input-row{display:flex;gap:8px;padding:12px;border-top:1px solid var(--line);}
+  .chat-input-row input{flex:1;padding:9px 10px;font-size:13.5px;border:1px solid var(--line);border-radius:6px;font-family:'Work Sans',sans-serif;}
+  .chat-input-row button{width:auto;padding:9px 14px;font-size:13px;font-weight:600;background:var(--ink);color:#fff;border:none;border-radius:6px;cursor:pointer;}
+  .chat-input-row button:hover{background:var(--brass-bright);}
+  .chat-input-row button:disabled{background:var(--line);cursor:not-allowed;}
+  @media (max-width:480px){ .chat-panel{ right:12px; left:12px; width:auto; bottom:80px; } #chatToggleBtn{ right:16px; bottom:16px; } }
 </style>
 </head>
 <body>
@@ -764,6 +794,20 @@
   Cost-per-head figures are estimates derived from category + published price level, not menu totals. Always confirm with the venue.<br>
   <a href="/privacy.html" style="color:var(--ink);">Privacy Policy</a> · <a href="/terms.html" style="color:var(--ink);">Terms of Service</a>
 </footer>
+
+<!-- ---------- CHAT WIDGET ---------- -->
+<button id="chatToggleBtn" aria-label="Chat with outtoeat assistant">💬</button>
+<div id="chatPanel" class="chat-panel">
+  <div class="chat-header">
+    <span>Ask outtoeat</span>
+    <button id="chatCloseBtn" aria-label="Close chat">×</button>
+  </div>
+  <div class="chat-messages" id="chatMessages"></div>
+  <div class="chat-input-row">
+    <input id="chatInput" type="text" placeholder="Ask for a recommendation…" autocomplete="off">
+    <button id="chatSendBtn">Send</button>
+  </div>
+</div>
 
 <script>
 const DATA = [
@@ -1787,6 +1831,90 @@ initLanding();
 loadFeaturedSuburb();
 loadSpecials();
 checkQuerySuburb();
+
+// ---------- CHAT WIDGET ----------
+(function(){
+  const CHAT_API = `${BOOKING_API}/chat`;
+  let chatHistory = [];
+  let chatOpen = false;
+
+  const toggleBtn = document.getElementById('chatToggleBtn');
+  const panel = document.getElementById('chatPanel');
+  const closeBtn = document.getElementById('chatCloseBtn');
+  const messagesEl = document.getElementById('chatMessages');
+  const input = document.getElementById('chatInput');
+  const sendBtn = document.getElementById('chatSendBtn');
+
+  function appendMessage(role, text){
+    const div = document.createElement('div');
+    div.className = `chat-msg ${role}`;
+    div.textContent = text;
+    messagesEl.appendChild(div);
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+    return div;
+  }
+
+  // Keep this compact so the request stays small and fast — only the
+  // fields the assistant actually needs to make a recommendation.
+  function buildDinerContext(){
+    const combined = [...DATA, ...LIVE_DATA].slice(0, 60);
+    return combined.map(d => ({
+      name: d.name,
+      cuisine: d.cuisine,
+      suburb: d.suburb,
+      priceRange: `$${d.price[0]}-${d.price[1]}`,
+      rating: d.rating,
+      status: d.source === 'live' ? (d.openNow ? 'Open now' : 'Closed now') : (todayHours(d.hours) || 'Hours vary'),
+    }));
+  }
+
+  async function sendChat(){
+    const text = input.value.trim();
+    if (!text) return;
+    input.value = '';
+    sendBtn.disabled = true;
+    appendMessage('user', text);
+    chatHistory.push({ role: 'user', content: text });
+    const typingEl = appendMessage('typing', 'Thinking…');
+
+    try {
+      const res = await fetch(CHAT_API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          mode: 'diner',
+          message: text,
+          history: chatHistory.slice(-10),
+          context: buildDinerContext(),
+        })
+      });
+      const data = await res.json();
+      typingEl.remove();
+      if (!res.ok){
+        appendMessage('assistant', data.error || 'Sorry, something went wrong.');
+        return;
+      }
+      appendMessage('assistant', data.reply);
+      chatHistory.push({ role: 'assistant', content: data.reply });
+    } catch (err) {
+      typingEl.remove();
+      appendMessage('assistant', "Sorry, I couldn't connect. Please try again.");
+    } finally {
+      sendBtn.disabled = false;
+    }
+  }
+
+  toggleBtn.onclick = () => {
+    chatOpen = !chatOpen;
+    panel.style.display = chatOpen ? 'flex' : 'none';
+    if (chatOpen && !messagesEl.children.length){
+      appendMessage('assistant', "Hi! Tell me what you're after — a cuisine, a suburb, a vibe — and I'll point you to a spot.");
+    }
+  };
+  closeBtn.onclick = () => { chatOpen = false; panel.style.display = 'none'; };
+  sendBtn.onclick = sendChat;
+  input.addEventListener('keydown', e => { if (e.key === 'Enter') sendChat(); });
+})();
 </script>
 </body>
 </html>
