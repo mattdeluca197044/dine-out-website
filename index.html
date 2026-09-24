@@ -1956,7 +1956,27 @@ checkQuerySuburb();
     const seenIds = new Set(base.map(d => d.place_id).filter(Boolean));
     const extra = supplemental.filter(d => d.place_id && !seenIds.has(d.place_id));
 
-    const combined = [...base, ...extra].slice(0, 200);
+    let combined = [...base, ...extra].slice(0, 200);
+
+    // Move the most relevant matches to the FRONT of the list. LLMs are
+    // measurably less reliable at noticing a relevant item buried in the
+    // middle of a long list ("lost in the middle") than one near the top
+    // — this was causing the assistant to miss a real, correct match that
+    // was sitting further down (e.g. position 31 of 157) even though it
+    // was genuinely present in the data the whole time. This doesn't
+    // remove or hide anything, it just reorders what's already there.
+    const words = (userMessage || "").toLowerCase().split(/\s+/).filter(w => w.length > 2);
+    if (words.length){
+      const relevance = (d) => {
+        const haystack = `${d.name} ${d.cuisine} ${d.suburb}`.toLowerCase();
+        return words.reduce((score, w) => score + (haystack.includes(w) ? 1 : 0), 0);
+      };
+      combined = combined
+        .map((d, i) => ({ d, score: relevance(d), i }))
+        .sort((a, b) => (b.score - a.score) || (a.i - b.i))
+        .map(x => x.d);
+    }
+
     return combined.map(d => ({
       name: d.name,
       cuisine: d.cuisine,
