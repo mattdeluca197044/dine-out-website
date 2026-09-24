@@ -1889,26 +1889,9 @@ checkQuerySuburb();
   // one-off live lookup using their own message as the search term,
   // purely to build a fuller answer — it does NOT touch the main site's
   // search bar, grid, or cached LIVE_DATA.
-  // Google's search API returns no real cuisine data at all for live
-  // results (every result comes back with cuisine: null), so the generic
-  // category fallback below ("Restaurant", "Award Winning", etc.) was the
-  // ONLY label ever applied to live-fetched places — masking genuinely
-  // matching restaurants (e.g. a real Italian place showing up simply
-  // labeled "Restaurant") from a cuisine-specific question. Since the
-  // person's own search term is usually what drove Google's results in
-  // the first place (its own effective query included that word), this
-  // recognizes a known cuisine word in their message and applies it to
-  // the freshly-fetched results instead of the meaningless generic label.
-  const KNOWN_CUISINES = ["Italian", "Thai", "Chinese", "Japanese", "Indian", "Mexican", "Vietnamese", "Korean", "Lebanese", "Greek", "Modern Australian", "Seafood", "Vegan", "Pizza", "Burger"];
-  function detectCuisineInText(text){
-    const lower = (text || "").toLowerCase();
-    return KNOWN_CUISINES.find(c => lower.includes(c.toLowerCase())) || null;
-  }
-
   async function fetchSupplementalListings(term){
     const trimmed = (term || '').trim();
     if (!trimmed) return [];
-    const detectedCuisine = detectCuisineInText(trimmed);
     const categories = ["cafe", "restaurant", "takeaway", "pub", "club", "hatted"];
     try {
       const responses = await Promise.all(categories.map(cat =>
@@ -1924,8 +1907,16 @@ checkQuerySuburb();
           if (!r.placeId || seen.has(r.placeId)) return;
           seen.add(r.placeId);
           merged.push({
+            // Google's search API returns no real cuisine data (always
+            // null), so this stays an honest generic category label
+            // rather than guessing — a guessed cuisine applied to every
+            // result equally (e.g. tagging a cafe "Italian" just because
+            // the person searched Italian) drowned out genuine matches
+            // whose actual NAME proves the cuisine, since everything tied
+            // for relevance. Name-based matching below does that job
+            // properly instead.
             name: r.name,
-            cuisine: r.cuisine || detectedCuisine || (cat === "cafe" ? "Café" : cat === "takeaway" ? "Takeaway" : cat === "pub" ? "Pub" : cat === "club" ? "Club" : cat === "hatted" ? "Award Winning" : "Restaurant"),
+            cuisine: r.cuisine || (cat === "cafe" ? "Café" : cat === "takeaway" ? "Takeaway" : cat === "pub" ? "Pub" : cat === "club" ? "Club" : cat === "hatted" ? "Award Winning" : "Restaurant"),
             suburb: r.suburb || trimmed,
             price: priceFromLevel(r.priceLevel, cat),
             rating: r.rating || 0,
@@ -1968,8 +1959,18 @@ checkQuerySuburb();
     const words = (userMessage || "").toLowerCase().split(/\s+/).filter(w => w.length > 2);
     if (words.length){
       const relevance = (d) => {
-        const haystack = `${d.name} ${d.cuisine} ${d.suburb}`.toLowerCase();
-        return words.reduce((score, w) => score + (haystack.includes(w) ? 1 : 0), 0);
+        const nameLower = (d.name || "").toLowerCase();
+        const cuisineSuburbLower = `${d.cuisine} ${d.suburb}`.toLowerCase();
+        return words.reduce((score, w) => {
+          // A word appearing in the restaurant's actual NAME is strong,
+          // verifiable evidence (e.g. "Italian Street Kitchen" genuinely
+          // is Italian) — weighted far above a cuisine/suburb match,
+          // since live-fetched cuisine data is often just a generic
+          // category guess rather than a confirmed fact.
+          if (nameLower.includes(w)) return score + 5;
+          if (cuisineSuburbLower.includes(w)) return score + 1;
+          return score;
+        }, 0);
       };
       combined = combined
         .map((d, i) => ({ d, score: relevance(d), i }))
