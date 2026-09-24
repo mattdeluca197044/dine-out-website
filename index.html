@@ -1204,6 +1204,12 @@ function renderGrid(){
   gridEl.innerHTML = "";
   emptyState.style.display = items.length ? "none" : "block";
 
+  // Exposed for the chat widget below, so it always sees exactly what's
+  // currently visible in the grid — not an arbitrary, unfiltered slice of
+  // every result ever fetched (which could silently omit a suburb like
+  // Haberfield if enough OTHER live results were fetched first).
+  window.currentVisibleListings = items;
+
   items.forEach(d => {
     const bookable = BOOKABLE[d.place_id];
 
@@ -1855,9 +1861,16 @@ checkQuerySuburb();
   }
 
   // Keep this compact so the request stays small and fast — only the
-  // fields the assistant actually needs to make a recommendation.
+  // fields the assistant actually needs to make a recommendation. Uses
+  // whatever's actually visible in the grid right now (already filtered
+  // by the current search term, cuisine, suburb, etc.) so the assistant
+  // never says "nothing found" for a place the person can see on screen.
+  // Falls back to the raw combined pool before any search has run yet.
   function buildDinerContext(){
-    const combined = [...DATA, ...LIVE_DATA].slice(0, 60);
+    const source = (window.currentVisibleListings && window.currentVisibleListings.length)
+      ? window.currentVisibleListings
+      : [...DATA, ...LIVE_DATA];
+    const combined = source.slice(0, 60);
     return combined.map(d => ({
       name: d.name,
       cuisine: d.cuisine,
