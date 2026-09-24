@@ -1860,17 +1860,17 @@ checkQuerySuburb();
     return div;
   }
 
-  // Keep this compact so the request stays small and fast — only the
-  // fields the assistant actually needs to make a recommendation. Uses
-  // whatever's actually visible in the grid right now (already filtered
-  // by the current search term, cuisine, suburb, etc.) so the assistant
-  // never says "nothing found" for a place the person can see on screen.
-  // Falls back to the raw combined pool before any search has run yet.
+  // Keep this bounded so the request doesn't grow unreasonably large, but
+  // high enough that a broad search (e.g. "italian" across all of NSW,
+  // which can return 100+ results) doesn't silently drop a genuine match
+  // just because it ranks below the top 60 by rating — that previously
+  // caused the assistant to wrongly claim only one match existed in a
+  // suburb when several others were simply cut off by a lower cap.
   function buildDinerContext(){
     const source = (window.currentVisibleListings && window.currentVisibleListings.length)
       ? window.currentVisibleListings
       : [...DATA, ...LIVE_DATA];
-    const combined = source.slice(0, 60);
+    const combined = source.slice(0, 200);
     return combined.map(d => ({
       name: d.name,
       cuisine: d.cuisine,
