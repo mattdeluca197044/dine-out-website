@@ -1881,17 +1881,65 @@ checkQuerySuburb();
     return div;
   }
 
+  // If someone asks the chatbot something before ever using the site's own
+  // search bar, there may be little or no LIVE_DATA yet — leaving the
+  // assistant working from only the small static sample list (24 spots),
+  // which is why it could confidently but wrongly claim "only one option"
+  // when the live site actually has several. This does a lightweight,
+  // one-off live lookup using their own message as the search term,
+  // purely to build a fuller answer — it does NOT touch the main site's
+  // search bar, grid, or cached LIVE_DATA.
+  async function fetchSupplementalListings(term){
+    const trimmed = (term || '').trim();
+    if (!trimmed) return [];
+    const categories = ["cafe", "restaurant", "takeaway", "pub", "club", "hatted"];
+    try {
+      const responses = await Promise.all(categories.map(cat =>
+        fetch(`${LIVE_API}?suburb=${encodeURIComponent(trimmed)}&category=${cat}&full=1&state=NSW`)
+          .then(r => r.ok ? r.json() : { results: [] })
+          .catch(() => ({ results: [] }))
+          .then(data => ({ cat, data }))
+      ));
+      const seen = new Set();
+      const merged = [];
+      responses.forEach(({ cat, data }) => {
+        (data.results || []).forEach(r => {
+          if (!r.placeId || seen.has(r.placeId)) return;
+          seen.add(r.placeId);
+          merged.push({
+            name: r.name,
+            cuisine: r.cuisine || (cat === "cafe" ? "Café" : cat === "takeaway" ? "Takeaway" : cat === "pub" ? "Pub" : cat === "club" ? "Club" : cat === "hatted" ? "Award Winning" : "Restaurant"),
+            suburb: r.suburb || trimmed,
+            price: priceFromLevel(r.priceLevel, cat),
+            rating: r.rating || 0,
+            openNow: r.openNow,
+            place_id: r.placeId,
+            source: 'live',
+          });
+        });
+      });
+      return merged;
+    } catch (err) {
+      return [];
+    }
+  }
+
   // Keep this bounded so the request doesn't grow unreasonably large, but
-  // high enough that a broad search (e.g. "italian" across all of NSW,
-  // which can return 100+ results) doesn't silently drop a genuine match
-  // just because it ranks below the top 60 by rating — that previously
-  // caused the assistant to wrongly claim only one match existed in a
-  // suburb when several others were simply cut off by a lower cap.
-  function buildDinerContext(){
-    const source = (window.currentVisibleListings && window.currentVisibleListings.length)
+  // high enough that a broad search doesn't silently drop a genuine match.
+  // Combines whatever's already visible on screen with a fresh
+  // supplemental live search based on the person's actual question, so
+  // the assistant is never limited to just the 24-item static sample list
+  // when nothing's been searched on the site yet.
+  async function buildDinerContext(userMessage){
+    const base = (window.currentVisibleListings && window.currentVisibleListings.length)
       ? window.currentVisibleListings
       : [...DATA, ...LIVE_DATA];
-    const combined = source.slice(0, 200);
+
+    const supplemental = await fetchSupplementalListings(userMessage);
+    const seenIds = new Set(base.map(d => d.place_id).filter(Boolean));
+    const extra = supplemental.filter(d => d.place_id && !seenIds.has(d.place_id));
+
+    const combined = [...base, ...extra].slice(0, 200);
     return combined.map(d => ({
       name: d.name,
       cuisine: d.cuisine,
@@ -1912,6 +1960,7 @@ checkQuerySuburb();
     const typingEl = appendMessage('typing', 'Thinking…');
 
     try {
+      const context = await buildDinerContext(text);
       const res = await fetch(CHAT_API, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -1919,7 +1968,7 @@ checkQuerySuburb();
           mode: 'diner',
           message: text,
           history: chatHistory.slice(-10),
-          context: buildDinerContext(),
+          context,
         })
       });
       const data = await res.json();
