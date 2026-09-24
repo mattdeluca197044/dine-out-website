@@ -1949,13 +1949,14 @@ checkQuerySuburb();
 
     let combined = [...base, ...extra].slice(0, 200);
 
-    // Move the most relevant matches to the FRONT of the list. LLMs are
-    // measurably less reliable at noticing a relevant item buried in the
-    // middle of a long list ("lost in the middle") than one near the top
-    // — this was causing the assistant to miss a real, correct match that
-    // was sitting further down (e.g. position 31 of 157) even though it
-    // was genuinely present in the data the whole time. This doesn't
-    // remove or hide anything, it just reorders what's already there.
+    // Split into genuine matches (anything that scored above zero — a
+    // real hit on name, cuisine, or suburb) versus everything else, so
+    // the assistant can be told explicitly: list every single one of the
+    // matches, don't curate or pick favorites among them. This is more
+    // reliable than hoping the model infers "list everything" on its own
+    // from one long undifferentiated list.
+    let topMatches = combined;
+    let otherListings = [];
     const words = (userMessage || "").toLowerCase().split(/\s+/).filter(w => w.length > 2);
     if (words.length){
       const relevance = (d) => {
@@ -1972,20 +1973,24 @@ checkQuerySuburb();
           return score;
         }, 0);
       };
-      combined = combined
-        .map((d, i) => ({ d, score: relevance(d), i }))
-        .sort((a, b) => (b.score - a.score) || (a.i - b.i))
-        .map(x => x.d);
+      const scored = combined.map((d, i) => ({ d, score: relevance(d), i }));
+      topMatches = scored.filter(x => x.score > 0).sort((a, b) => (b.score - a.score) || (a.i - b.i)).map(x => x.d);
+      otherListings = scored.filter(x => x.score === 0).map(x => x.d).slice(0, 40);
     }
 
-    return combined.map(d => ({
+    const shape = (d) => ({
       name: d.name,
       cuisine: d.cuisine,
       suburb: d.suburb,
       priceRange: `$${d.price[0]}-${d.price[1]}`,
       rating: d.rating,
       status: d.source === 'live' ? (d.openNow ? 'Open now' : 'Closed now') : (todayHours(d.hours) || 'Hours vary'),
-    }));
+    });
+
+    return {
+      topMatches: topMatches.map(shape),
+      otherListings: otherListings.map(shape),
+    };
   }
 
   async function sendChat(){
