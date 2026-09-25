@@ -998,8 +998,22 @@ function renderTabs(){
   tabsEl.innerHTML = "";
   const combined = [...DATA, ...LIVE_DATA].filter(d => occasionAllowsItem(d));
   const q = query.trim().toLowerCase();
-  const matchesQuery = (d) => !q || d.name.toLowerCase().includes(q) || (d.cuisine||"").toLowerCase().includes(q) || d.suburb.toLowerCase().includes(q);
-  const relevant = combined.filter(matchesQuery);
+  // Matches the same rule renderGrid() uses: live results are already
+  // filtered server-side, so re-checking the raw query text against them
+  // here would wrongly exclude valid matches. Previously this function
+  // used a stricter, different rule than the grid, which was the direct
+  // cause of the tab counts and the actual displayed results disagreeing.
+  const matchesQuery = (d) => {
+    if (d.source === 'live') return true;
+    return !q || d.name.toLowerCase().includes(q) || (d.cuisine||"").toLowerCase().includes(q) || d.suburb.toLowerCase().includes(q);
+  };
+  const matchesCuisine = (d) => {
+    if (!cuisineFilter.value) return true;
+    return (d.cuisine || "").toLowerCase().includes(cuisineFilter.value.toLowerCase());
+  };
+  let relevant = combined.filter(d => matchesQuery(d) && matchesCuisine(d));
+  if (activeSuburb !== "all") relevant = relevant.filter(d => d.suburb === activeSuburb);
+  if (activeState !== "all") relevant = relevant.filter(d => (d.state || "NSW") === activeState);
 
   CATS.forEach(c => {
     const count = c.key === "all" ? relevant.length : relevant.filter(d => d.category === c.key).length;
