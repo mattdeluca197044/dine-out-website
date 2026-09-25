@@ -1918,6 +1918,40 @@ checkQuerySuburb();
     return div;
   }
 
+  // Renders the actual matches as a plain, deterministic list of links —
+  // built entirely by our own code, not by the model. This guarantees
+  // every genuine match is shown to the person even in cases where the
+  // model's own prose summary would have (unreliably) left one out.
+  function appendResultsList(matches){
+    if (!matches || !matches.length) return;
+    const wrap = document.createElement('div');
+    wrap.className = 'chat-msg assistant';
+    wrap.style.padding = '4px 0';
+    matches.forEach(m => {
+      const row = document.createElement('div');
+      row.style.cssText = 'padding:8px 10px;border-bottom:1px solid var(--line);font-size:13px;';
+      const placeId = lastPlaceIdMap[(m.name || '').toLowerCase()];
+      const nameEl = placeId ? document.createElement('a') : document.createElement('span');
+      if (placeId) {
+        nameEl.href = `listing.html?place=${encodeURIComponent(placeId)}`;
+        nameEl.target = '_blank';
+        nameEl.rel = 'noopener';
+        nameEl.style.color = 'var(--ink)';
+        nameEl.style.textDecoration = 'underline';
+      }
+      nameEl.style.fontWeight = '700';
+      nameEl.textContent = m.name;
+      row.appendChild(nameEl);
+      const meta = document.createElement('div');
+      meta.style.cssText = 'color:var(--text-dim);font-size:12px;margin-top:2px;';
+      meta.textContent = `${m.cuisine} · ${m.suburb} · ${m.priceRange} · ★${m.rating} · ${m.status}`;
+      row.appendChild(meta);
+      wrap.appendChild(row);
+    });
+    messagesEl.appendChild(wrap);
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+  }
+
   // If someone asks the chatbot something before ever using the site's own
   // search bar, there may be little or no LIVE_DATA yet — leaving the
   // assistant working from only the small static sample list (24 spots),
@@ -2066,6 +2100,7 @@ checkQuerySuburb();
       }
       appendMessage('assistant', data.reply);
       chatHistory.push({ role: 'assistant', content: data.reply });
+      appendResultsList(data.topMatches);
     } catch (err) {
       typingEl.remove();
       appendMessage('assistant', "Sorry, I couldn't connect. Please try again.");
