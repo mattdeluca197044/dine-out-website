@@ -1749,7 +1749,23 @@ function renderSuggestions(term){
 }
 
 sortSelect.addEventListener('change', e => { activeSort = e.target.value; renderGrid(); });
-suburbFilter.addEventListener('change', e => { activeSuburb = e.target.value; locationFilterPlaceId = null; renderGrid(); });
+suburbFilter.addEventListener('change', e => {
+  activeSuburb = e.target.value;
+  locationFilterPlaceId = null;
+  renderGrid();
+  // Picking a specific suburb should also make sure results for that
+  // actual suburb NAME get properly searched for — the search box's own
+  // text (e.g. "italian") may never have targeted this suburb by name at
+  // all, so relying purely on filtering whatever was already fetched can
+  // silently show far fewer genuine matches than actually exist there.
+  // This merges in a real, suburb-targeted search (keeping the current
+  // cuisine filter, since fetchLiveForSuburb already applies it) rather
+  // than replacing what's shown — same fix already applied to the chat
+  // assistant's own search.
+  if (activeSuburb !== 'all') {
+    fetchLiveForSuburb(activeSuburb);
+  }
+});
 stateFilter.addEventListener('change', e => {
   activeState = e.target.value;
   locationFilterPlaceId = null;
