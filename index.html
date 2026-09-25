@@ -1078,6 +1078,32 @@ function searchUrl(place){
   return `https://www.google.com/search?q=${encodeURIComponent(place.name + " " + place.suburb + " Sydney")}`;
 }
 
+// "Find website" now tries to send people straight to the restaurant's
+// real website (via a one-off Place Details lookup), falling back to the
+// old Google-search behavior if Google has no website on file for that
+// place. The blank tab is opened SYNCHRONOUSLY, inside the click handler
+// itself, before the async lookup — opening it only after the fetch
+// resolves would get blocked by most browsers' popup blockers, since by
+// then it's no longer considered a direct response to the user's click.
+async function handleFindWebsite(event, placeId, fallbackUrl){
+  event.preventDefault();
+  event.stopPropagation();
+  trackEvent(placeId, 'website');
+
+  const win = window.open('', '_blank');
+  if (win) win.opener = null;
+
+  try {
+    const res = await fetch(`${BOOKING_API}/place-website?placeId=${encodeURIComponent(placeId)}`);
+    const data = res.ok ? await res.json() : {};
+    const target = data.website || fallbackUrl;
+    if (win) win.location = target; else window.open(target, '_blank', 'noopener');
+  } catch (err) {
+    if (win) win.location = fallbackUrl; else window.open(fallbackUrl, '_blank', 'noopener');
+  }
+  return false;
+}
+
 function renderGrid(){
   const combined = [...DATA, ...LIVE_DATA].filter(d => occasionAllowsItem(d));
 
@@ -1254,7 +1280,7 @@ function renderGrid(){
       <div class="card-actions">
         <a class="primary" href="${mapsUrl(d)}" target="_blank" rel="noopener" onclick="trackEvent('${d.place_id}','directions')">Get directions</a>
 
-        <a href="${searchUrl(d)}" target="_blank" rel="noopener" onclick="trackEvent('${d.place_id}','website')">Find website</a>
+        <a href="${searchUrl(d)}" target="_blank" rel="noopener" onclick="return handleFindWebsite(event, '${d.place_id}', '${searchUrl(d).replace(/'/g,"\\'")}')">Find website</a>
         ${bookable ? `<a class="book" href="#" onclick="openBookingModal('${d.place_id}', '${displayName.replace(/'/g,"&#39;")}'); return false;">Book a table</a>` : ''}
       </div>
     `;
