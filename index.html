@@ -1935,6 +1935,26 @@ checkQuerySuburb();
   // themselves. Built with DOM text nodes and anchor elements only (never
   // innerHTML), so this can't be used to inject markup even though the
   // reply text ultimately comes from an LLM.
+  // Same on-demand lookup as the "Find website" button elsewhere on the
+  // site: opens a blank tab immediately (so it isn't blocked as a popup),
+  // then fills it in with the restaurant's real website once known,
+  // falling back to the internal listing page if Google has no website
+  // on file for that place.
+  async function openChatRestaurantLink(event, placeId){
+    event.preventDefault();
+    const win = window.open('', '_blank');
+    if (win) win.opener = null;
+    const fallback = `listing.html?place=${encodeURIComponent(placeId)}`;
+    try {
+      const res = await fetch(`${BOOKING_API}/place-website?placeId=${encodeURIComponent(placeId)}`);
+      const data = res.ok ? await res.json() : {};
+      const target = data.website || fallback;
+      if (win) win.location = target; else window.open(target, '_blank', 'noopener');
+    } catch (err) {
+      if (win) win.location = fallback; else window.open(fallback, '_blank', 'noopener');
+    }
+  }
+
   function renderAssistantContent(container, text){
     const names = Object.keys(lastPlaceIdMap).sort((a, b) => b.length - a.length); // longest first, so e.g. "Restaurant 317" doesn't get split by a shorter overlapping name
     if (!names.length){ container.textContent = text; return; }
@@ -1947,13 +1967,12 @@ checkQuerySuburb();
       const placeId = lastPlaceIdMap[part.toLowerCase()];
       if (placeId) {
         const a = document.createElement('a');
-        a.href = `listing.html?place=${encodeURIComponent(placeId)}`;
-        a.target = '_blank';
-        a.rel = 'noopener';
-        a.textContent = part;
+        a.href = '#';
         a.style.color = 'inherit';
         a.style.fontWeight = '700';
         a.style.textDecoration = 'underline';
+        a.textContent = part;
+        a.onclick = (e) => { openChatRestaurantLink(e, placeId); return false; };
         container.appendChild(a);
       } else if (part) {
         container.appendChild(document.createTextNode(part));
@@ -1987,13 +2006,12 @@ checkQuerySuburb();
       const row = document.createElement('div');
       row.style.cssText = 'padding:8px 10px;border-bottom:1px solid var(--line);font-size:13px;';
       const placeId = lastPlaceIdMap[(m.name || '').toLowerCase()];
-      const nameEl = placeId ? document.createElement('a') : document.createElement('span');
+      const nameEl = document.createElement('a');
+      nameEl.href = '#';
+      nameEl.style.color = 'var(--ink)';
+      nameEl.style.textDecoration = 'underline';
       if (placeId) {
-        nameEl.href = `listing.html?place=${encodeURIComponent(placeId)}`;
-        nameEl.target = '_blank';
-        nameEl.rel = 'noopener';
-        nameEl.style.color = 'var(--ink)';
-        nameEl.style.textDecoration = 'underline';
+        nameEl.onclick = (e) => { openChatRestaurantLink(e, placeId); return false; };
       }
       nameEl.style.fontWeight = '700';
       nameEl.textContent = m.name;
