@@ -1864,6 +1864,7 @@ checkQuerySuburb();
   const CHAT_API = `${BOOKING_API}/chat`;
   let chatHistory = [];
   let chatOpen = false;
+  let lastPlaceIdMap = {}; // restaurant name (lowercased) -> place_id, refreshed on every context build
 
   const toggleBtn = document.getElementById('chatToggleBtn');
   const panel = document.getElementById('chatPanel');
@@ -1872,10 +1873,46 @@ checkQuerySuburb();
   const input = document.getElementById('chatInput');
   const sendBtn = document.getElementById('chatSendBtn');
 
+  // Turns any restaurant name from lastPlaceIdMap that appears in the
+  // assistant's reply into a real link to that listing's page, so the
+  // person can click straight through instead of having to search for it
+  // themselves. Built with DOM text nodes and anchor elements only (never
+  // innerHTML), so this can't be used to inject markup even though the
+  // reply text ultimately comes from an LLM.
+  function renderAssistantContent(container, text){
+    const names = Object.keys(lastPlaceIdMap).sort((a, b) => b.length - a.length); // longest first, so e.g. "Restaurant 317" doesn't get split by a shorter overlapping name
+    if (!names.length){ container.textContent = text; return; }
+
+    const escapeRegex = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const pattern = new RegExp(`(${names.map(escapeRegex).join('|')})`, 'gi');
+    const parts = text.split(pattern);
+
+    parts.forEach(part => {
+      const placeId = lastPlaceIdMap[part.toLowerCase()];
+      if (placeId) {
+        const a = document.createElement('a');
+        a.href = `listing.html?place=${encodeURIComponent(placeId)}`;
+        a.target = '_blank';
+        a.rel = 'noopener';
+        a.textContent = part;
+        a.style.color = 'inherit';
+        a.style.fontWeight = '700';
+        a.style.textDecoration = 'underline';
+        container.appendChild(a);
+      } else if (part) {
+        container.appendChild(document.createTextNode(part));
+      }
+    });
+  }
+
   function appendMessage(role, text){
     const div = document.createElement('div');
     div.className = `chat-msg ${role}`;
-    div.textContent = text;
+    if (role === 'assistant') {
+      renderAssistantContent(div, text);
+    } else {
+      div.textContent = text;
+    }
     messagesEl.appendChild(div);
     messagesEl.scrollTop = messagesEl.scrollHeight;
     return div;
@@ -1948,6 +1985,13 @@ checkQuerySuburb();
     const extra = supplemental.filter(d => d.place_id && !seenIds.has(d.place_id));
 
     let combined = [...base, ...extra].slice(0, 200);
+
+    // Keep a name -> place_id lookup so the reply can be linkified once it
+    // comes back, before the list gets shaped down for the API request
+    // (place_id isn't sent to the model — it doesn't need it — but the
+    // client does, to build real links).
+    lastPlaceIdMap = {};
+    combined.forEach(d => { if (d.place_id && d.name) lastPlaceIdMap[d.name.toLowerCase()] = d.place_id; });
 
     // Split into genuine matches (anything that scored above zero — a
     // real hit on name, cuisine, or suburb) versus everything else, so
