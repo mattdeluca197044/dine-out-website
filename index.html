@@ -938,7 +938,14 @@ function renderSuburbFilter(items){
   });
 
   const allSuburbs = Object.values(byState).flatMap(set => [...set]);
-  if (activeSuburb !== "all" && !allSuburbs.includes(activeSuburb)) activeSuburb = "all";
+  // Don't reset the person's suburb selection to "all" just because it
+  // has no matching results YET — while a live search is in progress
+  // (isSearchingLive), the real results for that suburb simply haven't
+  // arrived back from the server yet. Resetting here was clearing a
+  // selection the moment it was made, before its own search had even
+  // finished, so the final render (once results did arrive) showed
+  // everything instead of the suburb actually picked.
+  if (activeSuburb !== "all" && !isSearchingLive && !allSuburbs.includes(activeSuburb)) activeSuburb = "all";
 
   const optgroups = Object.keys(byState).sort().map(state => {
     const suburbs = [...byState[state]].sort();
