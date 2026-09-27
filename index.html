@@ -730,7 +730,6 @@
       </select>
       <select id="occasionFilter">
         <option value="">Any occasion</option>
-        <option value="date-night">Date night</option>
         <option value="water">Near the water</option>
         <option value="special-occasion">Special occasion</option>
       </select>
@@ -1359,9 +1358,7 @@ const DEFAULT_CATEGORIES = ["cafe", "restaurant", "takeaway", "pub", "club", "ha
 // award-winning venues, per an explicit request to keep that one curated
 // tighter than the other two.
 const OCCASION_EXCLUDED_CATEGORIES = ["takeaway", "club"];
-const OCCASION_ALLOWED_CATEGORIES = {
-  "date-night": ["hatted"],
-};
+const OCCASION_ALLOWED_CATEGORIES = {};
 
 // Applies that same filtering to EVERY rendered result, not just live
 // Google fetches — the hardcoded sample DATA array includes several
@@ -1661,47 +1658,9 @@ function showResultsUI(){
   document.getElementById('metaRow').style.display = 'flex';
 }
 
-// Maps a small set of "vibe" words someone might type directly into the
-// search box to the matching Occasion dropdown value — so typing
-// "romantic" gets the same tight, Award-Winning-only curation as actually
-// selecting "Date night" from the dropdown, instead of a broad, loosely
-// keyword-matched search across every category (which is what typing any
-// other word, like a cuisine name, still does — that's expected there,
-// but "romantic" reads more like a vibe request than a place or cuisine).
-const VIBE_TO_OCCASION = {
-  "date-night": ["romantic", "date night", "romance"],
-  "special-occasion": ["special occasion", "celebration", "anniversary", "birthday"],
-  "water": ["waterfront", "harbourside", "harbourfront", "ocean view", "near the water", "by the water"],
-};
-
-function detectVibeOccasion(term){
-  const lower = (term || "").toLowerCase();
-  for (const [occasionKey, phrases] of Object.entries(VIBE_TO_OCCASION)){
-    for (const phrase of phrases){
-      if (lower.includes(phrase)){
-        const cleaned = term.replace(new RegExp(phrase.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i"), "").replace(/\s+/g, " ").trim();
-        return { occasionKey, cleaned };
-      }
-    }
-  }
-  return null;
-}
-
 function runSearch(term){
   showResultsUI();
-
-  // Only auto-apply this when the person hasn't already picked an
-  // occasion themselves — never override an explicit choice they made.
-  let effectiveTerm = term;
-  if (!occasionFilter.value){
-    const vibeMatch = detectVibeOccasion(term);
-    if (vibeMatch){
-      occasionFilter.value = vibeMatch.occasionKey; // reflects the change visibly in the dropdown too
-      effectiveTerm = vibeMatch.cleaned;
-    }
-  }
-
-  query = effectiveTerm;
+  query = term;
   activeCat = "all";
   // Deliberately NOT resetting activeSuburb here anymore — it used to be
   // unconditionally cleared back to "all" on every search, which silently
@@ -1715,7 +1674,7 @@ function runSearch(term){
   suggestionsEl.classList.remove('show');
   document.querySelector('main').scrollIntoView({behavior:'smooth', block:'start'});
 
-  const trimmedTerm = effectiveTerm.trim();
+  const trimmedTerm = term.trim();
 
   // "Near the water" with no suburb typed means "show me genuinely
   // waterfront places", not "show me whatever's near my IP address that
