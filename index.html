@@ -657,10 +657,13 @@
 
   /* ---------- CHAT WIDGET ---------- */
   #chatToggleBtn{
-    position:fixed; bottom:24px; right:24px; width:56px; height:56px; border-radius:50%;
-    background:var(--ink); color:#fff; border:none; font-size:24px; cursor:pointer;
+    position:fixed; bottom:24px; right:24px; height:52px; border-radius:30px;
+    background:var(--ink); color:#fff; border:none; cursor:pointer;
     box-shadow:0 10px 24px -8px rgba(36,20,18,0.45); z-index:200;
+    display:flex; align-items:center; gap:8px; padding:0 20px;
+    font-family:'Work Sans',sans-serif; font-size:14px; font-weight:600;
   }
+  #chatToggleBtn .chat-toggle-icon{font-size:20px; line-height:1;}
   #chatToggleBtn:hover{background:var(--brass-bright);}
   .chat-panel{
     position:fixed; bottom:90px; right:24px; width:340px; max-width:calc(100vw - 32px);
@@ -796,10 +799,10 @@
 </footer>
 
 <!-- ---------- CHAT WIDGET ---------- -->
-<button id="chatToggleBtn" aria-label="Chat with outtoeat assistant">💬</button>
+<button id="chatToggleBtn" aria-label="Chat with Otto"><span class="chat-toggle-icon">💬</span><span>Ask Otto</span></button>
 <div id="chatPanel" class="chat-panel">
   <div class="chat-header">
-    <span>Ask outtoeat</span>
+    <span>Otto</span>
     <button id="chatCloseBtn" aria-label="Close chat">×</button>
   </div>
   <div class="chat-messages" id="chatMessages"></div>
