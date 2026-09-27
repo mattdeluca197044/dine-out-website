@@ -2213,7 +2213,7 @@ checkQuerySuburb();
     chatOpen = !chatOpen;
     panel.style.display = chatOpen ? 'flex' : 'none';
     if (chatOpen && !messagesEl.children.length){
-      appendMessage('assistant', "Hi! Tell me what you're after — a cuisine, a suburb, a vibe — and I'll point you to a spot.");
+      appendMessage('assistant', "Hi! Tell me a cuisine or a suburb and I'll point you to a spot.");
     }
   };
   closeBtn.onclick = () => { chatOpen = false; panel.style.display = 'none'; };
