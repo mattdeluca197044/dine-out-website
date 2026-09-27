@@ -1699,8 +1699,18 @@ function runSearch(term){
   // search.js already handles "cuisine/occasion, no suburb" with a
   // nationwide, location-biased fallback, but that path was never
   // reachable without this.
-  if (trimmedTerm.length > 1 || cuisineFilter.value || occasionFilter.value){
-    fetchLiveForSuburb(trimmedTerm);
+  // If a specific suburb is already selected in the dropdown, that's the
+  // deliberate location to search — fetch using ITS name directly, rather
+  // than whatever's typed in the free-text search box (which might be a
+  // cuisine word, a different place, or nothing at all). Previously this
+  // fetched purely on the typed text, so if it didn't happen to also
+  // cover the selected suburb, that suburb's own results never actually
+  // arrived — making it look like the selection had been reset, when
+  // really the search itself just never targeted it.
+  const suburbToFetch = (activeSuburb && activeSuburb !== 'all') ? activeSuburb : trimmedTerm;
+
+  if (suburbToFetch.length > 1 || cuisineFilter.value || occasionFilter.value){
+    fetchLiveForSuburb(suburbToFetch);
   } else {
     // Nothing meaningful to search on — clear any stale live results from
     // a previous search rather than leaving them showing.
