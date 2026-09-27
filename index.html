@@ -1662,7 +1662,12 @@ function runSearch(term){
   showResultsUI();
   query = term;
   activeCat = "all";
-  activeSuburb = "all";
+  // Deliberately NOT resetting activeSuburb here anymore — it used to be
+  // unconditionally cleared back to "all" on every search, which silently
+  // discarded a suburb someone had just picked from the dropdown the
+  // moment they clicked the adjacent Search button. Leaving it as-is lets
+  // the typed search text and the suburb filter work together instead of
+  // the button always overriding the dropdown.
   locationFilterPlaceId = null;
   renderTabs();
   renderGrid();
