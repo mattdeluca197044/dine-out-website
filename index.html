@@ -1986,6 +1986,7 @@ checkQuerySuburb();
   }
 
   function renderAssistantContent(container, text){
+    text = String(text).replace(/\*\*(.+?)\*\*/g, '$1').replace(/__(.+?)__/g, '$1').replace(/^\s*[*#]+\s+/gm, '');
     const names = Object.keys(lastPlaceIdMap).sort((a, b) => b.length - a.length); // longest first, so e.g. "Restaurant 317" doesn't get split by a shorter overlapping name
     if (!names.length){ container.textContent = text; return; }
 
@@ -2019,7 +2020,12 @@ checkQuerySuburb();
       div.textContent = text;
     }
     messagesEl.appendChild(div);
-    messagesEl.scrollTop = messagesEl.scrollHeight;
+    if (role === 'assistant') {
+      // show the start of the answer, not the bottom of the results list
+      messagesEl.scrollTop = div.getBoundingClientRect().top - messagesEl.getBoundingClientRect().top + messagesEl.scrollTop - 8;
+    } else {
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+    }
     return div;
   }
 
@@ -2053,7 +2059,6 @@ checkQuerySuburb();
       wrap.appendChild(row);
     });
     messagesEl.appendChild(wrap);
-    messagesEl.scrollTop = messagesEl.scrollHeight;
   }
 
   // If someone asks the chatbot something before ever using the site's own
