@@ -1448,6 +1448,13 @@ async function fetchLiveForSuburbs(suburbList){
       (data.results || []).forEach(r => {
         if (!r.placeId) return;
 
+        // The Cafés search is a loose text search, so it can return shops and
+        // restaurants that merely mention "cafe". Only file a result under
+        // Cafés if Google itself types it as a cafe/bakery/coffee place;
+        // genuine restaurants still arrive via the Restaurants search.
+        if (cat === "cafe" && Array.isArray(r.types) && r.types.length &&
+            !r.types.some(t => t === "cafe" || t === "bakery" || t === "coffee_shop")) return;
+
         const freshEntry = {
           name: r.name,
           category: cat,
