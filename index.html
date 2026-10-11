@@ -1674,7 +1674,31 @@ function showResultsUI(){
   document.getElementById('metaRow').style.display = 'flex';
 }
 
+// If a cuisine word from the dropdown is typed into the search box (e.g.
+// "thai" or "thai newtown"), treat it as selecting that cuisine, so it goes
+// through the same strict cuisine filtering as the dropdown instead of a loose
+// text match. Only when no cuisine is already chosen. The word is removed from
+// the typed text; whatever remains (a suburb, say) is searched as usual.
+function pullCuisineFromTerm(term){
+  try {
+    if (cuisineFilter.value || !term || !term.trim()) return term;
+    const escape = (x) => x.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    for (const opt of Array.from(cuisineFilter.options)) {
+      if (!opt.value) continue;
+      const re = new RegExp('\\b' + escape(opt.value.toLowerCase()) + '\\b', 'i');
+      if (re.test(term)) {
+        cuisineFilter.value = opt.value;
+        const rest = term.replace(re, ' ').replace(/\s+/g, ' ').trim();
+        searchInput.value = rest;
+        return rest;
+      }
+    }
+  } catch (e) {}
+  return term;
+}
+
 function runSearch(term){
+  term = pullCuisineFromTerm(term);
   showResultsUI();
   query = term;
   activeCat = "all";
