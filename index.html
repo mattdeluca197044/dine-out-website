@@ -686,6 +686,10 @@
   .chat-input-row button{width:auto;padding:9px 14px;font-size:13px;font-weight:600;background:var(--ink);color:#fff;border:none;border-radius:6px;cursor:pointer;}
   .chat-input-row button:hover{background:var(--brass-bright);}
   .chat-input-row button:disabled{background:var(--line);cursor:not-allowed;}
+  /* On phones the open chat covers the button's spot; hide it until the chat is closed. */
+  @media (max-width:480px){ #chatToggleBtn.chat-open{ display:none; } }
+  /* Add ?clean=1 to the page address to hide the Ask Otto button (for screenshots). */
+  html.clean-shot #chatToggleBtn{ display:none !important; }
   @media (max-width:480px){ .chat-panel{ right:12px; left:12px; width:auto; bottom:80px; } #chatToggleBtn{ right:16px; bottom:16px; } }
 </style>
 </head>
@@ -798,6 +802,7 @@
 </footer>
 
 <!-- ---------- CHAT WIDGET ---------- -->
+<script>try{ if (/[?&]clean=1\b/.test(location.search)) document.documentElement.classList.add('clean-shot'); }catch(e){}</script>
 <button id="chatToggleBtn" aria-label="Chat with Otto"><span class="chat-toggle-icon">💬</span><span>Ask Otto</span></button>
 <div id="chatPanel" class="chat-panel">
   <div class="chat-header">
@@ -2061,7 +2066,15 @@ checkQuerySuburb();
       row.appendChild(nameEl);
       const meta = document.createElement('div');
       meta.style.cssText = 'color:var(--text-dim);font-size:12px;margin-top:2px;';
-      meta.textContent = `${m.cuisine} · ${m.suburb} · ${m.priceRange} · ★${m.rating} · ${m.status}`;
+      // A generic category label (e.g. "Café") is less useful than the cuisine
+      // the venue's own name states ("In the Mood for Thai"), so prefer that.
+      let cuisineLabel = m.cuisine;
+      if (['Café','Takeaway','Pub','Club','Award Winning','Restaurant'].includes(cuisineLabel)) {
+        const nm = (m.name || '').toLowerCase();
+        const hit = ['italian','thai','chinese','japanese','indian','mexican','vietnamese','korean','lebanese','greek','seafood','vegan','pizza','burger','french','spanish','turkish','malaysian','indonesian','sushi','ramen','kebab'].find(c => new RegExp('\\b' + c + '\\b').test(nm));
+        if (hit) cuisineLabel = hit.charAt(0).toUpperCase() + hit.slice(1);
+      }
+      meta.textContent = `${cuisineLabel} · ${m.suburb} · ${m.priceRange} · ★${m.rating} · ${m.status}`;
       row.appendChild(meta);
       wrap.appendChild(row);
     });
@@ -2228,11 +2241,12 @@ checkQuerySuburb();
   toggleBtn.onclick = () => {
     chatOpen = !chatOpen;
     panel.style.display = chatOpen ? 'flex' : 'none';
+    toggleBtn.classList.toggle('chat-open', chatOpen);
     if (chatOpen && !messagesEl.children.length){
       appendMessage('assistant', "Hi! Tell me a cuisine or a suburb and I'll point you to a spot.");
     }
   };
-  closeBtn.onclick = () => { chatOpen = false; panel.style.display = 'none'; };
+  closeBtn.onclick = () => { chatOpen = false; panel.style.display = 'none'; toggleBtn.classList.remove('chat-open'); };
   sendBtn.onclick = sendChat;
   input.addEventListener('keydown', e => { if (e.key === 'Enter') sendChat(); });
 })();
