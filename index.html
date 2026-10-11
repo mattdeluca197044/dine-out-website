@@ -1029,7 +1029,7 @@ function renderTabs(){
     const el = document.createElement('div');
     el.className = 'tab' + (c.key === activeCat ? ' active' : '');
     el.innerHTML = `${c.label} <span class="count">${count}</span>`;
-    el.onclick = () => { activeCat = c.key; locationFilterPlaceId = null; activeSuburb = "all"; renderTabs(); renderGrid(); };
+    el.onclick = () => { activeCat = c.key; locationFilterPlaceId = null; renderTabs(); renderGrid(); };
     tabsEl.appendChild(el);
   });
 }
