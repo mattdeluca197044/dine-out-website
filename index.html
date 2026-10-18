@@ -2008,6 +2008,14 @@ checkQuerySuburb();
   // on file for that place.
   async function openChatRestaurantLink(event, placeId){
     event.preventDefault();
+    // Inside the native app, new windows are not supported, so open the
+    // venue's page in the same view instead.
+    const isNativeApp = location.protocol === 'capacitor:' ||
+      !!(window.Capacitor && typeof window.Capacitor.isNativePlatform === 'function' && window.Capacitor.isNativePlatform());
+    if (isNativeApp) {
+      window.location.href = `listing.html?place=${encodeURIComponent(placeId)}`;
+      return;
+    }
     const win = window.open('', '_blank');
     if (win) win.opener = null;
     const fallback = `listing.html?place=${encodeURIComponent(placeId)}`;
