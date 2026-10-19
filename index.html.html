@@ -1,0 +1,2287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Eat Out Oz — Sydney dining finder</title>
+<meta name="description" content="Find restaurants, cafés, and takeaway near you in Sydney. Real cost-per-head estimates, live search by suburb or cuisine, and instant table bookings — no commission, no surprises.">
+<link rel="canonical" href="https://outtoeat.com.au/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="outtoeat">
+<meta property="og:title" content="outtoeat — Sydney dining finder">
+<meta property="og:description" content="Find restaurants, cafés, and takeaway near you in Sydney. Real cost-per-head estimates, live search by suburb or cuisine, and instant table bookings.">
+<meta property="og:url" content="https://outtoeat.com.au/">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="outtoeat — Sydney dining finder">
+<meta name="twitter:description" content="Find restaurants, cafés, and takeaway near you in Sydney. Real cost-per-head estimates, live search by suburb or cuisine, and instant table bookings.">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "outtoeat",
+  "alternateName": "Eat Out Oz",
+  "url": "https://outtoeat.com.au/",
+  "description": "Find restaurants, cafés, and takeaway near you in Sydney, with real cost-per-head estimates and instant table bookings.",
+  "potentialAction": {
+    "@type": "SearchAction",
+    "target": "https://outtoeat.com.au/?suburb={search_term_string}",
+    "query-input": "required name=search_term_string"
+  }
+}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Work+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#DE3937;
+    --ink-soft:#B32E2C;
+    --paper:#FFFFFF;
+    --paper-dim:#FBEBEA;
+    --brass:#C42B29;
+    --brass-bright:#F0524F;
+    --sage:#4F8A5B;
+    --rust:#8A8078;
+    --line:#F0D9D8;
+    --text:#241412;
+    --text-dim:#7A6E6A;
+    --radius:2px;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--text);
+    font-family:'Work Sans', sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  ::selection{background:var(--brass-bright);color:var(--ink);}
+
+  /* ---------- HEADER ---------- */
+  header{
+    background:var(--ink);
+    color:var(--paper);
+    padding:56px 24px 40px;
+    position:relative;
+    overflow:hidden;
+  }
+  header::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    background-image:
+      repeating-linear-gradient(90deg, rgba(255,255,255,0.06) 0px, rgba(255,255,255,0.06) 1px, transparent 1px, transparent 64px);
+    pointer-events:none;
+  }
+  .header-inner{max-width:1080px;margin:0 auto;position:relative;}
+  .eyebrow{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    letter-spacing:0.18em;
+    text-transform:uppercase;
+    color:var(--brass-bright);
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-bottom:18px;
+  }
+  .eyebrow::before{content:"";width:22px;height:1px;background:var(--brass-bright);display:inline-block;}
+  .logo-row{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:18px;}
+  .owner-link{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    color:#FBDAD9;
+    text-decoration:none;
+    border:1px solid rgba(251,218,217,0.4);
+    padding:8px 14px;
+    border-radius:20px;
+    white-space:nowrap;
+  }
+  .owner-link:hover{color:#fff;border-color:#fff;background:rgba(255,255,255,0.08);}
+  .logo-row .brand-mark{
+    font-family:'Fraunces', serif;
+    font-weight:700;
+    font-size:26px;
+    color:#FFFFFF;
+    letter-spacing:-0.01em;
+    line-height:1.1;
+  }
+  .brand-sub{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--brass-bright);
+    margin-top:2px;
+  }
+  .brand-tagline{
+    font-family:'Work Sans', sans-serif;
+    font-size:13px;
+    font-style:italic;
+    color:#EFC9C8;
+    margin-left:10px;
+  }
+  h1 .highlight{color:#FFFFFF;}
+  h1{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size:clamp(38px, 6vw, 68px);
+    line-height:1.02;
+    margin:0 0 18px;
+    letter-spacing:-0.01em;
+  }
+  h1 em{font-style:italic;font-weight:400;color:var(--brass-bright);}
+  .sub{
+    max-width:520px;
+    font-size:16px;
+    line-height:1.55;
+    color:#FBDAD9;
+    margin-bottom:34px;
+  }
+
+  /* search + controls */
+  .controls{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    align-items:center;
+  }
+  .search-wrap{
+    flex:1 1 320px;
+    position:relative;
+  }
+  .search-wrap input{
+    width:100%;
+    background:var(--paper);
+    border:1px solid transparent;
+    color:var(--ink);
+    padding:16px 16px 16px 42px;
+    font-family:'Work Sans',sans-serif;
+    font-size:16px;
+    border-radius:var(--radius);
+    outline:none;
+  }
+  .search-wrap input:focus{outline:2px solid var(--brass-bright);outline-offset:1px;}
+  .search-wrap svg{position:absolute;left:14px;top:50%;transform:translateY(-50%);opacity:0.55;z-index:2;}
+  .search-btn{
+    font-family:'Work Sans',sans-serif;
+    font-weight:600;
+    font-size:15px;
+    background:var(--brass);
+    color:#FFFFFF;
+    border:none;
+    padding:0 24px;
+    border-radius:var(--radius);
+    cursor:pointer;
+    transition:background .15s ease;
+  }
+  .search-btn:hover{background:var(--brass-bright);}
+  .suggestions{
+    position:absolute;
+    top:calc(100% + 6px);
+    left:0;
+    right:0;
+    background:#FFFDF8;
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    box-shadow:0 14px 28px -12px rgba(27,36,48,0.35);
+    overflow:hidden;
+    z-index:30;
+    display:none;
+  }
+  .suggestions.show{display:block;}
+  .suggestion-item{
+    padding:11px 16px;
+    font-size:14px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    cursor:pointer;
+    border-bottom:1px solid var(--line);
+    color:var(--text);
+  }
+  .suggestion-item:last-child{border-bottom:none;}
+  .suggestion-item:hover{background:var(--paper-dim);}
+  .suggestion-item .s-meta{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    color:var(--text-dim);
+  }
+
+  select{
+    background:var(--ink-soft);
+    color:var(--paper);
+    border:1px solid #46536422;
+    padding:13px 14px;
+    font-family:'Work Sans',sans-serif;
+    font-size:14px;
+    border-radius:var(--radius);
+    cursor:pointer;
+    border:1px solid rgba(246,241,230,0.18);
+  }
+
+  /* ---------- CATEGORY TABS ---------- */
+  .tabs{
+    max-width:1080px;
+    margin:-24px auto 0;
+    padding:0 24px;
+    position:relative;
+    z-index:2;
+    display:flex;
+    gap:0;
+    flex-wrap:wrap;
+  }
+  .tab{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:13px;
+    letter-spacing:0.04em;
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-bottom:none;
+    padding:14px 22px 12px;
+    cursor:pointer;
+    color:var(--text-dim);
+    display:flex;
+    align-items:center;
+    gap:8px;
+    transition:color .15s ease, background .15s ease;
+  }
+  .tab .count{
+    font-size:11px;
+    background:var(--paper-dim);
+    padding:1px 6px;
+    border-radius:10px;
+    color:var(--text-dim);
+  }
+  .tab.active{
+    background:var(--paper);
+    color:var(--ink);
+    font-weight:600;
+    box-shadow: inset 0 3px 0 var(--brass);
+  }
+  .tab.active .count{background:var(--brass);color:var(--paper);}
+  .tab:hover:not(.active){color:var(--ink);}
+
+  main{
+    max-width:1080px;
+    margin:0 auto;
+    padding:36px 24px 80px;
+    border-top:1px solid var(--line);
+  }
+
+  .location-picker{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    flex-wrap:wrap;
+    background:var(--paper-dim);
+    border:1px solid var(--line);
+    border-left:3px solid var(--ink);
+    border-radius:4px;
+    padding:12px 16px;
+    margin-bottom:18px;
+    font-size:13.5px;
+  }
+  .location-picker select{
+    background:var(--paper);
+    color:var(--text);
+    border:1px solid var(--line);
+    padding:7px 10px;
+    font-family:'Work Sans',sans-serif;
+    font-size:13px;
+    border-radius:4px;
+    cursor:pointer;
+  }
+
+  .meta-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    margin-bottom:22px;
+    flex-wrap:wrap;
+    gap:10px;
+  }
+  .meta-row h2{
+    font-family:'Fraunces', serif;
+    font-size:22px;
+    font-weight:600;
+    margin:0;
+  }
+  .result-note{font-family:'IBM Plex Mono', monospace;font-size:12px;color:var(--text-dim);}
+  .hatted-disclaimer{
+    font-family:'Work Sans', sans-serif;
+    font-size:13px;
+    line-height:1.5;
+    background:#FBEBEA;
+    border:1px solid var(--line);
+    border-left:3px solid var(--ink);
+    padding:12px 16px;
+    border-radius:4px;
+    margin:0 0 20px;
+    color:var(--text);
+  }
+
+  /* ---------- GRID / CARDS ---------- */
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(310px, 1fr));
+    gap:20px;
+  }
+  .card{
+    background:#FFFDF8;
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:22px 22px 18px;
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+    position:relative;
+    cursor:pointer;
+    transition:transform .15s ease, box-shadow .15s ease;
+  }
+  .card:hover{
+    transform:translateY(-3px);
+    box-shadow:0 14px 28px -18px rgba(27,36,48,0.35);
+  }
+  .card-photo-strip{
+    width:calc(100% + 44px);
+    height:150px;
+    object-fit:cover;
+    margin:-22px -22px 4px -22px;
+    display:block;
+  }
+  .card-top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;}
+  .card-title{
+    font-family:'Fraunces', serif;
+    font-size:19px;
+    font-weight:600;
+    line-height:1.2;
+    margin:0;
+  }
+  .card-sub{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11.5px;
+    color:var(--text-dim);
+    text-transform:uppercase;
+    letter-spacing:0.05em;
+    margin-top:4px;
+  }
+  .badge{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:10.5px;
+    padding:3px 8px;
+    border-radius:20px;
+    white-space:nowrap;
+    letter-spacing:0.03em;
+    height:fit-content;
+  }
+  .badge.open{background:#5F7A5E1a;color:var(--sage);border:1px solid #5F7A5E55;}
+  .badge.closed{background:#9C4A3A1a;color:var(--rust);border:1px solid #9C4A3A55;}
+
+  .rating-row{display:flex;align-items:center;gap:8px;font-size:13.5px;}
+  .stars{color:var(--brass);letter-spacing:1px;font-size:13px;}
+  .rating-count{color:var(--text-dim);font-size:12.5px;}
+
+  .price-ticket{
+    border-top:1px dashed var(--line);
+    border-bottom:1px dashed var(--line);
+    padding:10px 0;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    font-family:'IBM Plex Mono', monospace;
+  }
+  .price-label{font-size:11.5px;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.05em;}
+  .price-value{font-size:16px;font-weight:600;color:var(--ink);}
+
+  .hours-line{font-size:12.5px;color:var(--text-dim);display:flex;gap:6px;align-items:center;}
+  .claimed-desc{font-size:13px;color:var(--text);line-height:1.4;padding-top:4px;}
+  .claimed-social{display:flex;gap:8px;}
+  .claimed-social a{
+    display:flex;align-items:center;justify-content:center;
+    width:30px;height:30px;border-radius:50%;
+    color:#fff;transition:transform .15s ease, opacity .15s ease;
+  }
+  .claimed-social a:hover{transform:translateY(-1px);opacity:0.92;}
+  .claimed-social a svg{width:14px;height:14px;}
+  .claimed-social a.icon-facebook{background:#1877F2;}
+  .claimed-social a.icon-instagram{background:radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%, #d6249f 60%, #285AEB 90%);}
+  .claimed-social a.icon-website{background:var(--ink);}
+  .special-badge{
+    display:inline-block;
+    background:var(--sage);
+    color:#fff;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11.5px;
+    font-weight:600;
+    padding:4px 10px;
+    border-radius:20px;
+    margin-top:6px;
+  }
+
+  .card-actions{
+    display:flex;
+    gap:8px;
+    margin-top:auto;
+    padding-top:6px;
+    flex-wrap:wrap;
+  }
+  .card-actions a{
+    flex:1;
+    text-align:center;
+    font-family:'Work Sans',sans-serif;
+    font-size:12.5px;
+    font-weight:600;
+    text-decoration:none;
+    padding:9px 10px;
+    border-radius:var(--radius);
+    border:1px solid var(--ink);
+    color:var(--ink);
+    transition:background .15s ease, color .15s ease;
+  }
+  .card-actions a.primary{background:var(--ink);color:var(--paper);}
+  .card-actions a.primary:hover{background:var(--brass);border-color:var(--brass);}
+  .card-actions a:not(.primary):hover{background:var(--paper-dim);}
+  .card-actions a.book{background:var(--sage);color:#fff;border-color:var(--sage);}
+  .card-actions a.book:hover{background:#3f7049;}
+
+  .modal-overlay{
+    position:fixed; inset:0; background:rgba(36,20,18,0.55);
+    display:flex; align-items:center; justify-content:center; z-index:100; padding:20px;
+  }
+  .modal{
+    background:#FFFDF8; border-radius:10px; padding:26px; max-width:420px; width:100%;
+    max-height:85vh; overflow-y:auto;
+  }
+  .modal h3{font-family:'Fraunces',serif; font-size:19px; margin:0 0 6px;}
+  .modal .modal-sub{font-size:13px; color:var(--text-dim); margin-bottom:18px;}
+  .modal label{display:block; font-size:13px; color:var(--text-dim); margin:12px 0 5px;}
+  .modal input, .modal select{width:100%; padding:9px 10px; font-size:14px; border:1px solid var(--line); border-radius:4px; font-family:'Work Sans',sans-serif;}
+  .modal-actions{display:flex; gap:8px; margin-top:20px;}
+  .modal-actions button{
+    flex:1; padding:11px; font-size:14px; font-weight:600; border-radius:4px; cursor:pointer; border:none;
+  }
+  .modal-actions .confirm{background:var(--ink); color:#fff;}
+  .modal-actions .cancel{background:transparent; color:var(--text-dim); border:1px solid var(--line);}
+  .modal-msg{font-size:13px; padding:10px; border-radius:4px; margin-top:12px;}
+  .modal-msg.error{background:#FCEBEB; color:#791F1F;}
+  .modal-msg.success{background:#EAF3DE; color:#27500A;}
+
+  .empty{
+    text-align:center;
+    padding:70px 20px;
+    color:var(--text-dim);
+    font-family:'IBM Plex Mono', monospace;
+    font-size:14px;
+  }
+
+  .landing{
+    text-align:center;
+    padding:60px 20px 40px;
+  }
+  .landing-title{
+    font-family:'Fraunces', serif;
+    font-size:22px;
+    font-weight:600;
+    margin:0 0 8px;
+    color:var(--text);
+  }
+  .landing-sub{
+    font-family:'Work Sans', sans-serif;
+    font-size:14px;
+    color:var(--text-dim);
+    margin:0 0 26px;
+  }
+  .chip-row{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    justify-content:center;
+    max-width:640px;
+    margin:0 auto;
+  }
+  .chip{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:13px;
+    background:#FFFDF8;
+    border:1px solid var(--line);
+    padding:9px 18px;
+    border-radius:20px;
+    cursor:pointer;
+    color:var(--text);
+    transition:background .15s ease, border-color .15s ease;
+  }
+  .chip:hover{background:var(--paper-dim);border-color:var(--ink);}
+
+  .specials-section{
+    max-width:900px;
+    margin:0 auto;
+    padding-bottom:36px;
+    border-bottom:1px solid var(--line);
+  }
+  .specials-header{text-align:center;margin-bottom:24px;}
+  .specials-title{
+    font-family:'Fraunces', serif;
+    font-size:22px;
+    font-weight:600;
+    margin:0 0 4px;
+    color:var(--ink);
+  }
+  .specials-sub{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    color:var(--text-dim);
+    margin:0;
+  }
+  .specials-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(280px, 1fr));
+    gap:16px;
+  }
+  .special-card{
+    background:#FFFDF8;
+    border:1px solid var(--brass);
+    border-radius:6px;
+    overflow:hidden;
+    text-decoration:none;
+    color:var(--text);
+    display:flex;
+    flex-direction:column;
+    transition:transform .15s ease, box-shadow .15s ease;
+  }
+  .special-card:hover{transform:translateY(-2px);box-shadow:0 10px 20px -14px rgba(27,36,48,0.35);}
+  .special-card-photo{
+    width:100%;
+    height:130px;
+    object-fit:cover;
+    background:var(--paper-dim);
+  }
+  .special-card-photo.placeholder{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    color:var(--text-dim);
+  }
+  .special-card-body{padding:14px 16px 16px;}
+  .special-card-body h4{font-family:'Fraunces', serif; font-size:16px; margin:0 0 6px;}
+  .special-card-tag{
+    display:inline-block;
+    background:var(--sage);
+    color:#fff;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    font-weight:600;
+    padding:3px 9px;
+    border-radius:20px;
+    margin-bottom:8px;
+  }
+  .special-card-meta{font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--text-dim);}
+
+  .featured-section{
+    max-width:900px;
+    margin:56px auto 0;
+    padding-top:36px;
+    border-top:1px solid var(--line);
+  }
+  .featured-cta{
+    display:inline-flex;
+    align-items:center;
+    gap:10px;
+    background:var(--ink);
+    color:#fff;
+    text-decoration:none;
+    padding:18px 28px;
+    border-radius:6px;
+    transition:background .15s ease, transform .15s ease;
+  }
+  .featured-cta:hover{background:var(--brass); transform:translateY(-2px);}
+  .featured-cta-label{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    color:#FBDAD9;
+    letter-spacing:0.03em;
+  }
+  .featured-cta-suburb{
+    font-family:'Fraunces', serif;
+    font-size:18px;
+    font-weight:600;
+  }
+  .featured-cta-arrow{font-size:18px;}
+
+  .founder-section{
+    max-width:700px;
+    margin:0 auto;
+    padding:56px 24px 8px;
+    text-align:center;
+    border-top:1px solid var(--line);
+  }
+  .founder-title{
+    font-family:'Fraunces', serif;
+    font-size:21px;
+    font-weight:600;
+    margin:0 0 14px;
+    color:var(--ink);
+  }
+  .founder-text{
+    font-family:'Work Sans', sans-serif;
+    font-size:14.5px;
+    line-height:1.65;
+    color:var(--text);
+    margin:0 0 16px;
+  }
+  .founder-name{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12.5px;
+    letter-spacing:0.03em;
+    color:var(--text-dim);
+    margin:0;
+  }
+
+  footer{
+    max-width:1080px;
+    margin:0 auto;
+    padding:30px 24px 60px;
+    color:var(--text-dim);
+    font-size:12.5px;
+    font-family:'IBM Plex Mono', monospace;
+    border-top:1px solid var(--line);
+    line-height:1.6;
+  }
+
+  @media (max-width:640px){
+    .tabs{margin-top:-16px;}
+    .tab{padding:12px 14px 10px;font-size:12px;}
+  }
+
+  /* ---------- CHAT WIDGET ---------- */
+  #chatToggleBtn{
+    position:fixed; bottom:24px; right:24px; height:52px; border-radius:30px;
+    background:var(--ink); color:#fff; border:none; cursor:pointer;
+    box-shadow:0 10px 24px -8px rgba(36,20,18,0.45); z-index:200;
+    display:flex; align-items:center; gap:8px; padding:0 20px;
+    font-family:'Work Sans',sans-serif; font-size:14px; font-weight:600;
+  }
+  #chatToggleBtn .chat-toggle-icon{font-size:20px; line-height:1;}
+  #chatToggleBtn:hover{background:var(--brass-bright);}
+  .chat-panel{
+    position:fixed; bottom:90px; right:24px; width:340px; max-width:calc(100vw - 32px);
+    height:460px; max-height:calc(100vh - 140px); background:#FFFDF8; border:1px solid var(--line);
+    border-radius:10px; box-shadow:0 20px 45px -15px rgba(36,20,18,0.4); display:none; flex-direction:column;
+    overflow:hidden; z-index:200; font-family:'Work Sans',sans-serif;
+  }
+  .chat-header{
+    background:var(--ink); color:#fff; padding:14px 16px; display:flex; justify-content:space-between; align-items:center;
+    font-family:'Fraunces',serif; font-weight:600; font-size:15px;
+  }
+  .chat-header button{background:none;border:none;color:#fff;font-size:20px;cursor:pointer;line-height:1;padding:0;}
+  .chat-messages{flex:1;overflow-y:auto;padding:14px 16px;display:flex;flex-direction:column;gap:10px;}
+  .chat-msg{max-width:85%;padding:9px 12px;border-radius:12px;font-size:13.5px;line-height:1.45;}
+  .chat-msg.user{align-self:flex-end;background:var(--ink);color:#fff;border-bottom-right-radius:2px;}
+  .chat-msg.assistant{align-self:flex-start;background:var(--paper-dim);color:var(--text);border-bottom-left-radius:2px;}
+  .chat-msg.typing{align-self:flex-start;background:var(--paper-dim);color:var(--text-dim);font-style:italic;}
+  .chat-input-row{display:flex;gap:8px;padding:12px;border-top:1px solid var(--line);}
+  .chat-input-row input{flex:1;padding:9px 10px;font-size:13.5px;border:1px solid var(--line);border-radius:6px;font-family:'Work Sans',sans-serif;}
+  .chat-input-row button{width:auto;padding:9px 14px;font-size:13px;font-weight:600;background:var(--ink);color:#fff;border:none;border-radius:6px;cursor:pointer;}
+  .chat-input-row button:hover{background:var(--brass-bright);}
+  .chat-input-row button:disabled{background:var(--line);cursor:not-allowed;}
+  /* On phones the open chat covers the button's spot; hide it until the chat is closed. */
+  @media (max-width:480px){ #chatToggleBtn.chat-open{ display:none; } }
+  /* Add ?clean=1 to the page address to hide the Ask Otto button (for screenshots). */
+  html.clean-shot #chatToggleBtn{ display:none !important; }
+  @media (max-width:480px){ .chat-panel{ right:12px; left:12px; width:auto; bottom:80px; } #chatToggleBtn{ right:16px; bottom:16px; } }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="logo-row">
+      <div>
+        <span class="brand-mark">outtoeat</span>
+        <span class="brand-tagline">by Eat Out Oz</span>
+        <div class="brand-sub">Sydney</div>
+      </div>
+      <a href="https://restaurant-portal-seven.vercel.app" class="owner-link">Claim your restaurant →</a>
+      <a href="whats-on.html" class="owner-link" style="margin-left:8px;">What's On →</a>
+    </div>
+    <h1>Where to eat<br><span class="highlight">tonight</span>, sorted.</h1>
+    <p class="sub">Cafés, restaurants and takeaway in one list — with a real cost-per-head estimate so nobody gets surprised by the bill.</p>
+    <div class="controls">
+      <div class="search-wrap" id="searchWrap">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1B2430" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input id="searchInput" type="text" placeholder="Search a restaurant, cafe, cuisine or suburb…" autocomplete="off">
+        <div class="suggestions" id="suggestions"></div>
+      </div>
+      <select id="cuisineFilter">
+        <option value="">Any cuisine</option>
+        <option value="Italian">Italian</option>
+        <option value="Thai">Thai</option>
+        <option value="Chinese">Chinese</option>
+        <option value="Japanese">Japanese</option>
+        <option value="Indian">Indian</option>
+        <option value="Mexican">Mexican</option>
+        <option value="Vietnamese">Vietnamese</option>
+        <option value="Korean">Korean</option>
+        <option value="Lebanese">Lebanese</option>
+        <option value="Greek">Greek</option>
+        <option value="Modern Australian">Modern Australian</option>
+        <option value="Seafood">Seafood</option>
+        <option value="Vegan">Vegan</option>
+        <option value="Pizza">Pizza</option>
+        <option value="Burger">Burger</option>
+      </select>
+      <select id="occasionFilter">
+        <option value="">Any occasion</option>
+        <option value="water">Near the water</option>
+        <option value="special-occasion">Special occasion</option>
+      </select>
+      <select id="sortSelect">
+        <option value="rating">Sort: highest rated</option>
+        <option value="price_asc">Sort: cheapest first</option>
+        <option value="price_desc">Sort: priciest first</option>
+        <option value="name">Sort: A–Z</option>
+      </select>
+           <select id="stateFilter">
+        <option value="all">All states</option>
+      </select>
+      <select id="suburbFilter">
+        <option value="all">All suburbs</option>
+      </select>
+      <button class="search-btn" id="searchBtn" type="button">Search</button>
+    </div>
+  </div>
+</header>
+
+<nav class="tabs" id="tabs" style="display:none;"></nav>
+
+<main>
+  <div class="landing" id="landing">
+    <p class="landing-title">Search a suburb to see what's around</p>
+    <p class="landing-sub">Or try one of these to start browsing</p>
+    <div class="chip-row" id="chipRow"></div>
+
+    <div class="specials-section" id="specialsSection" style="display:none;">
+      <div class="specials-header">
+        <h3 class="specials-title">Today's Specials</h3>
+        <p class="specials-sub">What subscribed restaurants are running right now</p>
+      </div>
+      <div class="specials-grid" id="specialsGrid"></div>
+    </div>
+
+    <div class="featured-section" id="featuredSection">
+      <a href="featured.html" class="featured-cta" id="featuredCta">
+        <span class="featured-cta-label">This week, we're spotlighting</span>
+        <span class="featured-cta-suburb" id="featuredSuburbName">…</span>
+        <span class="featured-cta-arrow">→</span>
+      </a>
+    </div>
+  </div>
+  <div class="location-picker" id="locationPicker" style="display:none;"></div>
+  <div class="meta-row" id="metaRow" style="display:none;">
+    <h2 id="sectionTitle">All spots</h2>
+    <div class="result-note" id="resultNote"></div>
+  </div>
+  <div id="hattedDisclaimer" style="display:none;"></div>
+  <div class="grid" id="grid"></div>
+  <div class="empty" id="emptyState" style="display:none;">No spots match that search — try another suburb or keyword.</div>
+</main>
+
+<section class="founder-section">
+  <h3 class="founder-title">Why I built outtoeat</h3>
+  <p class="founder-text">I'm a chef, and I once owned and ran my own local restaurant myself — so I know exactly what it's like watching a good night come down to whether people could actually find you. A lot of platforms charge a commission on every booking just for that privilege. outtoeat is my answer: every restaurant gets a free listing from day one, no cost just to be found. Want more — your own photos, specials, a menu, and direct advertising exposure? That's what the subscription is for. Still no commission, ever.</p>
+  
+</section>
+
+<footer>
+  outtoeat is a trading name of Eat Out Oz.<br>
+  PROTOTYPE — venue data pulled live from Google Places for demonstration.<br>
+  Cost-per-head figures are estimates derived from category + published price level, not menu totals. Always confirm with the venue.<br>
+  <a href="/privacy.html" style="color:var(--ink);">Privacy Policy</a> · <a href="/terms.html" style="color:var(--ink);">Terms of Service</a>
+</footer>
+
+<!-- ---------- CHAT WIDGET ---------- -->
+<script>try{ if (/[?&]clean=1\b/.test(location.search)) document.documentElement.classList.add('clean-shot'); }catch(e){}</script>
+<button id="chatToggleBtn" aria-label="Chat with Otto"><span class="chat-toggle-icon">💬</span><span>Ask Otto</span></button>
+<div id="chatPanel" class="chat-panel">
+  <div class="chat-header">
+    <span>Otto</span>
+    <button id="chatCloseBtn" aria-label="Close chat">×</button>
+  </div>
+  <div class="chat-messages" id="chatMessages"></div>
+  <div class="chat-input-row">
+    <input id="chatInput" type="text" placeholder="Ask for a recommendation…" autocomplete="off">
+    <button id="chatSendBtn">Send</button>
+  </div>
+</div>
+
+<script>
+const DATA = [
+  // ---- CAFES ----
+  {name:"The Walrus Sydney CBD", category:"cafe", cuisine:"Café & Breakfast", suburb:"Sydney CBD", address:"Shop 1/276 Pitt St, Sydney NSW 2000", rating:4.4, reviews:1054, price:[25,35], hours:{Monday:"6:00 AM–3:00 PM",Tuesday:"6:00 AM–3:00 PM",Wednesday:"6:00 AM–3:00 PM",Thursday:"6:00 AM–3:00 PM",Friday:"6:00 AM–3:00 PM",Saturday:"6:00 AM–3:00 PM",Sunday:"6:00 AM–2:00 PM"}, place_id:"ChIJSWzs2z2uEmsRan3a5PCuTjM", phone:"+61 410 693 192"},
+  {name:"The Grounds of The City", category:"cafe", cuisine:"Café & Breakfast", suburb:"Sydney CBD", address:"Shop RG 12/500 George St, Sydney NSW 2000", rating:4.2, reviews:6400, price:[30,45], hours:{Monday:"7:00 AM–9:00 PM",Tuesday:"7:00 AM–9:00 PM",Wednesday:"7:00 AM–9:00 PM",Thursday:"7:00 AM–9:00 PM",Friday:"7:00 AM–9:00 PM",Saturday:"8:00 AM–9:30 PM",Sunday:"8:00 AM–5:00 PM"}, place_id:"ChIJ2QUmiz6uEmsRQfMmet7xkzs", phone:"+61 2 9699 2225"},
+  {name:"La Famiglia Cafe", category:"cafe", cuisine:"Café & Italian", suburb:"Sydney CBD", address:"284 Pitt St, Sydney NSW 2000", rating:4.8, reviews:726, price:[20,30], hours:{Monday:"5:00 AM–3:00 PM",Tuesday:"5:00 AM–3:00 PM",Wednesday:"5:00 AM–3:00 PM",Thursday:"5:00 AM–3:00 PM",Friday:"5:00 AM–2:30 PM",Saturday:"6:00–11:30 AM",Sunday:"Closed"}, place_id:"ChIJ4RQIt2OvEmsRWYP8zvGu9VY", phone:"+61 2 8065 9449"},
+  {name:"Regiment Specialty Coffee", category:"cafe", cuisine:"Café & Coffee", suburb:"Sydney CBD", address:"333 George St, Sydney NSW 2000", rating:4.3, reviews:446, price:[18,28], hours:{Monday:"7:00 AM–4:00 PM",Tuesday:"7:00 AM–4:00 PM",Wednesday:"7:00 AM–4:00 PM",Thursday:"7:00 AM–4:00 PM",Friday:"7:00 AM–4:00 PM",Saturday:"Closed",Sunday:"Closed"}, place_id:"ChIJK7gEjUCuEmsRoOoezoNj8fQ", phone:"+61 2 9299 4001"},
+  {name:"Pablo & Rusty's Sydney CBD", category:"cafe", cuisine:"Café & Coffee", suburb:"Sydney CBD", address:"161 Castlereagh St, Sydney NSW 2000", rating:4.3, reviews:786, price:[20,30], hours:{Monday:"7:30 AM–2:30 PM",Tuesday:"7:30 AM–2:30 PM",Wednesday:"7:30 AM–2:30 PM",Thursday:"7:30 AM–2:30 PM",Friday:"7:30 AM–2:30 PM",Saturday:"8:00 AM–2:00 PM",Sunday:"Closed"}, place_id:"ChIJlQzbPT6uEmsRdMutKU9hWds", phone:null},
+  {name:"Industry Beans York St", category:"cafe", cuisine:"Café & Brunch", suburb:"Sydney CBD", address:"Shop 2/40 York St, Sydney NSW 2000", rating:4.6, reviews:2377, price:[25,35], hours:{Monday:"7:00 AM–3:30 PM",Tuesday:"7:00 AM–3:30 PM",Wednesday:"7:00 AM–3:30 PM",Thursday:"7:00 AM–3:30 PM",Friday:"7:00 AM–3:30 PM",Saturday:"8:00 AM–3:30 PM",Sunday:"8:00 AM–3:30 PM"}, place_id:"ChIJeWDDDNOvEmsRF8SMPUwPbhw", phone:"+61 2 9188 8501"},
+  {name:"TenTo", category:"cafe", cuisine:"Café & Japanese", suburb:"Surry Hills", address:"3/8 Hill St, Surry Hills NSW 2010", rating:4.5, reviews:955, price:[25,35], hours:{Monday:"9:00 AM–2:45 PM",Tuesday:"9:00 AM–2:45 PM",Wednesday:"9:00 AM–2:45 PM, 5:30–9:30 PM",Thursday:"9:00 AM–2:45 PM, 5:30–9:30 PM",Friday:"9:00 AM–2:45 PM, 5:30–9:30 PM",Saturday:"9:00 AM–2:45 PM, 5:30–9:30 PM",Sunday:"9:00 AM–2:45 PM"}, place_id:"ChIJ0W6iFVCvEmsR02zSDYH9DEs", phone:null},
+
+  // ---- RESTAURANTS ----
+  {name:"NOMAD Sydney", category:"restaurant", cuisine:"Australian & Wine Bar", suburb:"Surry Hills", address:"16 Foster St, Surry Hills NSW 2010", rating:4.6, reviews:2821, price:[70,100], hours:{Monday:"5:30–9:30 PM",Tuesday:"5:30–9:30 PM",Wednesday:"12:00–2:30 PM, 5:30–9:30 PM",Thursday:"12:00–2:30 PM, 5:30–9:30 PM",Friday:"12:00–2:30 PM, 5:30–10:00 PM",Saturday:"12:00–2:30 PM, 5:00–10:00 PM",Sunday:"12:00–2:30 PM, 5:30–8:30 PM"}, place_id:"ChIJVyiVBxiuEmsRvRl_kNMT5-A", phone:"+61 2 9280 3395"},
+  {name:"Mishy's Sydney", category:"restaurant", cuisine:"Modern Bistro", suburb:"Surry Hills", address:"113 Reservoir St, Surry Hills NSW 2010", rating:4.9, reviews:422, price:[55,75], hours:{Monday:"Closed",Tuesday:"11:00 AM–3:00 PM",Wednesday:"11:00 AM–3:00 PM, 5:30–10:00 PM",Thursday:"11:00 AM–3:00 PM, 5:30–10:00 PM",Friday:"11:00 AM–10:00 PM",Saturday:"11:00 AM–3:00 PM, 5:30–10:00 PM",Sunday:"11:00 AM–3:00 PM"}, place_id:"ChIJSV3N8w2vEmsRXYee7WsX0wk", phone:"+61 2 5657 2925"},
+  {name:"NOUR", category:"restaurant", cuisine:"Lebanese Fine Dining", suburb:"Surry Hills", address:"3/490 Crown St, Surry Hills NSW 2010", rating:4.8, reviews:3352, price:[80,110], hours:{Monday:"5:30–9:00 PM",Tuesday:"5:30–9:00 PM",Wednesday:"5:30–9:00 PM",Thursday:"12:00–3:00 PM, 5:30–9:30 PM",Friday:"12:00–3:00 PM, 5:30–10:00 PM",Saturday:"12:00–3:00 PM, 5:30–10:00 PM",Sunday:"12:00–3:00 PM, 5:00–9:00 PM"}, place_id:"ChIJJVDZ3B6uEmsRh5d3g-9xJio", phone:"+61 2 9331 3413"},
+  {name:"Jane Surry Hills", category:"restaurant", cuisine:"Australian Fine Dining", suburb:"Surry Hills", address:"478 Bourke St, Surry Hills NSW 2010", rating:4.7, reviews:903, price:[90,120], hours:{Monday:"5:00–10:00 PM",Tuesday:"5:00–10:00 PM",Wednesday:"5:00–10:00 PM",Thursday:"5:00–10:00 PM",Friday:"12:00–11:30 PM",Saturday:"12:00–11:30 PM",Sunday:"12:00–10:00 PM"}, place_id:"ChIJuYrpKvOvEmsRYy6keJHBp2o", phone:"+61 403 632 355"},
+  {name:"VIVO 78", category:"restaurant", cuisine:"Italian & Pizza", suburb:"Surry Hills", address:"78 Campbell St, Surry Hills NSW 2010", rating:4.7, reviews:262, price:[40,55], hours:{Monday:"5:00–9:00 PM",Tuesday:"5:00–9:00 PM",Wednesday:"5:00–9:00 PM",Thursday:"12:00–2:30 PM, 5:00–9:00 PM",Friday:"12:00–2:30 PM, 5:00–9:30 PM",Saturday:"5:00–9:30 PM",Sunday:"5:00–9:00 PM"}, place_id:"ChIJCcvSpSKuEmsR8JTYXgM_FxQ", phone:"+61 2 9874 8839"},
+  {name:"Best Gourmet Restaurant", category:"restaurant", cuisine:"Chinese", suburb:"Newtown", address:"234 King St, Newtown NSW 2042", rating:4.8, reviews:3807, price:[20,30], hours:{Monday:"12:00–3:00 PM, 5:00–10:00 PM",Tuesday:"12:00–3:00 PM, 5:00–10:00 PM",Wednesday:"5:00–10:00 PM",Thursday:"12:00–3:00 PM, 5:00–10:00 PM",Friday:"12:00–3:00 PM, 5:00–10:30 PM",Saturday:"12:00–3:00 PM, 5:00–10:30 PM",Sunday:"12:00–3:00 PM, 5:00–10:00 PM"}, place_id:"ChIJx_jVoCSuEmsR_79nFpyS3Z4", phone:"+61 422 134 388"},
+  {name:"don Fred", category:"restaurant", cuisine:"Vegan Italian", suburb:"Newtown", address:"28 King St, Newtown NSW 2042", rating:4.9, reviews:700, price:[60,80], hours:{Monday:"Closed",Tuesday:"5:00–9:00 PM",Wednesday:"5:00–9:00 PM",Thursday:"5:00–9:00 PM",Friday:"5:00–9:00 PM",Saturday:"12:00–9:00 PM",Sunday:"12:00–8:00 PM"}, place_id:"ChIJhWaPhy2xEmsRdnP8moUNRFM", phone:null},
+  {name:"Thai Tip Street Food", category:"restaurant", cuisine:"Thai", suburb:"Newtown", address:"534 King St, Newtown NSW 2042", rating:4.9, reviews:156, price:[25,35], hours:{Monday:"11:30 AM–9:30 PM",Tuesday:"11:30 AM–9:00 PM",Wednesday:"11:30 AM–9:00 PM",Thursday:"11:30 AM–9:00 PM",Friday:"11:30 AM–9:30 PM",Saturday:"11:30 AM–9:30 PM",Sunday:"11:30 AM–9:30 PM"}, place_id:"ChIJWVkzG0-xEmsR0RDAHgvQPIY", phone:"+61 2 9519 9076"},
+  {name:"Casa Mia Osteria", category:"restaurant", cuisine:"Italian", suburb:"Newtown", address:"9/605 King St, Newtown NSW 2042", rating:4.6, reviews:462, price:[45,60], hours:{Monday:"Closed",Tuesday:"5:00–9:00 PM",Wednesday:"5:00–9:00 PM",Thursday:"5:00–9:00 PM",Friday:"5:00–9:30 PM",Saturday:"5:00–9:30 PM",Sunday:"5:00–9:00 PM"}, place_id:"ChIJG7ey8VqxEmsRSZWdOoZNCkU", phone:"+61 2 9557 1328"},
+  {name:"Thai Pothong", category:"restaurant", cuisine:"Thai", suburb:"Newtown", address:"294 King St, Newtown NSW 2042", rating:4.7, reviews:5920, price:[35,50], hours:{Monday:"12:00–3:30 PM, 5:30–10:00 PM",Tuesday:"12:00–3:30 PM, 5:30–10:00 PM",Wednesday:"12:00–3:30 PM, 5:30–10:00 PM",Thursday:"12:00–3:30 PM, 5:30–10:00 PM",Friday:"12:00–3:30 PM, 5:30–11:00 PM",Saturday:"12:00–3:30 PM, 5:30–11:00 PM",Sunday:"12:00–3:30 PM, 5:30–10:00 PM"}, place_id:"ChIJa5INSTGwEmsRlBrt1bZVYiQ", phone:"+61 2 9550 6277"},
+  {name:"North Bondi Fish", category:"restaurant", cuisine:"Seafood", suburb:"Bondi", address:"120 Ramsgate Ave, North Bondi NSW 2026", rating:4.1, reviews:1284, price:[55,80], hours:{Monday:"Closed",Tuesday:"Closed",Wednesday:"12:00–8:30 PM",Thursday:"12:00–8:30 PM",Friday:"12:00–10:00 PM",Saturday:"12:00–10:00 PM",Sunday:"12:00–6:00 PM"}, place_id:"ChIJ70O7r3WtEmsRJsr622aiB6c", phone:"+61 2 9130 2155"},
+  {name:"Sushi & Grill @ York Street", category:"restaurant", cuisine:"Japanese", suburb:"Sydney CBD", address:"119 York St, Sydney NSW 2000", rating:4.5, reviews:760, price:[25,35], hours:{Monday:"11:30 AM–3:00 PM, 5:30–9:30 PM",Tuesday:"11:30 AM–3:00 PM, 5:30–9:30 PM",Wednesday:"11:30 AM–3:00 PM, 5:30–9:30 PM",Thursday:"11:30 AM–3:00 PM, 5:30–9:30 PM",Friday:"11:30 AM–3:00 PM, 5:30–9:30 PM",Saturday:"Closed",Sunday:"Closed"}, place_id:"ChIJ453w6z6uEmsREm6g2UYjspo", phone:"+61 2 9264 7888"},
+  {name:"Sushi Hotaru Charcoal Bar", category:"restaurant", cuisine:"Japanese", suburb:"Sydney CBD", address:"LG2/455 George St, Sydney NSW 2000", rating:4.5, reviews:531, price:[30,45], hours:{Monday:"11:30 AM–9:00 PM",Tuesday:"11:30 AM–9:00 PM",Wednesday:"11:30 AM–9:00 PM",Thursday:"11:30 AM–9:30 PM",Friday:"11:30 AM–9:30 PM",Saturday:"11:30 AM–9:30 PM",Sunday:"11:30 AM–9:00 PM"}, place_id:"ChIJ0Rq0_K2vEmsRkr3_yG4RtGs", phone:"+61 2 8288 9093"},
+  {name:"Restaurant 317", category:"restaurant", cuisine:"Italian", suburb:"Parramatta", address:"317 Church St, Parramatta NSW 2150", rating:4.4, reviews:3641, price:[35,55], hours:{Monday:"11:30 AM–9:30 PM",Tuesday:"11:30 AM–9:30 PM",Wednesday:"11:30 AM–9:30 PM",Thursday:"11:30 AM–9:30 PM",Friday:"11:30 AM–10:30 PM",Saturday:"11:30 AM–10:30 PM",Sunday:"11:30 AM–9:30 PM"}, place_id:"ChIJm-Qsgh6jEmsRCLEfMPSSm10", phone:"+61 2 9893 8188"},
+
+  // ---- TAKEAWAY ----
+  {name:"Bondi Road Seafoods", category:"takeaway", cuisine:"Fish & Chips", suburb:"Bondi", address:"279 Bondi Rd, Bondi NSW 2026", rating:4.5, reviews:578, price:[15,25], hours:{Monday:"Closed",Tuesday:"Closed",Wednesday:"Closed",Thursday:"10:00 AM–8:00 PM",Friday:"10:00 AM–8:00 PM",Saturday:"10:00 AM–8:00 PM",Sunday:"10:00 AM–8:00 PM"}, place_id:"ChIJoYoc94-tEmsR72ne6U-IsA0", phone:"+61 2 9130 6465"},
+  {name:"Bondi Surf Seafoods", category:"takeaway", cuisine:"Fish & Chips", suburb:"Bondi Beach", address:"128 Campbell Parade, Bondi Beach NSW 2026", rating:3.7, reviews:614, price:[12,20], hours:{Monday:"10:00 AM–8:00 PM",Tuesday:"10:00 AM–8:00 PM",Wednesday:"10:00 AM–8:00 PM",Thursday:"10:00 AM–8:00 PM",Friday:"10:00 AM–8:00 PM",Saturday:"10:00 AM–8:00 PM",Sunday:"10:00 AM–8:00 PM"}, place_id:"ChIJySpJ95utEmsRJw5C2cxfeSs", phone:"+61 2 9130 4554"},
+  {name:"The One That Got Away", category:"takeaway", cuisine:"Fish & Chips", suburb:"Bondi", address:"163 Bondi Rd, Bondi NSW 2026", rating:3.8, reviews:97, price:[20,30], hours:{Monday:"8:00 AM–8:00 PM",Tuesday:"8:00 AM–8:00 PM",Wednesday:"8:00 AM–8:00 PM",Thursday:"8:00 AM–8:00 PM",Friday:"8:00 AM–8:00 PM",Saturday:"8:00 AM–8:00 PM",Sunday:"8:00 AM–8:00 PM"}, place_id:"ChIJ16mnFY6tEmsR0dImn-4WTRU", phone:"+61 410 069 611"},
+  {name:"Liverpool St Kebabs", category:"takeaway", cuisine:"Kebab & Pizza", suburb:"Sydney CBD", address:"94 Liverpool St, Sydney NSW 2000", rating:4.8, reviews:71, price:[12,18], hours:{Monday:"Open 24 hours",Tuesday:"Open 24 hours",Wednesday:"Open 24 hours",Thursday:"Open 24 hours",Friday:"Open 24 hours",Saturday:"Open 24 hours",Sunday:"Open 24 hours"}, place_id:"ChIJB9OLmKWvEmsRpZfLEL1kzD4", phone:"+61 416 257 358"},
+  {name:"Sydney City Kebabs", category:"takeaway", cuisine:"Kebab", suburb:"Haymarket", address:"790 George St, Haymarket NSW 2000", rating:4.7, reviews:2181, price:[12,18], hours:{Monday:"10:30 AM–12:00 AM",Tuesday:"10:30 AM–12:00 AM",Wednesday:"10:30 AM–12:00 AM",Thursday:"10:30 AM–12:00 AM",Friday:"11:00 AM–3:30 AM",Saturday:"11:00 AM–3:30 AM",Sunday:"10:30 AM–12:00 AM"}, place_id:"ChIJj5oijiOuEmsRLp4yU0i4iF4", phone:null},
+  {name:"Toros Kebab ASQ", category:"takeaway", cuisine:"Kebab", suburb:"Sydney CBD", address:"Shop 420/264 George St, Sydney NSW 2000", rating:4.7, reviews:49, price:[12,18], hours:{Monday:"8:00 AM–4:00 PM",Tuesday:"8:00 AM–4:00 PM",Wednesday:"8:00 AM–4:00 PM",Thursday:"8:00 AM–4:00 PM",Friday:"8:00 AM–4:00 PM",Saturday:"Closed",Sunday:"Closed"}, place_id:"ChIJKSa8wYyvEmsRbys5J3aWEF0", phone:"+61 405 532 023"},
+  {name:"Center Point Kebab, Pizza & Burger", category:"takeaway", cuisine:"Turkish & Pizza", suburb:"Sydney CBD", address:"25 Market St, Sydney NSW 2000", rating:4.8, reviews:83, price:[14,20], hours:{}, place_id:"ChIJMZ8WSMqvEmsR8yMNaDXmm9Y", phone:null},
+  {name:"Tomo Tomo Sydney", category:"takeaway", cuisine:"Japanese", suburb:"Sydney CBD", address:"Shop 2/265 Castlereagh St, Sydney NSW 2000", rating:5.0, reviews:34, price:[15,25], hours:{Monday:"10:00 AM–6:00 PM",Tuesday:"10:00 AM–6:00 PM",Wednesday:"10:00 AM–6:00 PM",Thursday:"10:00 AM–6:00 PM",Friday:"10:00 AM–6:00 PM",Saturday:"Closed",Sunday:"Closed"}, place_id:"ChIJB9gWKumvEmsRDYvgYN-hk2M", phone:"+61 2 9337 0784"},
+  {name:"Sushi Ichi Bar", category:"takeaway", cuisine:"Sushi", suburb:"Darlinghurst", address:"199 Darlinghurst Rd, Darlinghurst NSW 2010", rating:4.8, reviews:113, price:[15,25], hours:{Monday:"Closed",Tuesday:"11:00 AM–9:00 PM",Wednesday:"11:00 AM–9:00 PM",Thursday:"11:00 AM–9:00 PM",Friday:"11:00 AM–9:00 PM",Saturday:"11:00 AM–9:00 PM",Sunday:"11:00 AM–9:00 PM"}, place_id:"ChIJEzu9nQ2uEmsRN11PR7nxN9M", phone:"+61 426 818 550"},
+];
+
+const LIVE_API = "https://eat-out-oz.vercel.app/api/search";
+
+// Fire-and-forget click tracking — never blocks the actual navigation.
+function trackEvent(placeId, eventType){
+  try {
+    fetch(`${BOOKING_API}/track-event`, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ placeId, eventType })
+    }).catch(() => {});
+  } catch (err) {}
+}
+const BOOKING_API = "https://eat-out-oz.vercel.app/api";
+
+// Normalize a name+address pair into a loose matching key so the same
+// physical venue can be recognized even if Google returns it under a
+// different place_id for different category searches (e.g. one listing
+// tagged "cafe", another tagged "takeaway", for the same shopfront).
+// Normalizes text for comparing a search term against a business name.
+// Handles common real-world variations that a literal string comparison
+// would otherwise miss — e.g. "Rockpool Bar & Grill" vs someone typing
+// "rockpool bar and grill" — without this, that business scores zero
+// relevance despite being the obvious intended match.
+function normalizeForMatch(s){
+  return (s || "")
+    .toLowerCase()
+    .replace(/&/g, " and ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function dedupeKey(name, address){
+  const norm = (s) => (s || "")
+    .toLowerCase()
+    .replace(/[^\w\s]/g, "")
+    .replace(/\bstreet\b/g, "st")
+    .replace(/\bavenue\b/g, "ave")
+    .replace(/\bparade\b/g, "pde")
+    .replace(/\s+/g, " ")
+    .trim();
+  return `${norm(name)}|${norm(address)}`;
+}
+
+let LIVE_DATA = []; // results fetched live get appended here for this session
+let liveIds = new Set(DATA.map(d => d.place_id)); // persists across calls — unlike a local snapshot rebuilt per call, this sees what concurrent calls have already added
+let liveDedupeKeys = new Set(DATA.map(d => dedupeKey(d.name, d.address))); // fallback dedup by name+address, in case Google returns two place_ids for the same venue
+let searchGeneration = 0; // bumped on every new search; a stale in-flight fetch checks this before writing results, so an overlapping call can't stomp a newer one
+let isSearchingLive = false;
+
+const CATS = [
+  {key:"all", label:"All spots"},
+  {key:"cafe", label:"Cafés"},
+  {key:"restaurant", label:"Restaurants"},
+  {key:"takeaway", label:"Takeaway"},
+  {key:"pub", label:"Pub Restaurants"},
+  {key:"club", label:"Clubs"},
+  {key:"hatted", label:"Award Winning"},
+];
+
+let activeCat = "all";
+let activeSuburb = "all";
+let locationFilterPlaceId = null; // when set, narrows results to one specific branch of a same-named chain
+let activeState = "all"; // NSW/VIC/etc — persistent filter next to Sort, independent of the branch picker above
+let activeSort = "rating";
+let query = "";
+
+const tabsEl = document.getElementById('tabs');
+const gridEl = document.getElementById('grid');
+const sectionTitle = document.getElementById('sectionTitle');
+const resultNote = document.getElementById('resultNote');
+const emptyState = document.getElementById('emptyState');
+const cuisineFilter = document.getElementById('cuisineFilter');
+const occasionFilter = document.getElementById('occasionFilter');
+const searchInput = document.getElementById('searchInput');
+const sortSelect = document.getElementById('sortSelect');
+const suburbFilter = document.getElementById('suburbFilter');
+const stateFilter = document.getElementById('stateFilter');
+const suggestionsEl = document.getElementById('suggestions');
+const searchBtn = document.getElementById('searchBtn');
+
+function renderSuburbFilter(items){
+  const byState = {};
+  items.forEach(d => {
+    if (!d.suburb) return;
+    const state = d.state || "NSW";
+    if (!byState[state]) byState[state] = new Set();
+    byState[state].add(d.suburb);
+  });
+
+  const allSuburbs = Object.values(byState).flatMap(set => [...set]);
+  // Don't reset the person's suburb selection to "all" just because it
+  // has no matching results YET — while a live search is in progress
+  // (isSearchingLive), the real results for that suburb simply haven't
+  // arrived back from the server yet. Resetting here was clearing a
+  // selection the moment it was made, before its own search had even
+  // finished, so the final render (once results did arrive) showed
+  // everything instead of the suburb actually picked.
+  if (activeSuburb !== "all" && !isSearchingLive && !allSuburbs.includes(activeSuburb)) activeSuburb = "all";
+
+  const optgroups = Object.keys(byState).sort().map(state => {
+    const suburbs = [...byState[state]].sort();
+    const options = suburbs.map(s => `<option value="${escapeHtml(s)}" ${s === activeSuburb ? 'selected' : ''}>${escapeHtml(s)}</option>`).join('');
+    return `<optgroup label="${escapeHtml(state)}">${options}</optgroup>`;
+  }).join('');
+
+  suburbFilter.innerHTML = `<option value="all" ${activeSuburb === 'all' ? 'selected' : ''}>All suburbs</option>${optgroups}`;
+}
+
+const ALL_AU_STATES = ["ACT", "NSW", "NT", "QLD", "SA", "TAS", "VIC", "WA"];
+
+function populateStateDropdown(){
+  const options = ALL_AU_STATES.map(s => `<option value="${s}">${s}</option>`).join('');
+  stateFilter.innerHTML = `<option value="all">All states</option>${options}`;
+}
+
+function renderLocationPicker(branchGroup){
+  const picker = document.getElementById('locationPicker');
+
+  if (!branchGroup.length){
+    picker.style.display = 'none';
+    picker.innerHTML = '';
+    if (locationFilterPlaceId) locationFilterPlaceId = null; // nothing left to filter by
+    return;
+  }
+
+  // If a previously-chosen branch no longer appears in this group (e.g.
+  // the search term changed), drop the stale selection.
+  if (locationFilterPlaceId && !branchGroup.some(d => d.place_id === locationFilterPlaceId)){
+    locationFilterPlaceId = null;
+  }
+
+  const name = branchGroup[0].name;
+  const options = branchGroup
+    .slice()
+    .sort((a,b) => a.suburb.localeCompare(b.suburb))
+    .map(d => `<option value="${d.place_id}" ${d.place_id === locationFilterPlaceId ? 'selected' : ''}>${d.suburb}</option>`)
+    .join('');
+
+  picker.innerHTML = `
+    <span>📍 ${branchGroup.length} locations found for "<strong>${name}</strong>" — </span>
+    <select id="branchSelect">
+      <option value="" ${!locationFilterPlaceId ? 'selected' : ''}>Show all ${branchGroup.length}</option>
+      ${options}
+    </select>
+  `;
+  picker.style.display = 'flex';
+
+  document.getElementById('branchSelect').onchange = (e) => {
+    locationFilterPlaceId = e.target.value || null;
+    renderGrid();
+  };
+}
+
+function renderTabs(){
+  tabsEl.innerHTML = "";
+  const combined = [...DATA, ...LIVE_DATA].filter(d => occasionAllowsItem(d));
+  const q = query.trim().toLowerCase();
+  // Matches the same rule renderGrid() uses: live results are already
+  // filtered server-side, so re-checking the raw query text against them
+  // here would wrongly exclude valid matches. Previously this function
+  // used a stricter, different rule than the grid, which was the direct
+  // cause of the tab counts and the actual displayed results disagreeing.
+  const matchesQuery = (d) => {
+    if (d.source === 'live') return true;
+    return !q || d.name.toLowerCase().includes(q) || (d.cuisine||"").toLowerCase().includes(q) || d.suburb.toLowerCase().includes(q);
+  };
+  const matchesCuisine = (d) => {
+    if (!cuisineFilter.value) return true;
+    return (d.cuisine || "").toLowerCase().includes(cuisineFilter.value.toLowerCase());
+  };
+  let relevant = combined.filter(d => matchesQuery(d) && matchesCuisine(d));
+  if (activeSuburb !== "all") relevant = relevant.filter(d => d.suburb === activeSuburb);
+  if (activeState !== "all") relevant = relevant.filter(d => (d.state || "NSW") === activeState);
+
+  CATS.forEach(c => {
+    const count = c.key === "all" ? relevant.length : relevant.filter(d => d.category === c.key).length;
+    const el = document.createElement('div');
+    el.className = 'tab' + (c.key === activeCat ? ' active' : '');
+    el.innerHTML = `${c.label} <span class="count">${count}</span>`;
+    el.onclick = () => { activeCat = c.key; locationFilterPlaceId = null; renderTabs(); renderGrid(); };
+    tabsEl.appendChild(el);
+  });
+}
+
+function priceFromLevel(level, category){
+  const table = {
+    0:[10,15], 1:[15,25], 2:[25,40], 3:[50,75], 4:[80,120]
+  };
+  if (level !== null && level !== undefined && table[level]) return table[level];
+  // sensible default when Google gives no price level
+  if (category === "cafe") return [20,30];
+  if (category === "takeaway") return [15,25];
+  return [35,55];
+}
+
+const DAY_NAMES = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+
+function todayHours(hours){
+  const day = DAY_NAMES[new Date().getDay()];
+  return hours && hours[day] ? hours[day] : null;
+}
+
+function isOpenNow(hours){
+  const todays = todayHours(hours);
+  if (!todays || todays === "Closed") return false;
+  if (todays.toLowerCase().includes("24 hours")) return true;
+  const now = new Date();
+  const nowMins = now.getHours()*60 + now.getMinutes();
+  const ranges = todays.split(",");
+  for (const r of ranges){
+    const parts = r.trim().split("–");
+    if (parts.length !== 2) continue;
+    const toMins = (t) => {
+      const m = t.trim().match(/(\d+):(\d+)\s?(AM|PM)/i);
+      if (!m) return null;
+      let h = parseInt(m[1]), min = parseInt(m[2]);
+      const ap = m[3].toUpperCase();
+      if (ap === "PM" && h !== 12) h += 12;
+      if (ap === "AM" && h === 12) h = 0;
+      return h*60+min;
+    };
+    const start = toMins(parts[0]), end = toMins(parts[1]);
+    if (start === null || end === null) continue;
+    if (nowMins >= start && nowMins <= end) return true;
+  }
+  return false;
+}
+
+function starString(rating){
+  const full = Math.round(rating);
+  return "★".repeat(full) + "☆".repeat(5-full);
+}
+
+// Restaurant owners submit description/currentSpecial/social URLs through
+// the portal, and those values get inserted into every visitor's page via
+// innerHTML. Without escaping, a malicious owner could store a <script>
+// tag as their "special" and have it execute in every viewer's browser.
+// This neutralizes any HTML in the text before it's ever rendered.
+function escapeHtml(str){
+  const div = document.createElement('div');
+  div.textContent = str || '';
+  return div.innerHTML;
+}
+
+function mapsUrl(place){
+  return `https://www.google.com/maps/place/?q=place_id:${place.place_id}`;
+}
+function searchUrl(place){
+  return `https://www.google.com/search?q=${encodeURIComponent(place.name + " " + place.suburb + " Sydney")}`;
+}
+
+// "Find website" now tries to send people straight to the restaurant's
+// real website (via a one-off Place Details lookup), falling back to the
+// old Google-search behavior if Google has no website on file for that
+// place. The blank tab is opened SYNCHRONOUSLY, inside the click handler
+// itself, before the async lookup — opening it only after the fetch
+// resolves would get blocked by most browsers' popup blockers, since by
+// then it's no longer considered a direct response to the user's click.
+async function handleFindWebsite(event, placeId, fallbackUrl){
+  event.preventDefault();
+  event.stopPropagation();
+  trackEvent(placeId, 'website');
+
+  const win = window.open('', '_blank');
+  if (win) win.opener = null;
+
+  try {
+    const res = await fetch(`${BOOKING_API}/place-website?placeId=${encodeURIComponent(placeId)}`);
+    const data = res.ok ? await res.json() : {};
+    const target = data.website || fallbackUrl;
+    if (win) win.location = target; else window.open(target, '_blank', 'noopener');
+  } catch (err) {
+    if (win) win.location = fallbackUrl; else window.open(fallbackUrl, '_blank', 'noopener');
+  }
+  return false;
+}
+
+function renderGrid(){
+  const combined = [...DATA, ...LIVE_DATA].filter(d => occasionAllowsItem(d));
+
+  const qLower = query.trim().toLowerCase();
+  const matchesQuery = (d) => {
+    if (!qLower) return true;
+    // Live results already went through the backend's suburb+cuisine
+    // filtering — re-checking whether the *entire* typed phrase appears
+    // literally in one field is too strict and wrongly excludes correct
+    // results (e.g. typing "lebanese parramatta" won't literally appear
+    // in a result whose cuisine is "Lebanese" and suburb is "Parramatta"
+    // as two separate fields). Only apply this substring check to the
+    // static sample DATA, where it's the only filtering mechanism.
+    if (d.source === 'live') return true;
+    return d.name.toLowerCase().includes(qLower) || (d.cuisine||"").toLowerCase().includes(qLower) || d.suburb.toLowerCase().includes(qLower);
+  };
+
+  // Live results were already filtered by cuisine server-side (their
+  // cuisine field is set to whatever was selected, by definition, so this
+  // always passes harmlessly for them). The static sample DATA array was
+  // never being filtered by cuisine at all until now — this closes that
+  // gap, so selecting e.g. "Italian" doesn't leave unrelated cuisines
+  // (Chinese, Fish & Chips, etc.) showing from the hardcoded sample set.
+  const matchesCuisine = (d) => {
+    if (!cuisineFilter.value) return true;
+    return (d.cuisine || "").toLowerCase().includes(cuisineFilter.value.toLowerCase());
+  };
+
+  // Dropdown options are built from every query- and cuisine-matching
+  // result across ALL categories — not just whichever tab is currently
+  // active — so switching tabs never shrinks the suburb list. Suburb and
+  // state are independent filters in the sense that picking a SUBURB
+  // doesn't narrow the state list — but picking a STATE must narrow the
+  // suburb list, otherwise leftover NSW suburbs from the static sample
+  // data keep showing (and sorting above) the state actually selected,
+  // e.g. choosing WA still listed Sydney suburbs first.
+  let queryRelevant = combined.filter(d => matchesQuery(d) && matchesCuisine(d));
+  if (activeState !== "all") queryRelevant = queryRelevant.filter(d => (d.state || "NSW") === activeState);
+  renderSuburbFilter(queryRelevant);
+
+  // The actually-displayed set: category tab + query + cuisine + whichever
+  // suburb/state filter is currently selected.
+  let items = combined.filter(d => (activeCat === "all" || d.category === activeCat));
+  items = items.filter(d => matchesQuery(d) && matchesCuisine(d));
+  if (activeSuburb !== "all") items = items.filter(d => d.suburb === activeSuburb);
+  if (activeState !== "all") items = items.filter(d => (d.state || "NSW") === activeState);
+
+  // If the search closely matches the name of more than one branch (a
+  // chain with locations in different suburbs/states — e.g. searching a
+  // brand name that exists in both NSW and VIC), show a picker so the
+  // person can narrow down to the specific branch they meant, rather than
+  // scrolling through several identically-named cards.
+  const q = query.trim().toLowerCase();
+  const qNorm = normalizeForMatch(q);
+  let branchGroup = [];
+  if (q){
+    const strongMatch = (d) => {
+      const nameNorm = normalizeForMatch(d.name);
+      return nameNorm === qNorm || nameNorm.startsWith(qNorm);
+    };
+    const matches = items.filter(strongMatch);
+    const byName = {};
+    matches.forEach(d => {
+      const key = d.name.toLowerCase().trim();
+      (byName[key] = byName[key] || []).push(d);
+    });
+    const groups = Object.values(byName).filter(g => g.length > 1);
+    if (groups.length){
+      // If multiple different chains all matched, just use the largest
+      // group — keeps the picker focused on one thing rather than
+      // stacking several dropdowns.
+      branchGroup = groups.sort((a,b) => b.length - a.length)[0];
+    }
+  }
+  renderLocationPicker(branchGroup);
+
+  if (locationFilterPlaceId){
+    items = items.filter(d => d.place_id === locationFilterPlaceId);
+  }
+
+  items = [...items].sort((a,b) => {
+    // If someone typed a search term, a restaurant whose NAME closely
+    // matches it should surface first, regardless of the sort dropdown —
+    // e.g. searching "Salty Buns" should show Salty Buns before other
+    // higher-rated places that just happen to be in the same suburb.
+    const q = query.trim().toLowerCase();
+    if (q){
+      const qNorm = normalizeForMatch(q);
+      const relevance = (d) => {
+        const nameNorm = normalizeForMatch(d.name);
+        if (nameNorm === qNorm) return 3;           // exact name match
+        if (nameNorm.startsWith(qNorm)) return 2;    // name starts with the search term
+        if (nameNorm.includes(qNorm)) return 1;      // name contains it somewhere
+        return 0;                                  // matched on cuisine/suburb only
+      };
+      const relDiff = relevance(b) - relevance(a);
+      if (relDiff !== 0) return relDiff;
+    }
+
+    if (activeSort === "rating") return b.rating - a.rating;
+    if (activeSort === "price_asc") return a.price[0] - b.price[0];
+    if (activeSort === "price_desc") return b.price[1] - a.price[1];
+    if (activeSort === "name") return a.name.localeCompare(b.name);
+    return 0;
+  });
+
+  const catLabel = CATS.find(c => c.key === activeCat).label;
+  sectionTitle.textContent = catLabel;
+
+  const hattedNote = document.getElementById('hattedDisclaimer');
+  if (activeCat === "hatted"){
+    hattedNote.style.display = "block";
+    hattedNote.className = "hatted-disclaimer";
+    hattedNote.textContent = "\"Award Winning\" here is an approximate keyword search, not a verified list from the Good Food Guide, Chef's Hat Awards, or any other official awards body. Please confirm a restaurant's current award status independently before relying on it.";
+  } else {
+    hattedNote.style.display = "none";
+  }
+
+  if (isSearchingLive){
+    resultNote.textContent = `Searching live for "${query}"…`;
+    gridEl.innerHTML = `<div class="empty" style="grid-column:1/-1;">Searching live for "${query}"… this can take a few seconds.</div>`;
+    emptyState.style.display = "none";
+    return;
+  } else {
+    resultNote.textContent = `${items.length} spot${items.length===1?'':'s'} listed`;
+  }
+
+  gridEl.innerHTML = "";
+  emptyState.style.display = items.length ? "none" : "block";
+
+  // Exposed for the chat widget below, so it always sees exactly what's
+  // currently visible in the grid — not an arbitrary, unfiltered slice of
+  // every result ever fetched (which could silently omit a suburb like
+  // Haberfield if enough OTHER live results were fetched first).
+  window.currentVisibleListings = items;
+
+  items.forEach(d => {
+    const bookable = BOOKABLE[d.place_id];
+
+    // A subscribed restaurant's own saved name/address/hours now take
+    // precedence over whatever Google's listing shows — this is the
+    // actual point of letting them edit these in the portal at all;
+    // without this override, those edits would save successfully but
+    // never visibly change anything a diner sees.
+    const displayName = bookable?.customName || d.name;
+    const displayAddress = bookable?.customAddress || d.address;
+    const todayName = DAY_NAMES[new Date().getDay()];
+    const customHoursToday = bookable?.customHours?.[todayName];
+
+    const open = d.source === "live" ? d.openNow : isOpenNow(d.hours);
+    const todays = customHoursToday || (d.source === "live" ? null : todayHours(d.hours));
+    const openLabel = open === true ? "Open now" : open === false ? "Closed now" : "Hours vary";
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.innerHTML = `
+      ${bookable?.photos?.length ? `<img class="card-photo-strip" src="${bookable.photos[0]}" alt="${displayName.replace(/"/g,'&quot;')}" loading="lazy">` : ''}
+      <div class="card-top">
+        <div>
+          <h3 class="card-title">${displayName}</h3>
+          <div class="card-sub">${d.cuisine} · ${d.suburb} ${d.source === 'live' ? '<span style="color:var(--sage);">· LIVE</span>' : ''}</div>
+        </div>
+        <span class="badge ${open ? 'open' : 'closed'}">${openLabel}</span>
+      </div>
+      <div class="rating-row">
+        <span class="stars">${starString(d.rating)}</span>
+        <span>${d.rating.toFixed(1)}</span>
+        <span class="rating-count">(${d.reviews.toLocaleString()} reviews)</span>
+      </div>
+      <div class="price-ticket">
+        <span class="price-label">Cost per head</span>
+        <span class="price-value">$${d.price[0]}–${d.price[1]}</span>
+      </div>
+      <div class="hours-line">${todays ? `Today: ${todays}` : displayAddress}</div>
+      ${bookable?.menuUrl ? `<a href="${bookable.menuUrl}" target="_blank" rel="noopener" onclick="event.stopPropagation(); trackEvent('${d.place_id}','menu');" style="font-size:12.5px;color:var(--ink);font-weight:600;text-decoration:none;">📄 View menu</a>` : ''}
+      ${bookable?.description ? `<div class="claimed-desc">${escapeHtml(bookable.description)}</div>` : ''}
+      ${bookable?.currentSpecial ? `<div class="special-badge">✨ ${escapeHtml(bookable.currentSpecial)}</div>` : ''}
+      ${bookable ? renderSocialLinks(bookable) : ''}
+      <div class="card-actions">
+        <a class="primary" href="${mapsUrl(d)}" target="_blank" rel="noopener" onclick="trackEvent('${d.place_id}','directions')">Get directions</a>
+
+        <a href="${searchUrl(d)}" target="_blank" rel="noopener" onclick="return handleFindWebsite(event, '${d.place_id}', '${searchUrl(d).replace(/'/g,"\\'")}')">Find website</a>
+        ${bookable ? `<a class="book" href="#" onclick="openBookingModal('${d.place_id}', '${displayName.replace(/'/g,"&#39;")}'); return false;">Book a table</a>` : ''}
+      </div>
+    `;
+    gridEl.appendChild(card);
+
+    // Whole card navigates to the listing detail page, except clicks on
+    // the action buttons themselves (directions/website/book), which have
+    // their own behavior and shouldn't also trigger a page navigation.
+    if (d.place_id){
+      card.onclick = (e) => {
+        if (e.target.closest('.card-actions')) return;
+        window.location.href = `listing.html?place=${encodeURIComponent(d.place_id)}`;
+      };
+    }
+  });
+}
+
+let BOOKABLE = {}; // place_id -> restaurant_id, for venues that have joined the booking system
+
+const SOCIAL_ICONS = {
+  instagram: `<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5.5"/><circle cx="12" cy="12" r="4.2"/><circle cx="17.4" cy="6.6" r="1.1" fill="#fff" stroke="none"/></svg>`,
+  facebook: `<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M15.5 3h-2.7A4.3 4.3 0 0 0 8.5 7.3V10H6v4h2.5v7h4v-7h3l.7-4h-3.7V7.6a1 1 0 0 1 1-1h2.7z"/></svg>`,
+  website: `<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><circle cx="12" cy="12" r="9.5"/><line x1="2.5" y1="12" x2="21.5" y2="12"/><path d="M12 2.5a14.5 14.5 0 0 1 3.8 9.5A14.5 14.5 0 0 1 12 21.5 14.5 14.5 0 0 1 8.2 12 14.5 14.5 0 0 1 12 2.5z"/></svg>`,
+};
+
+function renderSocialLinks(profile){
+  const links = [];
+  if (profile.instagramUrl) links.push(`<a class="icon-instagram" href="${escapeHtml(profile.instagramUrl)}" target="_blank" rel="noopener" title="Instagram" aria-label="Instagram" onclick="event.stopPropagation();">${SOCIAL_ICONS.instagram}</a>`);
+  if (profile.facebookUrl) links.push(`<a class="icon-facebook" href="${escapeHtml(profile.facebookUrl)}" target="_blank" rel="noopener" title="Facebook" aria-label="Facebook" onclick="event.stopPropagation();">${SOCIAL_ICONS.facebook}</a>`);
+  if (profile.websiteUrl) links.push(`<a class="icon-website" href="${escapeHtml(profile.websiteUrl)}" target="_blank" rel="noopener" title="Website" aria-label="Website" onclick="event.stopPropagation();">${SOCIAL_ICONS.website}</a>`);
+  if (!links.length) return '';
+  return `<div class="claimed-social">${links.join('')}</div>`;
+}
+
+function buildSuggestionPool(){
+  const names = DATA.map(d => ({label:d.name, meta:`${d.cuisine} · ${d.suburb}`, type:'venue'}));
+  const cuisines = [...new Set(DATA.map(d => d.cuisine))].map(c => ({label:c, meta:'Cuisine', type:'cuisine'}));
+  const suburbs = [...new Set(DATA.map(d => d.suburb))].map(s => ({label:s, meta:'Suburb', type:'suburb'}));
+  return [...names, ...cuisines, ...suburbs];
+}
+const SUGGESTION_POOL = buildSuggestionPool();
+
+// Full category set used for a normal (no occasion selected) search.
+const DEFAULT_CATEGORIES = ["cafe", "restaurant", "takeaway", "pub", "club", "hatted"];
+
+// When an occasion IS selected, drop the categories that don't fit — a
+// takeaway kebab shop or licensed club isn't what anyone means by "date
+// night", "special occasion", or "near the water", regardless of how
+// Google's text relevance scores it. Cafes and pubs stay in for special
+// occasion / water — a good pub meal or a nice waterside cafe can
+// genuinely fit those. Date night is deliberately stricter: only
+// award-winning venues, per an explicit request to keep that one curated
+// tighter than the other two.
+const OCCASION_EXCLUDED_CATEGORIES = ["takeaway", "club"];
+const OCCASION_ALLOWED_CATEGORIES = {};
+
+// Applies that same filtering to EVERY rendered result, not just live
+// Google fetches — the hardcoded sample DATA array includes several
+// takeaway/kebab entries (and no "hatted" ones at all) that would
+// otherwise still show up under an occasion filter, since nothing was
+// filtering the always-present static list, only what got freshly fetched.
+function occasionAllowsCategory(category){
+  if (!occasionFilter.value) return true;
+  const allowed = OCCASION_ALLOWED_CATEGORIES[occasionFilter.value];
+  if (allowed) return allowed.includes(category);
+  return !OCCASION_EXCLUDED_CATEGORIES.includes(category);
+}
+
+// "Near the water" results are only trustworthy for LIVE results — the
+// backend checks each one's real lat/lng against known waterline points.
+// The hardcoded sample DATA has no coordinates at all, so a Newtown
+// restaurant tagged "restaurant" (an otherwise-allowed category) was
+// still slipping through a water search on category alone, with no
+// distance check ever applied to it. Rather than maintaining a second,
+// separate "which static suburbs count as waterfront" list that could
+// drift out of sync with the backend's real geo check, simplest and most
+// accurate is to just not show unverified static entries for this one
+// occasion — live results already cover it properly.
+function occasionAllowsItem(d){
+  if (occasionFilter.value === "water" && d.source !== "live") return false;
+  return occasionAllowsCategory(d.category);
+}
+
+// Fetches live results across one or more suburbs at once. Used both for
+// a normal single-suburb search, and for the curated waterfront-suburb
+// fallback below (searching several known suburbs in parallel, then
+// merging/deduping the results exactly the same way a single search does).
+async function fetchLiveForSuburbs(suburbList){
+  const myGeneration = ++searchGeneration; // this call's "ticket" — if a newer search starts, we bail out below
+  isSearchingLive = true;
+  renderGrid();
+
+  const cuisine = cuisineFilter.value;
+  const occasion = occasionFilter.value;
+
+  // The backend rejects any request that has neither a suburb nor a
+  // state — by design, so it never does an unbounded worldwide search.
+  // That's a problem specifically for an occasion- or cuisine-only search
+  // with an empty search box (e.g. picking "Date night" with nothing
+  // typed): every suburb in the list ends up "", so without a state too,
+  // every request to the backend was being rejected outright — the site
+  // was silently getting zero live results and nobody could tell,
+  // because the hardcoded sample data was quietly filling the gap.
+  // Defaulting to NSW here (this site's actual coverage area) keeps the
+  // request valid instead of failing closed.
+  const allSuburbsEmpty = suburbList.every((s) => !s || !s.trim());
+  const stateParam = activeState !== "all" ? activeState : (allSuburbsEmpty ? "NSW" : "");
+
+  // An occasion search implies a certain kind of venue, not just a certain
+  // kind of language — a kebab shop can easily slip through a "date
+  // night" search on keyword relevance alone even though nobody actually
+  // wants that. Narrowing which categories get fetched at all is a more
+  // reliable filter than hoping the text-matching sorts it out.
+  const categories = OCCASION_ALLOWED_CATEGORIES[occasion]
+    || (occasion ? DEFAULT_CATEGORIES.filter(c => !OCCASION_EXCLUDED_CATEGORIES.includes(c)) : DEFAULT_CATEGORIES);
+
+  try {
+    const tasks = [];
+    suburbList.forEach(suburb => {
+      categories.forEach(cat => {
+        tasks.push(
+          fetch(`${LIVE_API}?suburb=${encodeURIComponent(suburb)}&category=${cat}&full=1${cuisine ? `&cuisine=${encodeURIComponent(cuisine)}` : ''}${occasion ? `&occasion=${encodeURIComponent(occasion)}` : ''}${stateParam ? `&state=${encodeURIComponent(stateParam)}` : ''}`)
+            .then(r => r.ok ? r.json() : {results:[]})
+            .catch(() => ({results:[]}))
+            .then(data => ({cat, suburb, data}))
+        );
+      });
+    });
+
+    const responses = await Promise.all(tasks);
+
+    // If a newer search started while we were waiting on the network,
+    // drop these results — they're stale and would otherwise race with
+    // the newer call's dedup check and produce duplicate cards.
+    if (myGeneration !== searchGeneration) return;
+
+    responses.forEach(({cat, suburb, data}) => {
+      (data.results || []).forEach(r => {
+        if (!r.placeId) return;
+
+        // The Cafés search is a loose text search, so it can return shops and
+        // restaurants that merely mention "cafe". Only file a result under
+        // Cafés if Google itself types it as a cafe/bakery/coffee place;
+        // genuine restaurants still arrive via the Restaurants search.
+        if (cat === "cafe" && Array.isArray(r.types) && r.types.length &&
+            !r.types.some(t => t === "cafe" || t === "bakery" || t === "coffee_shop")) return;
+
+        const freshEntry = {
+          name: r.name,
+          category: cat,
+          cuisine: r.cuisine || (cat === "cafe" ? "Café" : cat === "takeaway" ? "Takeaway" : cat === "pub" ? "Pub" : cat === "club" ? "Club" : cat === "hatted" ? "Award Winning" : "Restaurant"),
+          suburb: r.suburb || suburb,
+          address: r.address,
+          state: r.state || null,
+          rating: r.rating || 0,
+          reviews: r.reviews || 0,
+          price: priceFromLevel(r.priceLevel, cat),
+          openNow: r.openNow,
+          place_id: r.placeId,
+          source: "live",
+        };
+
+        // Generic fallback labels used only when Google gave no real
+        // cuisine for a result. If a later category fetch (e.g. "hatted")
+        // returns one of these for a place we've already seen with a real
+        // cuisine (e.g. "Italian" from its "restaurant" category fetch),
+        // that real cuisine must NOT be overwritten — this was previously
+        // clobbering correct cuisine labels with "Award Winning" purely
+        // because of category fetch ordering, not because of any actual
+        // change in the restaurant itself.
+        const GENERIC_CUISINE_FALLBACKS = new Set(["Café", "Takeaway", "Pub", "Club", "Award Winning", "Restaurant"]);
+
+        if (liveIds.has(r.placeId)) {
+          // Same place_id seen before — refresh its data in case anything
+          // (like the suburb) has since been corrected, rather than
+          // leaving a stale/wrong entry sitting there forever. But keep
+          // whichever cuisine value is more specific, so a later, more
+          // generic category fetch can't clobber a real cuisine already
+          // found for this same place.
+          const idx = LIVE_DATA.findIndex(d => d.place_id === r.placeId);
+          if (idx !== -1) {
+            const existingCuisine = LIVE_DATA[idx].cuisine;
+            const newCuisineIsGeneric = GENERIC_CUISINE_FALLBACKS.has(freshEntry.cuisine);
+            const existingCuisineIsReal = existingCuisine && !GENERIC_CUISINE_FALLBACKS.has(existingCuisine);
+            if (newCuisineIsGeneric && existingCuisineIsReal) {
+              freshEntry.cuisine = existingCuisine;
+            }
+            LIVE_DATA[idx] = freshEntry;
+          }
+          return;
+        }
+
+        const key = dedupeKey(freshEntry.name, freshEntry.address);
+        if (liveDedupeKeys.has(key)) {
+          // Different place_id, but same venue by name+address — Google
+          // returned a split/duplicate listing (e.g. one tagged "cafe",
+          // one tagged "takeaway" for the same shopfront). Skip it rather
+          // than showing two cards for one restaurant.
+          return;
+        }
+
+        liveIds.add(r.placeId);
+        liveDedupeKeys.add(key);
+        LIVE_DATA.push(freshEntry);
+      });
+    });
+  } catch (err) {
+    console.error("Live search failed:", err);
+  }
+
+  if (myGeneration !== searchGeneration) return; // a newer search superseded this one — don't stomp its UI state either
+
+  isSearchingLive = false;
+  renderTabs();
+  renderGrid();
+  checkBookable();
+}
+
+// Backward-compatible wrapper for the common case: a single suburb.
+function fetchLiveForSuburb(suburb){
+  return fetchLiveForSuburbs([suburb]);
+}
+
+// Known genuinely waterfront/harbourside Sydney suburbs. Used only when
+// someone picks the "Near the water" occasion with no suburb typed — see
+// the note in runSearch() for why a keyword-only approach isn't enough
+// on its own for this particular occasion.
+const WATERFRONT_SUBURBS = ["Circular Quay", "Barangaroo", "Manly", "Rose Bay", "Cronulla"];
+
+let CHECKED_IDS = new Set(); // place_ids we've already asked the backend about, so we don't keep re-checking them
+
+async function checkBookable(){
+  const allIds = [...DATA, ...LIVE_DATA].map(d => d.place_id).filter(Boolean);
+  const newIds = [...new Set(allIds)].filter(id => !CHECKED_IDS.has(id));
+  if (!newIds.length) return;
+
+  newIds.forEach(id => CHECKED_IDS.add(id));
+
+  try {
+    const res = await fetch(`${BOOKING_API}/restaurant-by-place?placeIds=${encodeURIComponent(newIds.join(','))}`);
+    if (!res.ok) return;
+    const data = await res.json();
+    BOOKABLE = { ...BOOKABLE, ...(data.matches || {}) };
+    renderGrid(); // re-render so Book a table buttons appear where applicable
+  } catch (err) {
+    console.error("Bookable check failed:", err);
+  }
+}
+
+let currentBookingRestaurantId = null;
+
+function formatSlotDate(raw){
+  const d = new Date(raw);
+  return d.toLocaleDateString('en-AU', { weekday: 'short', day: 'numeric', month: 'short' });
+}
+function formatSlotTime(raw){
+  const [h, m] = raw.split(':').map(Number);
+  const period = h >= 12 ? 'PM' : 'AM';
+  const hour12 = h % 12 === 0 ? 12 : h % 12;
+  return `${hour12}:${String(m).padStart(2,'0')} ${period}`;
+}
+
+async function openBookingModal(placeId, name){
+  currentBookingRestaurantId = BOOKABLE[placeId]?.restaurantId;
+  if (!currentBookingRestaurantId) return;
+
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.id = 'bookingOverlay';
+  overlay.innerHTML = `
+    <div class="modal">
+      <h3>Book a table</h3>
+      <div class="modal-sub">${name}</div>
+      <div id="modalBody">Loading available times…</div>
+    </div>
+  `;
+  overlay.onclick = (e) => { if (e.target === overlay) closeBookingModal(); };
+  document.body.appendChild(overlay);
+
+  try {
+    const res = await fetch(`${BOOKING_API}/slots?restaurantId=${currentBookingRestaurantId}`);
+    const data = await res.json();
+    const body = document.getElementById('modalBody');
+
+    if (!data.slots || !data.slots.length){
+      body.innerHTML = `<div class="modal-msg error">No available time slots right now. Try again later.</div>
+        <div class="modal-actions"><button class="cancel" onclick="closeBookingModal()">Close</button></div>`;
+      return;
+    }
+
+    const options = data.slots.map(s =>
+      `<option value="${s.id}">${formatSlotDate(s.slot_date)} · ${formatSlotTime(s.slot_time)} (${s.capacity - s.booked_count} left)</option>`
+    ).join('');
+
+    body.innerHTML = `
+      <label>Choose a time</label>
+      <select id="bookSlot">${options}</select>
+      <label>Your name</label>
+      <input id="bookName" type="text" placeholder="Jane Smith">
+      <label>Email</label>
+      <input id="bookEmail" type="email" placeholder="jane@example.com">
+      <label>Phone (optional)</label>
+      <input id="bookPhone" type="text" placeholder="04xx xxx xxx">
+      <label>Party size</label>
+      <input id="bookParty" type="number" min="1" value="2">
+      <div id="bookMsg"></div>
+      <div class="modal-actions">
+        <button class="cancel" onclick="closeBookingModal()">Cancel</button>
+        <button class="confirm" onclick="submitBooking()">Confirm booking</button>
+      </div>
+    `;
+  } catch (err) {
+    document.getElementById('modalBody').innerHTML = `<div class="modal-msg error">Failed to load availability.</div>`;
+  }
+}
+
+function closeBookingModal(){
+  const overlay = document.getElementById('bookingOverlay');
+  if (overlay) overlay.remove();
+}
+
+async function submitBooking(){
+  const slotId = document.getElementById('bookSlot').value;
+  const name = document.getElementById('bookName').value.trim();
+  const email = document.getElementById('bookEmail').value.trim();
+  const phone = document.getElementById('bookPhone').value.trim();
+  const partySize = parseInt(document.getElementById('bookParty').value, 10);
+  const msgEl = document.getElementById('bookMsg');
+
+  if (!name || !email || !partySize){
+    msgEl.innerHTML = `<div class="modal-msg error">Please fill in your name, email and party size.</div>`;
+    return;
+  }
+
+  try {
+    const res = await fetch(`${BOOKING_API}/book`, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ slotId, name, email, phone: phone || null, partySize })
+    });
+    const data = await res.json();
+    if (!res.ok){
+      msgEl.innerHTML = `<div class="modal-msg error">${data.error || 'Booking failed.'}</div>`;
+      return;
+    }
+    document.getElementById('modalBody').innerHTML = `<div class="modal-msg success">Booked for ${formatSlotDate(data.slot.date)} at ${formatSlotTime(data.slot.time)}. A confirmation was recorded — the restaurant can see it in their dashboard.</div>
+      <div class="modal-actions"><button class="cancel" onclick="closeBookingModal()">Close</button></div>`;
+  } catch (err) {
+    msgEl.innerHTML = `<div class="modal-msg error">Something went wrong: ${err.message}</div>`;
+  }
+}
+
+let hasSearched = false;
+
+function showResultsUI(){
+  hasSearched = true;
+  document.getElementById('landing').style.display = 'none';
+  document.getElementById('tabs').style.display = 'flex';
+  document.getElementById('metaRow').style.display = 'flex';
+}
+
+// If a cuisine word from the dropdown is typed into the search box (e.g.
+// "thai" or "thai newtown"), treat it as selecting that cuisine, so it goes
+// through the same strict cuisine filtering as the dropdown instead of a loose
+// text match. Only when no cuisine is already chosen. The word is removed from
+// the typed text; whatever remains (a suburb, say) is searched as usual.
+function pullCuisineFromTerm(term){
+  try {
+    if (cuisineFilter.value || !term || !term.trim()) return term;
+    const escape = (x) => x.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    for (const opt of Array.from(cuisineFilter.options)) {
+      if (!opt.value) continue;
+      const re = new RegExp('\\b' + escape(opt.value.toLowerCase()) + '\\b', 'i');
+      if (re.test(term)) {
+        cuisineFilter.value = opt.value;
+        const rest = term.replace(re, ' ').replace(/\s+/g, ' ').trim();
+        searchInput.value = rest;
+        return rest;
+      }
+    }
+  } catch (e) {}
+  return term;
+}
+
+function runSearch(term){
+  term = pullCuisineFromTerm(term);
+  showResultsUI();
+  query = term;
+  activeCat = "all";
+  // Deliberately NOT resetting activeSuburb here anymore — it used to be
+  // unconditionally cleared back to "all" on every search, which silently
+  // discarded a suburb someone had just picked from the dropdown the
+  // moment they clicked the adjacent Search button. Leaving it as-is lets
+  // the typed search text and the suburb filter work together instead of
+  // the button always overriding the dropdown.
+  locationFilterPlaceId = null;
+  renderTabs();
+  renderGrid();
+  suggestionsEl.classList.remove('show');
+  document.querySelector('main').scrollIntoView({behavior:'smooth', block:'start'});
+
+  const trimmedTerm = term.trim();
+
+  // "Near the water" with no suburb typed means "show me genuinely
+  // waterfront places", not "show me whatever's near my IP address that
+  // vaguely mentions water". Google's Text Search has no real geographic
+  // "distance to coastline" filter — it only matches the word
+  // "waterfront" etc. against whatever's in a place's Google-indexed
+  // name/description, and when that signal is weak it just falls back to
+  // ordinary nearby-by-location results (confirmed: an empty-suburb
+  // "water" search was returning inland Newtown restaurants). Searching a
+  // small curated list of known waterfront suburbs instead guarantees
+  // geographic accuracy, since we're searching directly in the right
+  // places rather than hoping a keyword match saves us.
+  if (occasionFilter.value === "water" && trimmedTerm.length <= 1){
+    fetchLiveForSuburbs(WATERFRONT_SUBURBS);
+    return;
+  }
+
+  // Treat the search term as a suburb and fetch live results too —
+  // covers both "search a suburb" and "search a dish/cuisine" cases,
+  // since a live suburb search costs nothing extra if the term isn't one.
+  // Also fires when a cuisine or occasion is selected with an empty box —
+  // search.js already handles "cuisine/occasion, no suburb" with a
+  // nationwide, location-biased fallback, but that path was never
+  // reachable without this.
+  // If a specific suburb is already selected in the dropdown, that's the
+  // deliberate location to search — fetch using ITS name directly, rather
+  // than whatever's typed in the free-text search box (which might be a
+  // cuisine word, a different place, or nothing at all). Previously this
+  // fetched purely on the typed text, so if it didn't happen to also
+  // cover the selected suburb, that suburb's own results never actually
+  // arrived — making it look like the selection had been reset, when
+  // really the search itself just never targeted it.
+  const suburbToFetch = (activeSuburb && activeSuburb !== 'all') ? activeSuburb : trimmedTerm;
+
+  if (suburbToFetch.length > 1 || cuisineFilter.value || occasionFilter.value){
+    fetchLiveForSuburb(suburbToFetch);
+  } else {
+    // Nothing meaningful to search on — clear any stale live results from
+    // a previous search rather than leaving them showing.
+    LIVE_DATA = [];
+    liveIds = new Set(DATA.map(d => d.place_id));
+    liveDedupeKeys = new Set(DATA.map(d => dedupeKey(d.name, d.address)));
+    renderTabs();
+    renderGrid();
+  }
+}
+
+function renderSuggestionList(matches){
+  if (!matches.length){ suggestionsEl.classList.remove('show'); return; }
+  suggestionsEl.innerHTML = matches.map(s => `
+    <div class="suggestion-item" data-label="${s.label.replace(/"/g,'&quot;')}" data-state="${s.state || ''}">
+      <span>${s.label}</span>
+      <span class="s-meta">${s.meta}</span>
+    </div>
+  `).join('');
+  suggestionsEl.classList.add('show');
+  suggestionsEl.querySelectorAll('.suggestion-item').forEach(item => {
+    item.onclick = () => {
+      searchInput.value = item.dataset.label;
+      // If this suggestion came with a known state (a live Google suburb
+      // suggestion), auto-select it too — saves picking it separately.
+      if (item.dataset.state && ALL_AU_STATES.includes(item.dataset.state)){
+        activeState = item.dataset.state;
+        stateFilter.value = item.dataset.state;
+      }
+      runSearch(item.dataset.label);
+    };
+  });
+}
+
+let suggestionRequestId = 0; // guards against a stale live-suburb fetch overwriting a newer one
+let suburbSuggestTimer = null;
+
+function renderSuggestions(term){
+  if (!term.trim()){
+    suggestionsEl.classList.remove('show');
+    clearTimeout(suburbSuggestTimer);
+    return;
+  }
+  const q = term.toLowerCase();
+  const localMatches = SUGGESTION_POOL.filter(s => s.label.toLowerCase().includes(q)).slice(0, 5);
+  renderSuggestionList(localMatches); // instant feedback while the live lookup is still in flight
+
+  // Debounced — waits for a short pause in typing before hitting the live
+  // suburb API, rather than firing a network request on every keystroke.
+  clearTimeout(suburbSuggestTimer);
+  const myRequestId = ++suggestionRequestId;
+  suburbSuggestTimer = setTimeout(async () => {
+    try {
+      const res = await fetch(`${BOOKING_API}/suburb-autocomplete?input=${encodeURIComponent(term.trim())}`);
+      if (!res.ok) return;
+      const data = await res.json();
+      // Bail if the input changed again since this request was fired, or
+      // the suggestions dropdown isn't even showing anymore.
+      if (myRequestId !== suggestionRequestId) return;
+      if (searchInput.value.trim().toLowerCase() !== term.trim().toLowerCase()) return;
+
+      const localLabels = new Set(localMatches.map(m => m.label.toLowerCase()));
+      const liveSuburbs = (data.suggestions || [])
+        .filter(s => !localLabels.has(s.mainText.toLowerCase()))
+        .map(s => ({ label: s.mainText, meta: s.secondaryText || 'Suburb', state: s.state }));
+
+      renderSuggestionList([...localMatches, ...liveSuburbs].slice(0, 8));
+    } catch (err) {
+      // Silent failure — suggestions are a nice-to-have, not core search.
+    }
+  }, 300);
+}
+
+sortSelect.addEventListener('change', e => { activeSort = e.target.value; renderGrid(); });
+suburbFilter.addEventListener('change', e => {
+  activeSuburb = e.target.value;
+  locationFilterPlaceId = null;
+  // Picking a specific suburb should also make sure results for that
+  // actual suburb NAME get properly searched for — the search box's own
+  // text (e.g. "italian") may never have targeted this suburb by name at
+  // all, so relying purely on filtering whatever was already fetched can
+  // silently show far fewer genuine matches than actually exist there.
+  //
+  // Deliberately NOT calling renderGrid() synchronously here first: doing
+  // so used to render once with isSearchingLive still false and this
+  // suburb's real results not yet fetched, which incorrectly reset the
+  // selection back to "all" before the search had even started. Going
+  // straight into fetchLiveForSuburb (which sets isSearchingLive itself,
+  // before its own first render) skips that broken window entirely.
+  if (activeSuburb !== 'all') {
+    fetchLiveForSuburb(activeSuburb);
+  } else {
+    renderGrid();
+  }
+});
+stateFilter.addEventListener('change', e => {
+  activeState = e.target.value;
+  locationFilterPlaceId = null;
+  if (!hasSearched) showResultsUI();
+  // State is a real search input now, not just a post-fetch filter — a
+  // fresh live search is needed so results actually come from that state,
+  // rather than filtering whatever happened to already be fetched (which
+  // might not include that state at all).
+  LIVE_DATA = [];
+  liveIds = new Set(DATA.map(d => d.place_id));
+  liveDedupeKeys = new Set(DATA.map(d => dedupeKey(d.name, d.address)));
+  renderTabs();
+  renderGrid();
+  fetchLiveForSuburb(searchInput.value.trim());
+});
+cuisineFilter.addEventListener('change', () => {
+  if (!hasSearched) return;
+  // Cuisine changed — clear stale results and their dedup keys, then re-fetch.
+  LIVE_DATA = [];
+  liveIds = new Set(DATA.map(d => d.place_id));
+  liveDedupeKeys = new Set(DATA.map(d => dedupeKey(d.name, d.address)));
+  runSearch(searchInput.value.trim());
+});
+occasionFilter.addEventListener('change', () => {
+  // Occasion changed — clear stale results and their dedup keys, then
+  // re-fetch. Runs even before a first search, since an occasion pick
+  // (e.g. "Date night") with no suburb typed should still trigger a
+  // nationwide, location-biased search — same behavior as cuisine.
+  LIVE_DATA = [];
+  liveIds = new Set(DATA.map(d => d.place_id));
+  liveDedupeKeys = new Set(DATA.map(d => dedupeKey(d.name, d.address)));
+  runSearch(searchInput.value.trim());
+});
+searchInput.addEventListener('input', e => {
+  query = e.target.value;
+  renderSuggestions(e.target.value);
+  if (hasSearched) renderGrid();
+});
+searchInput.addEventListener('keydown', e => {
+  if (e.key === 'Enter'){ e.preventDefault(); runSearch(searchInput.value); }
+});
+searchInput.addEventListener('focus', () => renderSuggestions(searchInput.value));
+searchBtn.addEventListener('click', () => runSearch(searchInput.value));
+document.addEventListener('click', e => {
+  if (!e.target.closest('#searchWrap')) suggestionsEl.classList.remove('show');
+});
+
+// Popular suburbs shown on the landing screen — clicking one runs a live search
+const POPULAR_SUBURBS = ["Sydney CBD", "Bondi", "Manly", "Surry Hills", "Newtown", "Parramatta", "Chatswood", "Coogee"];
+
+function initLanding(){
+  const chipRow = document.getElementById('chipRow');
+  chipRow.innerHTML = POPULAR_SUBURBS.map(s => `<div class="chip" data-suburb="${s}">${s}</div>`).join('');
+  chipRow.querySelectorAll('.chip').forEach(chip => {
+    chip.onclick = () => {
+      searchInput.value = chip.dataset.suburb;
+      runSearch(chip.dataset.suburb);
+    };
+  });
+}
+
+function getWeekNumber(date){
+  const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+  d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
+  const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+  return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+}
+
+// The featured suburb is picked deterministically from the week number, so
+// featured.html (which does the actual data fetching/rendering) can derive
+// the exact same suburb independently — no need to fetch live results just
+// to show the button's label here on the landing page.
+function loadFeaturedSuburb(){
+  const weekNum = getWeekNumber(new Date());
+  const suburb = POPULAR_SUBURBS[weekNum % POPULAR_SUBURBS.length];
+  document.getElementById('featuredSuburbName').textContent = suburb;
+  document.getElementById('featuredCta').href = `featured.html?suburb=${encodeURIComponent(suburb)}`;
+}
+
+async function loadSpecials(){
+  try {
+    const res = await fetch(`${BOOKING_API}/specials`);
+    if (!res.ok) return;
+    const data = await res.json();
+    const specials = data.specials || [];
+    if (!specials.length) return; // nothing running right now — section stays hidden
+
+    const grid = document.getElementById('specialsGrid');
+    grid.innerHTML = specials.slice(0, 6).map(s => {
+      const photo = s.photos && s.photos.length ? s.photos[0] : null;
+      const photoHtml = photo
+        ? `<img class="special-card-photo" src="${photo}" alt="${escapeHtml(s.name)}" loading="lazy">`
+        : `<div class="special-card-photo placeholder">No photo yet</div>`;
+      const ratingHtml = s.rating
+        ? `<span class="special-card-meta">★ ${s.rating.toFixed(1)}${s.reviews ? ` (${s.reviews.toLocaleString()} reviews)` : ''}</span>`
+        : '';
+      const href = s.placeId
+        ? `listing.html?place=${encodeURIComponent(s.placeId)}`
+        : '#';
+      return `
+        <a href="${href}" class="special-card">
+          ${photoHtml}
+          <div class="special-card-body">
+            <div class="special-card-tag">✨ ${escapeHtml(s.currentSpecial)}</div>
+            <h4>${escapeHtml(s.name)}</h4>
+            ${ratingHtml}
+          </div>
+        </a>
+      `;
+    }).join('');
+
+    document.getElementById('specialsSection').style.display = 'block';
+  } catch (err) {
+    console.error('Specials load failed:', err);
+  }
+}
+
+// If arriving from featured.html's "Search all spots in this suburb" link,
+// the suburb is passed via ?suburb= — run that search immediately instead
+// of showing the empty landing page.
+function checkQuerySuburb(){
+  const params = new URLSearchParams(window.location.search);
+  const suburb = params.get('suburb');
+  if (suburb && suburb.trim()){
+    searchInput.value = suburb;
+    runSearch(suburb);
+  }
+}
+
+populateStateDropdown();
+initLanding();
+loadFeaturedSuburb();
+loadSpecials();
+checkQuerySuburb();
+
+// ---------- CHAT WIDGET ----------
+(function(){
+  const CHAT_API = `${BOOKING_API}/chat`;
+  let chatHistory = [];
+  let chatOpen = false;
+  let lastPlaceIdMap = {}; // restaurant name (lowercased) -> place_id, refreshed on every context build
+
+  const toggleBtn = document.getElementById('chatToggleBtn');
+  const panel = document.getElementById('chatPanel');
+  const closeBtn = document.getElementById('chatCloseBtn');
+  const messagesEl = document.getElementById('chatMessages');
+  const input = document.getElementById('chatInput');
+  const sendBtn = document.getElementById('chatSendBtn');
+
+  // Turns any restaurant name from lastPlaceIdMap that appears in the
+  // assistant's reply into a real link to that listing's page, so the
+  // person can click straight through instead of having to search for it
+  // themselves. Built with DOM text nodes and anchor elements only (never
+  // innerHTML), so this can't be used to inject markup even though the
+  // reply text ultimately comes from an LLM.
+  // Same on-demand lookup as the "Find website" button elsewhere on the
+  // site: opens a blank tab immediately (so it isn't blocked as a popup),
+  // then fills it in with the restaurant's real website once known,
+  // falling back to the internal listing page if Google has no website
+  // on file for that place.
+  async function openChatRestaurantLink(event, placeId){
+    event.preventDefault();
+    // Inside the native app, new windows are not supported, so open the
+    // venue's page in the same view instead.
+    const isNativeApp = location.protocol === 'capacitor:' ||
+      !!(window.Capacitor && typeof window.Capacitor.isNativePlatform === 'function' && window.Capacitor.isNativePlatform());
+    if (isNativeApp) {
+      window.location.href = `listing.html?place=${encodeURIComponent(placeId)}`;
+      return;
+    }
+    const win = window.open('', '_blank');
+    if (win) win.opener = null;
+    const fallback = `listing.html?place=${encodeURIComponent(placeId)}`;
+    try {
+      const res = await fetch(`${BOOKING_API}/place-website?placeId=${encodeURIComponent(placeId)}`);
+      const data = res.ok ? await res.json() : {};
+      const target = data.website || fallback;
+      if (win) win.location = target; else window.open(target, '_blank', 'noopener');
+    } catch (err) {
+      if (win) win.location = fallback; else window.open(fallback, '_blank', 'noopener');
+    }
+  }
+
+  function renderAssistantContent(container, text){
+    text = String(text).replace(/\*\*(.+?)\*\*/g, '$1').replace(/__(.+?)__/g, '$1').replace(/^\s*[*#]+\s+/gm, '');
+    const names = Object.keys(lastPlaceIdMap).sort((a, b) => b.length - a.length); // longest first, so e.g. "Restaurant 317" doesn't get split by a shorter overlapping name
+    if (!names.length){ container.textContent = text; return; }
+
+    const escapeRegex = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const pattern = new RegExp(`(${names.map(escapeRegex).join('|')})`, 'gi');
+    const parts = text.split(pattern);
+
+    parts.forEach(part => {
+      const placeId = lastPlaceIdMap[part.toLowerCase()];
+      if (placeId) {
+        const a = document.createElement('a');
+        a.href = '#';
+        a.style.color = 'inherit';
+        a.style.fontWeight = '700';
+        a.style.textDecoration = 'underline';
+        a.textContent = part;
+        a.onclick = (e) => { openChatRestaurantLink(e, placeId); return false; };
+        container.appendChild(a);
+      } else if (part) {
+        container.appendChild(document.createTextNode(part));
+      }
+    });
+  }
+
+  function appendMessage(role, text){
+    const div = document.createElement('div');
+    div.className = `chat-msg ${role}`;
+    if (role === 'assistant') {
+      renderAssistantContent(div, text);
+    } else {
+      div.textContent = text;
+    }
+    messagesEl.appendChild(div);
+    if (role === 'assistant') {
+      // show the start of the answer, not the bottom of the results list
+      messagesEl.scrollTop = div.getBoundingClientRect().top - messagesEl.getBoundingClientRect().top + messagesEl.scrollTop - 8;
+    } else {
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+    }
+    return div;
+  }
+
+  // Renders the actual matches as a plain, deterministic list of links —
+  // built entirely by our own code, not by the model. This guarantees
+  // every genuine match is shown to the person even in cases where the
+  // model's own prose summary would have (unreliably) left one out.
+  function appendResultsList(matches){
+    if (!matches || !matches.length) return;
+    const wrap = document.createElement('div');
+    wrap.className = 'chat-msg assistant';
+    wrap.style.padding = '4px 0';
+    matches.forEach(m => {
+      const row = document.createElement('div');
+      row.style.cssText = 'padding:8px 10px;border-bottom:1px solid var(--line);font-size:13px;';
+      const placeId = lastPlaceIdMap[(m.name || '').toLowerCase()];
+      const nameEl = document.createElement('a');
+      nameEl.href = '#';
+      nameEl.style.color = 'var(--ink)';
+      nameEl.style.textDecoration = 'underline';
+      if (placeId) {
+        nameEl.onclick = (e) => { openChatRestaurantLink(e, placeId); return false; };
+      }
+      nameEl.style.fontWeight = '700';
+      nameEl.textContent = m.name;
+      row.appendChild(nameEl);
+      const meta = document.createElement('div');
+      meta.style.cssText = 'color:var(--text-dim);font-size:12px;margin-top:2px;';
+      // A generic category label (e.g. "Café") is less useful than the cuisine
+      // the venue's own name states ("In the Mood for Thai"), so prefer that.
+      let cuisineLabel = m.cuisine;
+      if (['Café','Takeaway','Pub','Club','Award Winning','Restaurant'].includes(cuisineLabel)) {
+        const nm = (m.name || '').toLowerCase();
+        const hit = ['italian','thai','chinese','japanese','indian','mexican','vietnamese','korean','lebanese','greek','seafood','vegan','pizza','burger','french','spanish','turkish','malaysian','indonesian','sushi','ramen','kebab'].find(c => new RegExp('\\b' + c + '\\b').test(nm));
+        if (hit) cuisineLabel = hit.charAt(0).toUpperCase() + hit.slice(1);
+      }
+      meta.textContent = `${cuisineLabel} · ${m.suburb} · ${m.priceRange} · ★${m.rating} · ${m.status}`;
+      row.appendChild(meta);
+      wrap.appendChild(row);
+    });
+    messagesEl.appendChild(wrap);
+  }
+
+  // If someone asks the chatbot something before ever using the site's own
+  // search bar, there may be little or no LIVE_DATA yet — leaving the
+  // assistant working from only the small static sample list (24 spots),
+  // which is why it could confidently but wrongly claim "only one option"
+  // when the live site actually has several. This does a lightweight,
+  // one-off live lookup using their own message as the search term,
+  // purely to build a fuller answer — it does NOT touch the main site's
+  // search bar, grid, or cached LIVE_DATA.
+  async function fetchSupplementalListings(term){
+    const trimmed = (term || '').trim();
+    if (!trimmed) return [];
+    const categories = ["cafe", "restaurant", "takeaway", "pub", "club", "hatted"];
+    try {
+      const responses = await Promise.all(categories.map(cat =>
+        fetch(`${LIVE_API}?suburb=${encodeURIComponent(trimmed)}&category=${cat}&full=1&state=NSW`)
+          .then(r => r.ok ? r.json() : { results: [] })
+          .catch(() => ({ results: [] }))
+          .then(data => ({ cat, data }))
+      ));
+      const seen = new Set();
+      const merged = [];
+      responses.forEach(({ cat, data }) => {
+        (data.results || []).forEach(r => {
+          if (!r.placeId || seen.has(r.placeId)) return;
+          seen.add(r.placeId);
+          merged.push({
+            // Google's search API returns no real cuisine data (always
+            // null), so this stays an honest generic category label
+            // rather than guessing — a guessed cuisine applied to every
+            // result equally (e.g. tagging a cafe "Italian" just because
+            // the person searched Italian) drowned out genuine matches
+            // whose actual NAME proves the cuisine, since everything tied
+            // for relevance. Name-based matching below does that job
+            // properly instead.
+            name: r.name,
+            cuisine: r.cuisine || (cat === "cafe" ? "Café" : cat === "takeaway" ? "Takeaway" : cat === "pub" ? "Pub" : cat === "club" ? "Club" : cat === "hatted" ? "Award Winning" : "Restaurant"),
+            suburb: r.suburb || trimmed,
+            price: priceFromLevel(r.priceLevel, cat),
+            rating: r.rating || 0,
+            openNow: r.openNow,
+            place_id: r.placeId,
+            source: 'live',
+          });
+        });
+      });
+      return merged;
+    } catch (err) {
+      return [];
+    }
+  }
+
+  // Keep this bounded so the request doesn't grow unreasonably large, but
+  // high enough that a broad search doesn't silently drop a genuine match.
+  // Combines whatever's already visible on screen with a fresh
+  // supplemental live search based on the person's actual question, so
+  // the assistant is never limited to just the 24-item static sample list
+  // when nothing's been searched on the site yet.
+  async function buildDinerContext(userMessage){
+    const base = (window.currentVisibleListings && window.currentVisibleListings.length)
+      ? window.currentVisibleListings
+      : [...DATA, ...LIVE_DATA];
+
+    const supplemental = await fetchSupplementalListings(userMessage);
+    const seenIds = new Set(base.map(d => d.place_id).filter(Boolean));
+    const extra = supplemental.filter(d => d.place_id && !seenIds.has(d.place_id));
+
+    let combined = [...base, ...extra].slice(0, 200);
+
+    // Keep a name -> place_id lookup so the reply can be linkified once it
+    // comes back, before the list gets shaped down for the API request
+    // (place_id isn't sent to the model — it doesn't need it — but the
+    // client does, to build real links).
+    lastPlaceIdMap = {};
+    combined.forEach(d => { if (d.place_id && d.name) lastPlaceIdMap[d.name.toLowerCase()] = d.place_id; });
+
+    // Split into genuine matches (anything that scored above zero — a
+    // real hit on name, cuisine, or suburb) versus everything else, so
+    // the assistant can be told explicitly: list every single one of the
+    // matches, don't curate or pick favorites among them. This is more
+    // reliable than hoping the model infers "list everything" on its own
+    // from one long undifferentiated list.
+    let topMatches = combined;
+    let otherListings = [];
+    const words = (userMessage || "").toLowerCase().split(/\s+/).filter(w => w.length > 2);
+    if (words.length){
+      const relevance = (d) => {
+        const nameLower = (d.name || "").toLowerCase();
+        const cuisineSuburbLower = `${d.cuisine} ${d.suburb}`.toLowerCase();
+        return words.reduce((score, w) => {
+          // A word appearing in the restaurant's actual NAME is strong,
+          // verifiable evidence (e.g. "Italian Street Kitchen" genuinely
+          // is Italian) — weighted far above a cuisine/suburb match,
+          // since live-fetched cuisine data is often just a generic
+          // category guess rather than a confirmed fact.
+          if (nameLower.includes(w)) return score + 5;
+          if (cuisineSuburbLower.includes(w)) return score + 1;
+          return score;
+        }, 0);
+      };
+      const scored = combined.map((d, i) => ({ d, score: relevance(d), i }));
+      topMatches = scored.filter(x => x.score > 0).sort((a, b) => (b.score - a.score) || (a.i - b.i)).map(x => x.d);
+      otherListings = scored.filter(x => x.score === 0).map(x => x.d).slice(0, 40);
+    }
+
+    const shape = (d) => ({
+      name: d.name,
+      cuisine: d.cuisine,
+      suburb: d.suburb,
+      priceRange: `$${d.price[0]}-${d.price[1]}`,
+      rating: d.rating,
+      status: d.source === 'live' ? (d.openNow ? 'Open now' : 'Closed now') : (todayHours(d.hours) || 'Hours vary'),
+    });
+
+    return {
+      topMatches: topMatches.map(shape),
+      otherListings: otherListings.map(shape),
+    };
+  }
+
+  async function sendChat(){
+    const text = input.value.trim();
+    if (!text) return;
+    input.value = '';
+    sendBtn.disabled = true;
+    appendMessage('user', text);
+    chatHistory.push({ role: 'user', content: text });
+    const typingEl = appendMessage('typing', 'Thinking…');
+
+    try {
+      const context = await buildDinerContext(text);
+      const res = await fetch(CHAT_API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          mode: 'diner',
+          message: text,
+          history: chatHistory.slice(-10),
+          context,
+        })
+      });
+      const data = await res.json();
+      typingEl.remove();
+      if (!res.ok){
+        appendMessage('assistant', data.error || 'Sorry, something went wrong.');
+        return;
+      }
+      appendMessage('assistant', data.reply);
+      chatHistory.push({ role: 'assistant', content: data.reply });
+      appendResultsList(data.topMatches);
+    } catch (err) {
+      typingEl.remove();
+      appendMessage('assistant', "Sorry, I couldn't connect. Please try again.");
+    } finally {
+      sendBtn.disabled = false;
+    }
+  }
+
+  toggleBtn.onclick = () => {
+    chatOpen = !chatOpen;
+    panel.style.display = chatOpen ? 'flex' : 'none';
+    toggleBtn.classList.toggle('chat-open', chatOpen);
+    if (chatOpen && !messagesEl.children.length){
+      appendMessage('assistant', "Hi! Tell me a cuisine or a suburb and I'll point you to a spot.");
+    }
+  };
+  closeBtn.onclick = () => { chatOpen = false; panel.style.display = 'none'; toggleBtn.classList.remove('chat-open'); };
+  sendBtn.onclick = sendChat;
+  input.addEventListener('keydown', e => { if (e.key === 'Enter') sendChat(); });
+})();
+</script>
+</body>
+</html>
